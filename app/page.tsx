@@ -1,103 +1,227 @@
-import Image from "next/image";
+'use client'
+import {useEffect, useState} from "react";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {Hero} from "@/components/Hero";
+import {PropertyCard} from "@/components/PropertyCard";
+import {SearchFilters} from "@/components/SearchFilters";
+import {Navigation} from "@/components/Navigation";
+import {useSearchProperties} from "@/hooks/use-properties";
+import {Filter, SearchPropertyRequest} from "@/types/property";
+import {useDebounce} from "@/hooks/use-debounce";
+import {Pagination} from "@/components/Pagination";
+import { List, Map as MapIcon } from "lucide-react";
+import {PropertyCardSkeleton} from "@/components/PropertyCardSkeleton";
+import dynamic from "next/dynamic";
+
+const ITEMS_PER_PAGE = 9; // 3 cards per row * 3 rows
+
+const MapView = dynamic(() => import("@/components/MapView.client"), { ssr: false });
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    const [searchFilters, setSearchFilters] = useState({
+        location: "",
+        minPrice: 0,
+        maxPrice: 5000,
+        propertyType: "any",
+        rooms: 0,
+        furnished: "any"
+    });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    const [selectedAddress, setSelectedAddress] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const debouncedFilters = useDebounce(searchFilters, 500);
+
+    // Reset to first page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [debouncedFilters]);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        // Scroll to top of the properties list
+        window.scrollTo({
+            top: document.getElementById('properties-list')?.offsetTop || 0,
+            behavior: 'smooth'
+        });
+    };
+
+    // Convert UI filters to API filters
+    const getApiFilters = (): Filter[] => {
+        const filters: Filter[] = [];
+
+        if (debouncedFilters.minPrice > 0 || debouncedFilters.maxPrice < 5000) {
+            filters.push({
+                type: "RANGE",
+                field: "rentPricePerMonth",
+                value: {
+                    type: "number",
+                    gte: debouncedFilters.minPrice,
+                    lte: debouncedFilters.maxPrice
+                }
+            });
+        }
+
+        if (debouncedFilters.propertyType !== "any") {
+            filters.push({
+                type: "TERM",
+                field: "propertyType",
+                value: debouncedFilters.propertyType
+            });
+        }
+
+        if (debouncedFilters.rooms > 0) {
+            filters.push({
+                type: "RANGE",
+                field: "rooms",
+                value: {
+                    type: "number",
+                    gte: debouncedFilters.rooms
+                }
+            });
+        }
+
+        if (debouncedFilters.furnished !== "any") {
+            filters.push({
+                type: "TERM",
+                field: "amenities.furnished",
+                value: debouncedFilters.furnished === "yes"
+            });
+        }
+
+        return filters;
+    };
+
+    const searchParams: SearchPropertyRequest = {
+        filters: getApiFilters(),
+        page: currentPage,
+        size: ITEMS_PER_PAGE,
+        search: debouncedFilters.location || undefined
+    };
+
+    const {data: properties, isLoading, error} = useSearchProperties(searchParams);
+
+    const handleAddressSelect = (address: string) => {
+        setSelectedAddress(address);
+        setSearchFilters(prev => ({
+            ...prev,
+            location: address
+        }));
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <Navigation/>
+
+            <Hero 
+                onSearch={(filters) => setSearchFilters(prev => ({
+                    ...prev,
+                    location: filters.search,
+                    propertyType: filters.propertyType,
+                    minPrice: filters.minPrice,
+                    maxPrice: filters.maxPrice,
+                    rooms: filters.rooms,
+                    furnished: filters.furnished
+                }))} 
+                selectedAddress={selectedAddress}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+            <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <Tabs defaultValue="list" className="w-full">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                        {/* Filters Sidebar */}
+                        <div className="lg:w-1/4">
+                            <SearchFilters
+                                filters={searchFilters}
+                                onFiltersChange={setSearchFilters}
+                            />
+                        </div>
+
+                        {/* Main Content */}
+                        <div className="lg:w-3/4">
+                            <div className="mb-6 flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                                        Propiedades Disponibles
+                                    </h2>
+                                    <p className="text-gray-600">
+                                        {isLoading ? "Cargando..." : `${properties?.total || 0} propiedades encontradas`}
+                                    </p>
+                                </div>
+
+                                <TabsList className="grid w-fit grid-cols-2">
+                                    <TabsTrigger value="list">
+                                        <span className="block md:hidden"><List className="w-5 h-5" /></span>
+                                        <span className="hidden md:inline">Vista de Lista</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="map">
+                                        <span className="block md:hidden"><MapIcon className="w-5 h-5" /></span>
+                                        <span className="hidden md:inline">Vista de Mapa</span>
+                                    </TabsTrigger>
+                                </TabsList>
+                            </div>
+
+                            <TabsContent value="list" className="mt-0">
+                                {isLoading ? (
+                                    <div
+                                        id="properties-list"
+                                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in"
+                                    >
+                                        {[...Array(ITEMS_PER_PAGE)].map((_, idx) => (
+                                            <div key={idx} className="animate-slide-up" style={{animationDelay: `${idx * 0.1}s`}}>
+                                                <PropertyCardSkeleton />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : error ? (
+                                    <div className="text-center py-12">
+                                        <p className="text-gray-600">Error al cargar las propiedades. Por favor,
+                                            inténtalo de nuevo.</p>
+                                    </div>
+                                ) : properties && properties.total > 0 ? (
+                                    <>
+                                        <div
+                                            id="properties-list"
+                                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in"
+                                        >
+                                            {properties.data.map((property, index) => (
+                                                <div
+                                                    key={property._id}
+                                                    className="animate-slide-up"
+                                                    style={{animationDelay: `${index * 0.1}s`}}
+                                                >
+                                                    <PropertyCard property={property}/>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {properties.total > 0 && (
+                                            <Pagination
+                                                currentPage={currentPage}
+                                                totalItems={properties.total}
+                                                pageSize={ITEMS_PER_PAGE}
+                                                onPageChange={handlePageChange}
+                                            />
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="text-center py-12">
+                                        <p className="text-gray-600">No hay propiedades que coincidan con tus criterios
+                                            de búsqueda.</p>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            <TabsContent value="map" className="mt-0">
+                                <MapView
+                                    properties={properties?.data || []}
+                                    isLoading={isLoading}
+                                    onAddressSelect={handleAddressSelect}
+                                />
+                            </TabsContent>
+                        </div>
+                    </div>
+                </Tabs>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }
