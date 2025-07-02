@@ -1,4 +1,5 @@
 
+"use client";
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { PropertyCard } from "@/components/PropertyCard";
@@ -7,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, Search, Filter, Trash2, Share2, MapPin } from "lucide-react";
+import { Heart, Search, Filter, Trash2, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock properties data - in a real app this would come from an API
@@ -64,7 +65,22 @@ const mockProperties = [
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [favoriteProperties, setFavoriteProperties] = useState<any[]>([]);
+  const [favoriteProperties, setFavoriteProperties] = useState<Array<{
+    id: number;
+    title: string;
+    price: number;
+    currency: string;
+    rooms: number;
+    bathrooms: number;
+    squareMeters: number;
+    location: string;
+    propertyType: string;
+    availability: string;
+    images: string[];
+    description: string;
+    furnished: boolean;
+    contact: { telegram?: string; whatsapp?: string; phone?: string };
+  }>>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("recent");
   const [filterBy, setFilterBy] = useState("all");

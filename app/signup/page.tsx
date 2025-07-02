@@ -35,7 +35,7 @@ export default function Signup() {
     try {
       await signup(formData.firstName, formData.lastName, formData.email, formData.password, formData.confirmPassword);
       router.push('/');
-    } catch (err) {
+    } catch {
       setError('Error al crear la cuenta. Por favor, intente nuevamente.');
     } finally {
       setLoading(false);

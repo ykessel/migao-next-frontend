@@ -1,4 +1,4 @@
-import axios, {AxiosError, InternalAxiosRequestConfig, AxiosHeaders} from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig, AxiosHeaders } from 'axios';
 import TokenService from '@/services/token';
 
 export const API_BASE_URL = process.env.NEXT_API_BASE_URL || 'https://rent-finder-rosy.vercel.app/api';
@@ -67,7 +67,7 @@ axiosInstance.interceptors.response.use(
                     refresh_token: refreshToken,
                 });
 
-                const {access_token, refresh_token, expires_in} = response.data;
+                const { access_token, refresh_token, expires_in } = response.data;
                 TokenService.setTokens({
                     access_token,
                     refresh_token,

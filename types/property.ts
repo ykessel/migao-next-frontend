@@ -1,6 +1,6 @@
-import {GAS_AVAILABILITY} from "@/constants/gas-availability.enum";
-import {PROPERTY_TYPE} from "@/constants/property-type.enum";
-import {PROPERTY_USE} from "@/constants/property-use.enum";
+import { GAS_AVAILABILITY } from "@/constants/gas-availability.enum";
+import { PROPERTY_TYPE } from "@/constants/property-type.enum";
+import { PROPERTY_USE } from "@/constants/property-use.enum";
 import type { IPlaceOfInterest } from '@/types/IPlaceOfInterest';
 
 export interface Location {

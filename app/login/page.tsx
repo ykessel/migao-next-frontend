@@ -26,7 +26,7 @@ export default function Login() {
     try {
       await login(formData.email, formData.password);
       router.push('/');
-    } catch (err) {
+    } catch {
       setError('Credenciales inválidas. Por favor, intente nuevamente.');
     } finally {
       setLoading(false);

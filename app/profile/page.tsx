@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,8 +32,8 @@ export default function Profile() {
   const [phones, setPhones] = useState<string[]>(user?.phones || []);
   const [primaryPhone, setPrimaryPhone] = useState<string>(user?.primaryPhone || '');
 
-  const params = useParams();
-  const propertyId = params.id;
+  // const params = useParams();
+  // const propertyId = params.id;
 
   useEffect(() => {
     if (user) {
@@ -61,7 +61,7 @@ export default function Profile() {
         primaryPhone,
       });
       setSuccess('Perfil actualizado correctamente');
-    } catch (err) {
+    } catch {
       setError('Error al actualizar el perfil');
     } finally {
       setLoading(false);
@@ -91,7 +91,7 @@ export default function Profile() {
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (err) {
+    } catch {
       setError('Error al cambiar la contraseña');
     } finally {
       setLoading(false);
