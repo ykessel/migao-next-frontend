@@ -40,7 +40,7 @@ export const favoritesService = {
     );
     return response.data;
   },
-  
+
   async addFavorite(propertyId: string, token?: string) {
     const response = await axiosInstance.post(
       `/property/${propertyId}/favorite/me`,
@@ -51,8 +51,13 @@ export const favoritesService = {
     );
     return response.data;
   },
-  async removeFavorite(propertyId: string) {
-    const response = await axiosInstance.delete(`/property/${propertyId}/favorite/me`);
+  async removeFavorite(propertyId: string, token?: string) {
+    const response = await axiosInstance.delete(
+      `/property/${propertyId}/favorite/me`,
+      token
+        ? { headers: { Authorization: `Bearer ${token}` } }
+        : undefined
+    );
     return response.data;
   },
 };
