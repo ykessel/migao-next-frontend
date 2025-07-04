@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
-import axiosInstance from '@/lib/axios';
-import TokenService from '@/services/token';
 import { Loader2 } from 'lucide-react';
 
 const AuthCallback = () => {
@@ -18,8 +16,6 @@ const AuthCallback = () => {
     }
     const exchangeCode = async () => {
       try {
-        const response = await axiosInstance.post('/auth/google/exchange', { code });
-        TokenService.setTokens(response.data);
         // Opcional: actualizar usuario en contexto si es necesario
         // window.location.reload(); // Forzar re-render del contexto
         router.push('/');

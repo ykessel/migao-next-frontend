@@ -1,16 +1,20 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useAuth } from '@/contexts/AuthContext';
+import { useSession } from "next-auth/react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
-  if (!isAuthenticated) {
+  if (status === "loading") {
+    return null; // or a loading spinner
+  }
+
+  if (!session) {
     router.push('/login');
     return null;
   }

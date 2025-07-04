@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, Menu, User, LogOut, Search, PlusCircle, Info } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSession, signOut } from "next-auth/react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -25,16 +25,17 @@ const navigationItems = [
 ];
 
 export const Navigation = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
-    const { isAuthenticated, user, logout } = useAuth();
+    const { data: session } = useSession();
+    const isAuthenticated = !!session;
+    const user = session?.user;
 
     // Handle scroll effect for navigation background
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
+            // setIsScrolled(window.scrollY > 20); // This line was removed as per the edit hint.
         };
 
         window.addEventListener('scroll', handleScroll);
@@ -50,8 +51,6 @@ export const Navigation = () => {
         setIsMenuOpen(false);
     };
 
-
-
     const handleNavItemClick = (href: string, authRequired?: boolean) => {
         if (authRequired && !isAuthenticated) {
             router.push('/login');
@@ -62,7 +61,7 @@ export const Navigation = () => {
     };
 
     const handleLogout = async () => {
-        await logout();
+        await signOut({ callbackUrl: '/' });
         setIsMenuOpen(false);
     };
 
@@ -74,13 +73,8 @@ export const Navigation = () => {
     };
 
     const navClasses = `
-        fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl mx-auto
-        transition-all duration-300 ease-in-out
-        ${isScrolled 
-            ? 'glass-effect shadow-glass backdrop-blur-md' 
-            : 'bg-white/40 backdrop-blur-sm shadow-lg'
-        }
-        rounded-2xl border ${isScrolled ? 'border-white/30' : 'border-white/20'}
+        fixed top-0 left-0 w-full z-50
+        bg-white/60 backdrop-blur-md border border-white/30
     `;
 
     // Mobile Navigation Sheet
@@ -99,29 +93,38 @@ export const Navigation = () => {
             <SheetContent side="right" className="w-80 bg-white/95 backdrop-blur-md">
                 <SheetHeader className="border-b border-gray-200 pb-4 mb-6">
                     <SheetTitle className="flex items-center gap-2">
-                        <Image alt="logo" src="/logo.svg" width={32} height={32} />
-                        <span className="font-bold text-xl gradient-text">MiGao</span>
+                        <Image alt="logo" src="/logo.svg" width={40} height={40} />
                     </SheetTitle>
                 </SheetHeader>
 
                 <nav className="space-y-2">
-                    {navigationItems.map((item) => (
-                        <button
-                            key={item.href}
-                            onClick={() => handleNavItemClick(item.href, item.authRequired)}
-                            className={`
-                                w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left
-                                transition-all duration-200 hover:bg-teal-50
-                                ${isActiveRoute(item.href) 
-                                    ? 'bg-teal-100 text-teal-700 font-medium' 
-                                    : 'text-gray-700 hover:text-teal-600'
-                                }
-                            `}
-                        >
-                            <item.icon className="w-5 h-5" />
-                            {item.label}
-                        </button>
-                    ))}
+                    {navigationItems.map((item) => {
+                        const isActive = isActiveRoute(item.href);
+                        return (
+                            <button
+                                key={item.href}
+                                onClick={() => handleNavItemClick(item.href, item.authRequired)}
+                                className={`
+                                    w-full flex flex-col items-start gap-0 px-4 py-3 rounded-lg text-left
+                                    transition-all duration-200 hover:bg-teal-50
+                                    ${isActive 
+                                        ? 'text-teal-700 bg-transparent' 
+                                        : 'text-gray-700 hover:text-teal-600'}
+                                `}
+                                style={{ boxShadow: 'none', background: 'none' }}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <item.icon className="w-5 h-5" />
+                                    {item.label}
+                                </div>
+                                <span
+                                  className={`block w-4 h-1 mt-1 rounded transition-colors duration-200 ${
+                                    isActive ? "bg-teal-700" : "bg-transparent"
+                                  }`}
+                                />
+                            </button>
+                        );
+                    })}
 
                     <button
                         onClick={handleFavoritesClick}
@@ -129,7 +132,6 @@ export const Navigation = () => {
                     >
                         <Heart className="w-5 h-5" />
                         Favoritos
-                        <Badge variant="secondary" className="ml-auto">3</Badge>
                     </button>
                 </nav>
 
@@ -138,14 +140,14 @@ export const Navigation = () => {
                         <div className="space-y-2">
                             <div className="flex items-center gap-3 px-4 py-3">
                                 <Avatar className="w-10 h-10 border-2 border-teal-500">
-                                    <AvatarImage src={user?.avatar?.url} alt={user?.firstName || 'U'} />
+                                    <AvatarImage src={user?.image ?? undefined} alt={user?.name?.[0] || 'U'} />
                                     <AvatarFallback className="bg-teal-100 text-teal-700">
-                                        {user?.firstName?.[0] || 'U'}
+                                        {user?.name?.[0] || 'U'}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-gray-900 truncate">
-                                        {user?.firstName} {user?.lastName}
+                                        {user?.name}
                                     </p>
                                     <p className="text-sm text-gray-500 truncate">{user?.email}</p>
                                 </div>
@@ -183,15 +185,6 @@ export const Navigation = () => {
                                 <User className="w-5 h-5" />
                                 Iniciar Sesión
                             </Button>
-                            <Button 
-                                onClick={() => {
-                                    router.push('/signup');
-                                    setIsMenuOpen(false);
-                                }}
-                                className="w-full btn-primary h-12"
-                            >
-                                Registrarse
-                            </Button>
                         </div>
                     )}
                 </div>
@@ -213,41 +206,49 @@ export const Navigation = () => {
                             <Image 
                                 alt="MiGao logo" 
                                 src="/logo.svg" 
-                                width={40} 
-                                height={40} 
+                                width={80} 
+                                height={80} 
                                 className="group-hover:scale-110 transition-transform duration-200"
                             />
                         </div>
-                        <span className="hidden sm:block font-bold text-xl gradient-text">
-                            MiGao
-                        </span>
+            
                     </Link>
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center space-x-1">
-                        {navigationItems.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={(e) => {
-                                    if (item.authRequired && !isAuthenticated) {
-                                        e.preventDefault();
-                                        handleNavItemClick(item.href, item.authRequired);
-                                    }
-                                }}
-                                className={`
-                                    flex items-center gap-2 px-4 py-2 rounded-lg font-medium
-                                    transition-all duration-200 hover:bg-white/20
-                                    ${isActiveRoute(item.href) 
-                                        ? 'text-teal-700 bg-white/30 shadow-sm' 
-                                        : 'text-gray-700 hover:text-teal-600'
-                                    }
-                                `}
-                            >
-                                <item.icon className="w-4 h-4" />
-                                <span className="hidden lg:inline">{item.label}</span>
-                            </Link>
-                        ))}
+                        {navigationItems.map((item) => {
+                            const isActive = isActiveRoute(item.href);
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={(e) => {
+                                        if (item.authRequired && !isAuthenticated) {
+                                            e.preventDefault();
+                                            handleNavItemClick(item.href, item.authRequired);
+                                        }
+                                    }}
+                                    className={`
+                                        flex flex-col items-center gap-0 px-4 py-2 rounded-lg font-medium
+                                        transition-all duration-200 hover:bg-white/20
+                                        ${isActive 
+                                            ? 'text-teal-700 relative bg-transparent' 
+                                            : 'text-gray-700 hover:text-teal-600'}
+                                    `}
+                                    style={{ boxShadow: 'none', background: 'none' }}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <item.icon className="w-4 h-4" />
+                                        <span className="hidden lg:inline">{item.label}</span>
+                                    </div>
+                                    <span
+                                      className={`block w-4 h-1 mt-1 rounded transition-colors duration-200 ${
+                                        isActive ? "bg-teal-700" : "bg-transparent"
+                                      }`}
+                                    />
+                                </Link>
+                            );
+                        })}
 
                         <Button 
                             variant="ghost" 
@@ -270,13 +271,13 @@ export const Navigation = () => {
                                 <DropdownMenuTrigger asChild>
                                     <button className="flex items-center gap-2 p-1 rounded-full hover:bg-white/20 transition-all duration-200 group">
                                         <Avatar className="w-9 h-9 border-2 border-teal-500 group-hover:border-teal-600 transition-colors">
-                                            <AvatarImage src={user?.avatar?.url} alt={user?.firstName || 'U'} />
+                                            <AvatarImage src={user?.image ?? undefined} alt={user?.name?.[0] || 'U'} />
                                             <AvatarFallback className="bg-teal-100 text-teal-700 font-medium">
-                                                {user?.firstName?.[0] || 'U'}
+                                                {user?.name?.[0] || 'U'}
                                             </AvatarFallback>
                                         </Avatar>
                                         <span className="hidden xl:block text-sm font-medium text-gray-700 group-hover:text-teal-600 transition-colors">
-                                            {user?.firstName}
+                                            {user?.name}
                                         </span>
                                     </button>
                                 </DropdownMenuTrigger>
@@ -319,13 +320,6 @@ export const Navigation = () => {
                                 >
                                     <User className="w-4 h-4 mr-2"/>
                                     <span className="hidden lg:inline">Iniciar Sesión</span>
-                                </Button>
-                                <Button 
-                                    size="sm"
-                                    onClick={() => router.push('/signup')}
-                                    className="btn-primary"
-                                >
-                                    Registrarse
                                 </Button>
                             </div>
                         )}

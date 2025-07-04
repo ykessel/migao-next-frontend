@@ -31,12 +31,24 @@ export class PropertyService {
 }
 
 export const favoritesService = {
-  async getFavorites() {
-    const response = await axiosInstance.get('/property/favorites/me');
+  async getFavorites(token?: string) {
+    const response = await axiosInstance.get(
+      '/property/favorites/me',
+      token
+        ? { headers: { Authorization: `Bearer ${token}` } }
+        : undefined
+    );
     return response.data;
   },
-  async addFavorite(propertyId: string) {
-    const response = await axiosInstance.post(`/property/${propertyId}/favorite/me`);
+  
+  async addFavorite(propertyId: string, token?: string) {
+    const response = await axiosInstance.post(
+      `/property/${propertyId}/favorite/me`,
+      {},
+      token
+        ? { headers: { Authorization: `Bearer ${token}` } }
+        : undefined
+    );
     return response.data;
   },
   async removeFavorite(propertyId: string) {

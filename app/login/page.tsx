@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from '@/contexts/AuthContext';
+import { signIn, getSession } from 'next-auth/react';
+import type { Session as NextAuthSession } from 'next-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +11,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export default function Login() {
   const router = useRouter();
-  const { login, loginWithGoogle } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -24,8 +24,21 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
-      router.push('/');
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+      if (res?.ok) {
+        const session = await getSession() as NextAuthSession & { isNew?: boolean };
+        if (session?.isNew) {
+          router.push('/profile/update');
+        } else {
+          router.push('/');
+        }
+      } else {
+        setError('Credenciales inválidas. Por favor, intente nuevamente.');
+      }
     } catch {
       setError('Credenciales inválidas. Por favor, intente nuevamente.');
     } finally {
@@ -88,7 +101,11 @@ export default function Login() {
               {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </Button>
             <button
-              onClick={loginWithGoogle}
+              onClick={async () => {
+                setLoading(true);
+                await signIn('google', { callbackUrl: '/profile/check' });
+                setLoading(false);
+              }}
               className="w-full mt-4 flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-700 font-medium shadow-sm"
               type="button"
             >

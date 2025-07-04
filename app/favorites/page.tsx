@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { PropertyCard } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
@@ -10,104 +10,26 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Heart, Search, Filter, Trash2, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock properties data - in a real app this would come from an API
-const mockProperties = [
-  {
-    id: 1,
-    title: "Apartamento Moderno en el Centro",
-    price: 2500,
-    currency: "EUR",
-    rooms: 2,
-    bathrooms: 1,
-    squareMeters: 85,
-    location: "Berlín, Mitte",
-    propertyType: "apartment",
-    availability: "immediate",
-    images: ["photo-1721322800607-8c38375eef04", "photo-1487958449943-2429e8be8625"],
-    description: "Hermoso apartamento moderno en el corazón de Berlín",
-    furnished: true,
-    contact: { telegram: "@berlinhomes", whatsapp: "+491234567890", phone: "+491234567890" }
-  },
-  {
-    id: 2,
-    title: "Casa Familiar con Jardín",
-    price: 3200,
-    currency: "EUR",
-    rooms: 4,
-    bathrooms: 2,
-    squareMeters: 120,
-    location: "Munich, Schwabing",
-    propertyType: "house",
-    availability: "next-month",
-    images: ["photo-1649972904349-6e44c42644a7", "photo-1488590528505-98d2b5aba04b"],
-    description: "Amplia casa familiar con jardín privado",
-    furnished: false,
-    contact: { whatsapp: "+491234567891", phone: "+491234567891" }
-  },
-  {
-    id: 3,
-    title: "Estudio Acogedor",
-    price: 1800,
-    currency: "EUR",
-    rooms: 1,
-    bathrooms: 1,
-    squareMeters: 45,
-    location: "Hamburgo, St. Pauli",
-    propertyType: "studio",
-    availability: "immediate",
-    images: ["photo-1721322800607-8c38375eef04"],
-    description: "Perfecto para estudiantes o profesionales jóvenes",
-    furnished: true,
-    contact: { telegram: "@hamburgstudios", phone: "+491234567892" }
-  }
-];
+import { useFavorites } from "@/hooks/use-favorites";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Property } from "@/types/property";
 
 const Favorites = () => {
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [favoriteProperties, setFavoriteProperties] = useState<Array<{
-    id: number;
-    title: string;
-    price: number;
-    currency: string;
-    rooms: number;
-    bathrooms: number;
-    squareMeters: number;
-    location: string;
-    propertyType: string;
-    availability: string;
-    images: string[];
-    description: string;
-    furnished: boolean;
-    contact: { telegram?: string; whatsapp?: string; phone?: string };
-  }>>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("recent");
   const [filterBy, setFilterBy] = useState("all");
-  const [selectedProperties, setSelectedProperties] = useState<number[]>([]);
+  const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
   const { toast } = useToast();
-
-  // Load favorites from localStorage on component mount
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('property-favorites');
-    if (savedFavorites) {
-      const favoriteIds = JSON.parse(savedFavorites);
-      setFavorites(favoriteIds);
-      
-      // Filter mock properties to get favorite properties
-      const favProps = mockProperties.filter(prop => favoriteIds.includes(prop.id));
-      setFavoriteProperties(favProps);
-    }
-  }, []);
+  const { favorites, loading, error, removeFavorite } = useFavorites();
 
   // Filter and sort favorite properties
-  const filteredAndSortedProperties = favoriteProperties
+  const filteredAndSortedProperties = favorites
     .filter(property => {
       const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           property.location.toLowerCase().includes(searchTerm.toLowerCase());
+                           property.location?.address?.toLowerCase().includes(searchTerm.toLowerCase());
       
       if (filterBy === "all") return matchesSearch;
-      if (filterBy === "immediate") return matchesSearch && property.availability === "immediate";
+      if (filterBy === "immediate") return matchesSearch && property.isAvailable;
       if (filterBy === "furnished") return matchesSearch && property.furnished;
       if (filterBy === property.propertyType) return matchesSearch;
       
@@ -116,51 +38,36 @@ const Favorites = () => {
     .sort((a, b) => {
       switch (sortBy) {
         case "price-low":
-          return a.price - b.price;
+          return (a.rentPricePerMonth || 0) - (b.rentPricePerMonth || 0);
         case "price-high":
-          return b.price - a.price;
+          return (b.rentPricePerMonth || 0) - (a.rentPricePerMonth || 0);
         case "size":
-          return b.squareMeters - a.squareMeters;
+          return (b.area || 0) - (a.area || 0);
         default: // recent
-          return b.id - a.id;
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
       }
     });
 
-  const handleRemoveFromFavorites = (propertyId: number) => {
-    const updatedFavorites = favorites.filter(id => id !== propertyId);
-    setFavorites(updatedFavorites);
-    setFavoriteProperties(prev => prev.filter(prop => prop.id !== propertyId));
-    localStorage.setItem('property-favorites', JSON.stringify(updatedFavorites));
-    
-    toast({
-      title: "Eliminado de favoritos",
-      description: "La propiedad ha sido eliminada de tus favoritos.",
-    });
-  };
-
-  const handleSelectProperty = (propertyId: number) => {
-    setSelectedProperties(prev => 
-      prev.includes(propertyId) 
-        ? prev.filter(id => id !== propertyId)
-        : [...prev, propertyId]
-    );
-  };
-
-  const handleBulkRemove = () => {
-    const updatedFavorites = favorites.filter(id => !selectedProperties.includes(id));
-    setFavorites(updatedFavorites);
-    setFavoriteProperties(prev => prev.filter(prop => !selectedProperties.includes(prop.id)));
-    localStorage.setItem('property-favorites', JSON.stringify(updatedFavorites));
-    setSelectedProperties([]);
-    
-    toast({
-      title: "Propiedades eliminadas",
-      description: `${selectedProperties.length} propiedades eliminadas de favoritos.`,
-    });
+  const handleRemoveFromFavorites = async (propertyId: string) => {
+    try {
+      await removeFavorite(propertyId);
+      setSelectedProperties(prev => prev.filter(id => id !== propertyId));
+      toast({
+        title: "Eliminado de favoritos",
+        description: "La propiedad ha sido eliminada de tus favoritos.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar la propiedad de favoritos.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleShareFavorites = () => {
-    const shareUrl = `${window.location.origin}/favorites?shared=${btoa(JSON.stringify(favorites))}`;
+    const favoriteIds = favorites.map(prop => prop._id).filter(Boolean);
+    const shareUrl = `${window.location.origin}/favorites?shared=${btoa(JSON.stringify(favoriteIds))}`;
     navigator.clipboard.writeText(shareUrl);
     
     toast({
@@ -169,17 +76,44 @@ const Favorites = () => {
     });
   };
 
-  const handleClearAll = () => {
-    setFavorites([]);
-    setFavoriteProperties([]);
-    setSelectedProperties([]);
-    localStorage.removeItem('property-favorites');
-    
-    toast({
-      title: "Favoritos eliminados",
-      description: "Todos los favoritos han sido eliminados.",
-    });
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-center items-center h-64">
+            <LoadingSpinner />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Card className="text-center py-12">
+            <CardContent>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Error al cargar favoritos
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {error}
+              </p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="bg-teal-600 hover:bg-teal-700 text-white"
+              >
+                Reintentar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -195,11 +129,11 @@ const Favorites = () => {
                 Mis Favoritos
               </h1>
               <p className="text-gray-600 mt-2">
-                {favoriteProperties.length} {favoriteProperties.length === 1 ? 'propiedad guardada' : 'propiedades guardadas'}
+                {favorites.length} {favorites.length === 1 ? 'propiedad guardada' : 'propiedades guardadas'}
               </p>
             </div>
             
-            {favoriteProperties.length > 0 && (
+            {favorites.length > 0 && (
               <div className="flex space-x-2">
                 <Button
                   onClick={handleShareFavorites}
@@ -209,41 +143,12 @@ const Favorites = () => {
                   <Share2 className="w-4 h-4 mr-2" />
                   Compartir
                 </Button>
-                <Button
-                  onClick={handleClearAll}
-                  variant="outline"
-                  className="border-coral-500 text-coral-500 hover:bg-coral-500 hover:text-white"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Limpiar Todo
-                </Button>
               </div>
             )}
           </div>
-
-          {/* Bulk Actions */}
-          {selectedProperties.length > 0 && (
-            <Card className="mb-6 border-coral-200 bg-coral-50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-coral-700">
-                    {selectedProperties.length} {selectedProperties.length === 1 ? 'propiedad seleccionada' : 'propiedades seleccionadas'}
-                  </span>
-                  <Button
-                    onClick={handleBulkRemove}
-                    size="sm"
-                    className="bg-coral-500 hover:bg-coral-600 text-white"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar Seleccionadas
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
-        {favoriteProperties.length === 0 ? (
+        {favorites.length === 0 ? (
           // Empty State
           <Card className="text-center py-12">
             <CardContent>
@@ -318,21 +223,11 @@ const Favorites = () => {
             {/* Properties Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAndSortedProperties.map((property) => (
-                <div key={property.id} className="relative">
-                  {/* Selection Checkbox */}
-                  <div className="absolute top-4 left-4 z-10">
-                    <input
-                      type="checkbox"
-                      checked={selectedProperties.includes(property.id)}
-                      onChange={() => handleSelectProperty(property.id)}
-                      className="w-4 h-4 text-teal-600 bg-white border-gray-300 rounded focus:ring-teal-500"
-                    />
-                  </div>
-                  
+                <div key={property.propertyId} className="relative">                 
                   {/* Remove from Favorites Button */}
                   <div className="absolute top-4 right-16 z-10">
                     <Button
-                      onClick={() => handleRemoveFromFavorites(property.id)}
+                      onClick={() => handleRemoveFromFavorites(property._id!)}
                       size="sm"
                       variant="ghost"
                       className="bg-white/80 hover:bg-white text-coral-500 hover:text-coral-600 rounded-full p-2"

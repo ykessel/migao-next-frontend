@@ -1,6 +1,4 @@
-import type {ApiError} from "@/types/property"
-import TokenService from '@/services/token';
-import {API_BASE_URL} from "@/lib/axios.ts";
+import {API_BASE_URL} from "@/lib/axios";
 
 class ApiClient {
     private readonly baseURL: string
@@ -15,12 +13,6 @@ class ApiClient {
             "Content-Type": "application/json",
             ...options?.headers,
         }
-
-        const token = TokenService.getAccessToken()
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`
-        }
-
         return headers
     }
 

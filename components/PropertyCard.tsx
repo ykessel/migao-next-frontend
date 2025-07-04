@@ -10,7 +10,6 @@ import {
     MessageCircle,
     Phone,
     ArrowRight,
-    Eye,
     Star,
     Wifi,
     Car,
@@ -21,9 +20,9 @@ import { useRouter } from "next/navigation";
 import { Property } from "@/types/property";
 import { toast } from "sonner";
 import { useFavorites } from "@/hooks/use-favorites";
-import { useAuth } from "@/contexts/AuthContext";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 interface PropertyCardProps {
     property: Property;
@@ -35,7 +34,8 @@ export const PropertyCard = ({ property, className = "" }: PropertyCardProps) =>
     const [imageLoading, setImageLoading] = useState(true);
     const [imageError, setImageError] = useState(false);
     const router = useRouter();
-    const { isAuthenticated } = useAuth();
+    const { data: session } = useSession();
+    const isAuthenticated = !!session;
     const { isFavorite, addFavorite, removeFavorite, loading: favLoading } = useFavorites();
 
     const isLiked = isFavorite(property._id!);
@@ -43,21 +43,21 @@ export const PropertyCard = ({ property, className = "" }: PropertyCardProps) =>
     // Memoized handlers for better performance
     const handleContactWhatsApp = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
-        if (property.owner.whatsapp) {
+        if (property.owner?.whatsapp) {
             const message = encodeURIComponent(`¡Hola! Estoy interesado en la propiedad: ${property.title}`);
-            const phoneNumber = property.owner.whatsapp.replace(/[^0-9]/g, '');
+            const phoneNumber = property.owner?.whatsapp.replace(/[^0-9]/g, '');
             window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
         }
-    }, [property.owner.whatsapp, property.title]);
+    }, [property.owner?.whatsapp, property.title]);
 
 
 
     const handleContactPhone = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
-        if (property.owner.phone) {
-            window.open(`tel:${property.owner.phone}`, '_self');
+        if (property.owner?.phone) {
+            window.open(`tel:${property.owner?.phone}`, '_self');
         }
-    }, [property.owner.phone]);
+    }, [property.owner?.phone]);
 
     const handleViewDetails = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
@@ -288,18 +288,6 @@ export const PropertyCard = ({ property, className = "" }: PropertyCardProps) =>
                             {property.isAvailable ? 'Disponible' : 'Próximamente'}
                         </Badge>
                     </div>
-
-                    {/* Quick View Button */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                        <Button
-                            size="sm"
-                            className="opacity-0 group-hover:opacity-100 transition-all duration-200 transform scale-90 group-hover:scale-100 bg-white text-gray-900 hover:bg-gray-100"
-                            onClick={handleViewDetails}
-                        >
-                            <Eye className="w-4 h-4 mr-2" />
-                            Ver Detalles
-                        </Button>
-                    </div>
                 </div>
 
                 {/* Content Section */}
@@ -372,7 +360,7 @@ export const PropertyCard = ({ property, className = "" }: PropertyCardProps) =>
 
                     {/* Contact Actions */}
                     <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-                        {property.owner.whatsapp && (
+                        {property.owner?.whatsapp && (
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -391,7 +379,7 @@ export const PropertyCard = ({ property, className = "" }: PropertyCardProps) =>
                             </Tooltip>
                         )}
                         
-                        {property.owner.phone && (
+                        {property.owner?.phone && (
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button

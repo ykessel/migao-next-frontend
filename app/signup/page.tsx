@@ -1,16 +1,13 @@
 "use client";
 import { useState } from 'react';
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from '@/contexts/AuthContext';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Signup() {
-  const router = useRouter();
-  const { signup } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -32,14 +29,9 @@ export default function Signup() {
       return;
     }
 
-    try {
-      await signup(formData.firstName, formData.lastName, formData.email, formData.password, formData.confirmPassword);
-      router.push('/');
-    } catch {
-      setError('Error al crear la cuenta. Por favor, intente nuevamente.');
-    } finally {
-      setLoading(false);
-    }
+    // You can implement a custom API route for registration if needed
+    setError('El registro con email/contraseña no está disponible. Por favor, use Google para registrarse.');
+    setLoading(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +120,14 @@ export default function Signup() {
               disabled={loading}
             >
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+            </Button>
+            <Button
+              type="button"
+              className="w-full mt-2 flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-700 font-medium shadow-sm"
+              onClick={() => signIn('google')}
+            >
+              <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" className="w-5 h-5" />
+              Registrarse con Google
             </Button>
             <p className="text-sm text-gray-600 text-center">
               ¿Ya tienes una cuenta?{' '}
