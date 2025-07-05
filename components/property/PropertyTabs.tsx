@@ -7,7 +7,7 @@ import PlaceTypeFilter from "./PlaceTypeFilter";
 import { PlaceType } from '@/constants/places.enum';
 import type { Property } from '@/types/property';
 
-const PropertyMap = dynamic(() => import("@/components/PropertyMap.client"), { ssr: false });
+const PropertyMap = dynamic(() => import("@/components/app-components/property-map-client"), { ssr: false });
 const PlaceOfInterestMarkers = dynamic(() => import("./PlaceOfInterestMarkers"), { ssr: false });
 
 

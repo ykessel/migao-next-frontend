@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, BedDouble, Bath, Square, MessageCircle, Phone } from "lucide-react";
-import PropertyContactCard from "@/components/PropertyContactCard"
+import PropertyContactCard from "@/components/property/PropertyContactCard"
 import { Property } from "@/types/property";;
 
 interface PropertySidebarProps {

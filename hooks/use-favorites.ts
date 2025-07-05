@@ -27,7 +27,7 @@ export function useFavorites() {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, token]);
 
   useEffect(() => {
     fetchFavorites();
@@ -56,7 +56,7 @@ export function useFavorites() {
     setLoading(true);
     setError(null);
     try {
-      await favoritesService.removeFavorite(propertyId);
+      await favoritesService.removeFavorite(propertyId, token);
       await fetchFavorites();
     } catch (err: unknown) {
       if (err instanceof Error) {

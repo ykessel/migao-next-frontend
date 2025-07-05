@@ -2,10 +2,10 @@
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Navigation } from "@/components/Navigation";
+import { Navigation } from "@/components/app-components/navigation";
 import { useProperty } from "@/hooks/use-properties";
 import { PlaceType } from '@/constants/places.enum';
-import type { IPlaceOfInterest } from '@/types/IPlaceOfInterest';
+import type { IPlaceOfInterest } from '@/types/place-of-Interest';
 import { useState } from "react";
 import PropertyGallery from '@/components/property/PropertyGallery';
 import PropertyTabs from '@/components/property/PropertyTabs';
