@@ -5,6 +5,7 @@ import { Amenities } from "./amenities";
 import { HouseRules } from "./house-rules";
 import { Owner } from "./owner";
 import { Image } from "./image";
+import { Location } from "./location";
 
 export interface Property {
     propertyId?: string
