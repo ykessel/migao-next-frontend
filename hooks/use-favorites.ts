@@ -1,21 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
-import { favoritesService } from '@/services/property-service';
+import { favoritesService } from '@/services/api-client';
 import type { Property } from '@/types/property';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSession } from 'next-auth/react';
 
 export function useFavorites() {
-  const { isAuthenticated } = useAuth();
+  const { data: session } = useSession();
+  const isAuthenticated = !!session;
   const [favorites, setFavorites] = useState<Property[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const token = (session as unknown as { access_token?: string })?.access_token;
 
   const fetchFavorites = useCallback(async () => {
-  if (!isAuthenticated) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await favoritesService.getFavorites();
+      const data = await favoritesService.getFavorites(token);
       setFavorites(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -26,18 +27,18 @@ export function useFavorites() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, token]);
 
   useEffect(() => {
     fetchFavorites();
   }, [fetchFavorites]);
 
   const addFavorite = async (propertyId: string) => {
-  if (!isAuthenticated) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     setError(null);
     try {
-      await favoritesService.addFavorite(propertyId);
+      await favoritesService.addFavorite(propertyId, token);
       await fetchFavorites();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -51,11 +52,11 @@ export function useFavorites() {
   };
 
   const removeFavorite = async (propertyId: string) => {
-  if (!isAuthenticated) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     setError(null);
     try {
-      await favoritesService.removeFavorite(propertyId);
+      await favoritesService.removeFavorite(propertyId, token);
       await fetchFavorites();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -69,7 +70,7 @@ export function useFavorites() {
   };
 
   const isFavorite = (propertyId: string) => {
-  if (!isAuthenticated) return;
+    if (!isAuthenticated) return;
     return favorites.some((fav) => fav._id === propertyId);
   };
 

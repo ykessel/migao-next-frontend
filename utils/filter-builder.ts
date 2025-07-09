@@ -9,7 +9,7 @@ import type {
     LegacySearchPropertyRequest,
     SearchPropertyRequest,
     Filter
-} from "@/types/property"
+} from "@/types/filter"
 
 export class FilterBuilder {
     private filters: Filter[] = []

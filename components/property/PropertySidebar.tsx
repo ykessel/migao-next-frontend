@@ -2,9 +2,10 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, BedDouble, Bath, Square, MessageCircle, Phone } from "lucide-react";
-import PropertyContactCard from "@/components/PropertyContactCard"
-import { Property } from "@/types/property";;
+import { MapPin, BedDouble, Bath, Square, MessageCircle, Phone, Flag, AlertTriangle } from "lucide-react";
+import PropertyContactCard from "@/components/property/PropertyContactCard"
+import { PropertyReportDialog } from "@/components/property/PropertyReportDialog"
+import { Property } from "@/types/property";
 
 interface PropertySidebarProps {
   property: Property;
@@ -30,7 +31,7 @@ export default function PropertySidebar({
               <h1 className="text-2xl font-bold text-gray-900 mb-2">{property.title}</h1>
               <div className="flex items-center text-gray-600 mb-3">
                 <MapPin className="w-4 h-4 mr-1" />
-                <span>{property.location.address}</span>
+                <span>{(property.location as { address?: string })?.address || 'Ubicación no disponible'}</span>
               </div>
             </div>
             <Badge
@@ -61,7 +62,7 @@ export default function PropertySidebar({
             </div>
           </div>
           <div className="space-y-3 mb-6">
-            {property.owner.whatsapp && (
+            {property?.owner?.whatsapp && (
               <Button
                 onClick={handleContactWhatsApp}
                 className="w-full bg-green-500 hover:bg-green-600 text-white"
@@ -71,7 +72,7 @@ export default function PropertySidebar({
               </Button>
             )}
             <div className="grid grid-cols-2 gap-2">
-              {property.owner.telegram && (
+              {property?.owner?.telegram && (
                 <Button
                   onClick={handleContactTelegram}
                   variant="outline"
@@ -81,7 +82,7 @@ export default function PropertySidebar({
                   Telegram
                 </Button>
               )}
-              {property.owner.phone && (
+              {property?.owner?.phone && (
                 <Button
                   onClick={handleContactPhone}
                   variant="outline"
@@ -103,6 +104,34 @@ export default function PropertySidebar({
           onPhone={handleContactPhone}
         />
       </Card>
+      
+      {/* Report Property Card */}
+      <Card className="border-red-200 bg-red-50/50">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">¿Ves algo incorrecto?</h3>
+              <p className="text-sm text-gray-600">
+                Ayúdanos a mantener la calidad de nuestros listados reportando problemas con esta propiedad.
+              </p>
+            </div>
+          </div>
+          
+          <PropertyReportDialog property={property}>
+            <Button
+              variant="outline"
+              className="w-full border-red-300 text-red-700 hover:bg-red-100 hover:border-red-400 hover:text-red-800"
+            >
+              <Flag className="w-4 h-4 mr-2" />
+              Reportar Propiedad
+            </Button>
+          </PropertyReportDialog>
+        </CardContent>
+      </Card>
+      
       <Card>
         <CardContent className="p-6">
           <h3 className="font-semibold mb-4">Información adicional</h3>
