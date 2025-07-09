@@ -1,70 +1,66 @@
-"use client";
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/app-components/navigation";
-import { useProperty } from "@/hooks/use-properties";
-import { PlaceType } from '@/constants/places.enum';
-import type { IPlaceOfInterest } from '@/types/place-of-Interest';
-import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Metadata } from 'next';
+import { getPropertyById } from '@/services/api-client'; // You need to implement this
+import { notFound } from 'next/navigation';
+import Link from "next/link";
 import PropertyGallery from '@/components/property/PropertyGallery';
-import PropertyTabs from '@/components/property/PropertyTabs';
+import PropertyTabsClient from '@/components/property/PropertyTabsClient';
 import PropertySidebar from '@/components/property/PropertySidebar';
-import { formatDate, getApartmentAmenityIcon, getApartmentAmenityLabel, getRuleIcon, placeTypeIconLabel, typeColors } from '@/components/property/utils';
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { formatDate, placeTypeIconLabel, typeColors } from '@/components/property/utils';
+import { PlaceType } from '@/constants/places.enum';
 
-export default function Page() {
-  const router = useRouter();
-  const params = useParams();
-  const propertyId = params.id;
-  const [selectedTypes, setSelectedTypes] = useState<PlaceType[]>([]);
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const { id: propertyId } = await params
+  const property = await getPropertyById(propertyId);
 
-  const { data: property, isLoading, error } = useProperty(propertyId as string || "");
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
-      </div>
-    );
+  if (!property) {
+    return {
+      title: 'Propiedad no encontrada',
+      description: 'La propiedad no existe o ha sido removida.',
+    };
   }
 
-  if (error || !property) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Error al cargar la propiedad</h2>
-          <p className="text-gray-600 mb-4">No se pudo cargar la información de la propiedad.</p>
-          <Button onClick={() => router.push('/')} variant="default">
-            Volver a resultados
-          </Button>
-        </div>
-      </div>
-    );
+  const firstImage = property.images?.[0]?.url || '/placeholder.svg';
+
+  return {
+    title: property.title,
+    description: property.description || 'Propiedad en MiGao',
+    openGraph: {
+      title: property.title,
+      description: property.description || 'Propiedad en MiGao',
+      images: [
+        {
+          url: firstImage,
+          width: 1200,
+          height: 630,
+          alt: property.title,
+        },
+      ],
+      type: 'website',
+      url: `https://migao.cu/property/${propertyId}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: property.title,
+      description: property.description || 'Propiedad en MiGao',
+      images: [firstImage],
+    },
+  };
+}
+
+export default async function Page({ params }: { params: { id: string } }) {
+  const { id: propertyId } = await params
+  const property = await getPropertyById(propertyId);
+
+  if (!property) {
+    notFound();
   }
 
-  const handleContactWhatsApp = () => {
-    if (property.owner.whatsapp) {
-      const message = encodeURIComponent(`¡Hola! Estoy interesado en la propiedad: ${property.title}`);
-      window.open(`https://wa.me/${property.owner.whatsapp.replace(/[^0-9]/g, '')}?text=${message}`, '_blank');
-    }
-  };
-
-  const handleContactTelegram = () => {
-    if (property.owner.telegram) {
-      window.open(`https://t.me/${property.owner.telegram.replace('@', '')}`, '_blank');
-    }
-  };
-
-  const handleContactPhone = () => {
-    if (property.owner.phone) {
-      window.open(`tel:${property.owner.phone}`, '_self');
-    }
-  };
-
-  const allTypes = Array.from(new Set((property.placesOfInterest || []).map((p: IPlaceOfInterest) => p.type)));
-
-  // Add this style block for custom marker styling (for demo, ideally move to CSS file)
+  // allTypes as PlaceType[] if required
+  const allTypes = Array.from(new Set((property.placesOfInterest || []).map((p: { type: string }) => p.type))) as PlaceType[];
   const markerStyle = `
   .leaflet-custom-marker {
     display: flex;
@@ -79,34 +75,35 @@ export default function Page() {
   }
   `;
 
+  // Server-safe stubs for contact handlers
+  const handleContactWhatsApp = () => {};
+  const handleContactTelegram = () => {};
+  const handleContactPhone = () => {};
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50">
       <Navigation />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
-        <Button
-          onClick={() => router.push('/')}
-          variant="ghost"
-          className="mb-6 text-teal-600 hover:text-teal-700 hover:bg-teal-50"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Volver a resultados
-        </Button>
+        <Link href="/" className="mb-6 inline-block">
+          <Button
+            variant="ghost"
+            className="text-teal-600 hover:text-teal-700 hover:bg-teal-50 flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver a resultados
+          </Button>
+        </Link>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content: Gallery and Tabs */}
           <div className="lg:col-span-2">
             <PropertyGallery images={property.images || []} title={property.title} />
-            <PropertyTabs
+            <PropertyTabsClient
               property={property}
               placeTypeIconLabel={placeTypeIconLabel}
               typeColors={typeColors}
               allTypes={allTypes}
-              selectedTypes={selectedTypes}
-              setSelectedTypes={setSelectedTypes}
               markerStyle={markerStyle}
-              getApartmentAmenityIcon={getApartmentAmenityIcon}
-              getApartmentAmenityLabel={getApartmentAmenityLabel}
-              getRuleIcon={getRuleIcon}
             />
           </div>
           {/* Sidebar */}
@@ -121,4 +118,4 @@ export default function Page() {
       </div>
     </div>
   );
-};
+}

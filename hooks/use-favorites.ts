@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { favoritesService } from '@/services/property-service';
+import { favoritesService } from '@/services/api-client';
 import type { Property } from '@/types/property';
 import { useSession } from 'next-auth/react';
 

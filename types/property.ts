@@ -1,9 +1,13 @@
 import { PROPERTY_TYPE } from "@/constants/property-type.enum";
 import { PROPERTY_USE } from "@/constants/property-use.enum";
 import type { IPlaceOfInterest } from '@/types/place-of-Interest';
+import { Amenities } from "./amenities";
+import { HouseRules } from "./house-rules";
+import { Owner } from "./owner";
+import { Image } from "./image";
 
 export interface Property {
-    _id?: string
+    propertyId?: string
     title: string
     description: string
     rentPricePerMonth: number
@@ -32,6 +36,6 @@ export interface Property {
     services?: import('./property-services').IPropertyServices;
 }
 
-export type CreatePropertyRequest = Omit<Property, "_id" | "createdAt" | "updatedAt">
+export type CreatePropertyRequest = Omit<Property, "propertyId" | "createdAt" | "updatedAt">
 
 export type FavoriteProperty = Property;

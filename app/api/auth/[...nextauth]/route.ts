@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
-const handler = NextAuth({
+export const authOptions = {
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -11,7 +11,7 @@ const handler = NextAuth({
         }),
     ],
     callbacks: {
-        async jwt({token, profile, account}: { token: JWT, profile?: Record<string, any>, account?: Record<string, any> }) {
+        async jwt({token, profile, account}: { token: JWT, profile?: Record<string, unknown>, account?: Record<string, unknown> }) {
             // Solo en el primer login
             if (account && profile?.email) {
                 // Llamar a tu backend con la info del usuario de Google
@@ -46,6 +46,9 @@ const handler = NextAuth({
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
-});
+};
+
+// @ts-expect-error NextAuth type issue
+const handler = NextAuth(authOptions);
 
 export {handler as GET, handler as POST};

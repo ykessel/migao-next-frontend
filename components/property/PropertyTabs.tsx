@@ -1,30 +1,41 @@
+'use client'
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Home, MapPin } from "lucide-react";
-import dynamic from "next/dynamic";
 import PlaceTypeFilter from "./PlaceTypeFilter";
 import { PlaceType } from '@/constants/places.enum';
 import type { Property } from '@/types/property';
 
-const PropertyMap = dynamic(() => import("@/components/app-components/property-map-client"), { ssr: false });
-const PlaceOfInterestMarkers = dynamic(() => import("./PlaceOfInterestMarkers"), { ssr: false });
-
-
-interface PropertyTabsProps {
+export interface PropertyTabsProps {
   property: Property;
   placeTypeIconLabel: Record<PlaceType, { icon: React.ReactNode; label: string }>;
-  typeColors: Record<PlaceType, string>;
-  allTypes: PlaceType[];
+  typeColors: any;
+  allTypes: string[];
   selectedTypes: PlaceType[];
   setSelectedTypes: React.Dispatch<React.SetStateAction<PlaceType[]>>;
   markerStyle: string;
   getApartmentAmenityIcon: (amenity: string) => React.ReactNode;
   getApartmentAmenityLabel: (amenity: string) => string;
   getRuleIcon: (rule: string) => React.ReactNode;
+  PropertyMap: React.ComponentType<any>;
+  PlaceOfInterestMarkers: React.ComponentType<any>;
 }
 
-export default function PropertyTabs({ property, placeTypeIconLabel, typeColors, allTypes, selectedTypes, setSelectedTypes, markerStyle, getApartmentAmenityIcon, getApartmentAmenityLabel, getRuleIcon }: PropertyTabsProps) {
+export default function PropertyTabs({
+  property,
+  placeTypeIconLabel,
+  typeColors,
+  allTypes,
+  selectedTypes,
+  setSelectedTypes,
+  markerStyle,
+  getApartmentAmenityIcon,
+  getApartmentAmenityLabel,
+  getRuleIcon,
+  PropertyMap,
+  PlaceOfInterestMarkers,
+}: PropertyTabsProps) {
   return (
     <Tabs defaultValue="description" className="w-full">
       <TabsList className="grid w-full grid-cols-4">

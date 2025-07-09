@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { ClientProviders } from '@/components/providers/client-providers'
-import { Navigation } from '@/components/app-components/navigation'
+import { ConditionalNavigation } from '@/components/app-components/conditional-navigation'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -31,8 +31,8 @@ export default function RootLayout({
     <html lang="es">
       <body className="antialiased">
         <ClientProviders>
-          <Navigation />
-          <main className="pt-16">
+          <ConditionalNavigation />
+          <main className='mt-16'>
             {children}
           </main>
         </ClientProviders>

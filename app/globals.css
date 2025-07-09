@@ -105,6 +105,69 @@
       @apply outline-none ring-2 ring-teal-500 ring-offset-2;
   }
 
+  /* Fix transparent backgrounds for UI components */
+  [data-radix-popper-content-wrapper] {
+      background-color: hsl(var(--popover));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  [data-radix-dialog-content] {
+      background-color: hsl(var(--background));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  [data-radix-select-content] {
+      background-color: hsl(var(--popover));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  [data-radix-tooltip-content] {
+      background-color: hsl(var(--popover));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      color: hsl(var(--popover-foreground));
+  }
+
+  /* Ensure proper z-index and backdrop for overlays */
+  [data-radix-dialog-overlay] {
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+  }
+
+  /* Fix any remaining transparent elements */
+  .radix-popover-content,
+  .radix-select-content,
+  .radix-tooltip-content {
+      background-color: hsl(var(--popover)) !important;
+      border: 1px solid hsl(var(--border)) !important;
+      color: hsl(var(--popover-foreground)) !important;
+  }
+
+  /* Additional fixes for Radix UI components */
+  [data-radix-popper-content-wrapper] > * {
+      background-color: hsl(var(--popover)) !important;
+      border: 1px solid hsl(var(--border)) !important;
+      color: hsl(var(--popover-foreground)) !important;
+  }
+
+  /* Ensure all floating elements have proper backgrounds */
+  [role="dialog"],
+  [role="tooltip"],
+  [role="menu"],
+  [role="listbox"] {
+      background-color: hsl(var(--popover)) !important;
+      border: 1px solid hsl(var(--border)) !important;
+      color: hsl(var(--popover-foreground)) !important;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
       width: 8px;
@@ -318,12 +381,14 @@
 
 /* Card enhancements */
 .card-enhanced {
-  @apply bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+  @apply bg-white rounded-xl shadow-lg transition-all duration-300;
   @apply border border-gray-100 hover:border-teal-200;
+  overflow: hidden;
 }
 
 .card-enhanced:hover {
-  @apply transform -translate-y-1;
+  @apply transform -translate-y-1 shadow-2xl;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
 /* Button improvements */

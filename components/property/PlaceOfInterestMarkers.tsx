@@ -1,9 +1,55 @@
+"use client";
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { renderToString } from 'react-dom/server';
+// Removed: import { renderToString } from 'react-dom/server';
 
-export default function PlaceOfInterestMarkers({ property, selectedTypes, placeTypeIconLabel, typeColors }) {
+interface PlaceOfInterest {
+  id: string | number;
+  name: string;
+  address?: string;
+  phone?: string;
+  website?: string;
+  type: string;
+  coordinates: {
+    coordinates: [number, number];
+  };
+}
+
+interface Property {
+  title: string;
+  location: {
+    coordinates: [number, number];
+    address?: string;
+  };
+  placesOfInterest?: PlaceOfInterest[];
+}
+
+// icon must be a static SVG string, not a React element
+interface PlaceTypeIconLabel {
+  [type: string]: {
+    icon: string; // SVG string
+    label?: string;
+  };
+}
+
+interface TypeColors {
+  [type: string]: string;
+}
+
+interface PlaceOfInterestMarkersProps {
+  property: Property;
+  selectedTypes: string[];
+  placeTypeIconLabel: PlaceTypeIconLabel;
+  typeColors: TypeColors;
+}
+
+export default function PlaceOfInterestMarkers({
+  property,
+  selectedTypes,
+  placeTypeIconLabel,
+  typeColors,
+}: PlaceOfInterestMarkersProps) {
   return (
     <div className="h-[400px] rounded-lg overflow-hidden mt-4">
       <MapContainer
@@ -39,7 +85,7 @@ export default function PlaceOfInterestMarkers({ property, selectedTypes, placeT
             <Marker
               key={place.id}
               icon={L.divIcon({
-                html: `<div class='leaflet-custom-marker' style='border-color: ${typeColors[place.type] || '#00b894'};'>${renderToString(placeTypeIconLabel[place.type]?.icon)}</div>`,
+                html: `<div class='leaflet-custom-marker' style='border-color: ${typeColors[place.type] || '#00b894'};'>${placeTypeIconLabel[place.type]?.icon || ""}</div>`,
                 className: '',
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
