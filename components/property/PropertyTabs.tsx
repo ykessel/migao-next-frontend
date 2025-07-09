@@ -21,8 +21,8 @@ export interface PropertyTabsProps {
   getApartmentAmenityIcon: (amenity: string) => React.ReactNode;
   getApartmentAmenityLabel: (amenity: string) => string;
   getRuleIcon: (rule: string) => React.ReactNode;
-  PropertyMap: React.ComponentType<any>;
-  PlaceOfInterestMarkers: React.ComponentType<any>;
+  PropertyMap: React.ComponentType<Record<string, unknown>>;
+  PlaceOfInterestMarkers: React.ComponentType<Record<string, unknown>>;
 }
 
 export default function PropertyTabs({
