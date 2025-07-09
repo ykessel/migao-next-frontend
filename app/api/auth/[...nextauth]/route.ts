@@ -2,9 +2,8 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import type { AuthOptions } from "next-auth";
 
-export const authOptions: AuthOptions = {
+export const authOptions = {
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
