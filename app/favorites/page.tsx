@@ -1,16 +1,17 @@
 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { favoritesService } from "@/services/property-service";
 import { PropertyCard } from "@/components/property/property-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Search, Trash2, Share2 } from "lucide-react";
 import { Navigation } from "@/components/app-components/navigation";
 import Link from "next/link";
+import { favoritesService } from "@/services/api-client";
+import type { Property } from "@/types/property";
 
 async function getFavoritesServer() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions) as { access_token?: string };
   if (!session?.access_token) return { favorites: [], isAuthenticated: false };
   try {
     const favorites = await favoritesService.getFavorites(session.access_token);
@@ -20,7 +21,7 @@ async function getFavoritesServer() {
   }
 }
 
-function ShareFavoritesButton({ favorites }: { favorites: any[] }) {
+function ShareFavoritesButton({ favorites }: { favorites: Property[] }) {
   "use client";
   const handleShareFavorites = () => {
     const favoriteIds = favorites.map((prop) => prop.propertyId).filter(Boolean);
@@ -41,7 +42,8 @@ function ShareFavoritesButton({ favorites }: { favorites: any[] }) {
   );
 }
 
-function RemoveFavoriteButton({ propertyId }: { propertyId: string }) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function RemoveFavoriteButton({ propertyId: _propertyId }: { propertyId: string }) {
   "use client";
   // This should call an API route or mutate state, but for now just alert
   const handleRemove = () => {
@@ -131,7 +133,7 @@ export default async function FavoritesPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favorites.map((property) => (
+            {favorites.map((property: Property) => (
               <div key={property.propertyId} className="relative">
                 <div className="absolute top-4 right-16 z-10">
                   <RemoveFavoriteButton propertyId={property.propertyId!} />
