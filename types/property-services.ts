@@ -1,4 +1,4 @@
-import {GAS_AVAILABILITY} from "@/constants/gas-availability.enum.ts";
+import {GAS_AVAILABILITY} from "@/constants/gas-availability.enum";
 
 export interface IPropertyServices {
     electricity: 'INCLUDED' | 'NOT_INCLUDED';

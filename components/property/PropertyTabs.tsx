@@ -6,20 +6,24 @@ import { Home, MapPin } from "lucide-react";
 import PlaceTypeFilter from "./PlaceTypeFilter";
 import { PlaceType } from '@/constants/places.enum';
 import type { Property } from '@/types/property';
+import { Amenities } from '@/types/amenities';
+import { HouseRules } from '@/types/house-rules';
+import { GAS_AVAILABILITY } from '@/constants/gas-availability.enum';
+import { PlaceOfInterestMarkersProps } from "./PlaceOfInterestMarkers";
 
 export interface PropertyTabsProps {
   property: Property;
-  placeTypeIconLabel: Record<PlaceType, { icon: React.ReactNode; label: string }>;
-  typeColors: any;
-  allTypes: string[];
+  placeTypeIconLabel: Record<string, { icon: string; label?: string }>;
+  typeColors: Record<PlaceType, string>;
+  allTypes: PlaceType[];
   selectedTypes: PlaceType[];
   setSelectedTypes: React.Dispatch<React.SetStateAction<PlaceType[]>>;
   markerStyle: string;
   getApartmentAmenityIcon: (amenity: string) => React.ReactNode;
   getApartmentAmenityLabel: (amenity: string) => string;
   getRuleIcon: (rule: string) => React.ReactNode;
-  PropertyMap: React.ComponentType<any>;
-  PlaceOfInterestMarkers: React.ComponentType<any>;
+  PropertyMap: React.ComponentType<{ property: Property }>;
+  PlaceOfInterestMarkers: React.ComponentType<PlaceOfInterestMarkersProps>;
 }
 
 export default function PropertyTabs({
@@ -74,19 +78,21 @@ export default function PropertyTabs({
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {Object.entries(property.amenities).map(([key, value]) => {
-                if (typeof value === 'boolean' && value) {
+                const amenityKey = key as keyof Amenities;
+                const amenityValue = value as Amenities[keyof Amenities];
+                if (typeof amenityValue === 'boolean' && amenityValue) {
                   return (
-                    <div key={key} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                      <div className="text-teal-600">{getApartmentAmenityIcon(key)}</div>
-                      <span className="text-sm">{getApartmentAmenityLabel(key)}</span>
+                    <div key={amenityKey} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
+                      <div className="text-teal-600 text-xl">{getApartmentAmenityIcon(amenityKey)}</div>
+                      <span className="text-sm">{getApartmentAmenityLabel(amenityKey)}</span>
                     </div>
                   );
                 }
-                if (key === 'gasAvailability' && value !== 'NONE') {
+                if (amenityKey === 'gasAvailability' && amenityValue !== undefined && amenityValue !== GAS_AVAILABILITY.NONE) {
                   return (
-                    <div key={key} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                      <div className="text-teal-600">{getApartmentAmenityIcon(key)}</div>
-                      <span className="text-sm">{getApartmentAmenityLabel(key)}</span>
+                    <div key={amenityKey} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
+                      <div className="text-teal-600 text-xl">{getApartmentAmenityIcon(amenityKey)}</div>
+                      <span className="text-sm">{getApartmentAmenityLabel(amenityKey)}</span>
                     </div>
                   );
                 }
@@ -104,13 +110,15 @@ export default function PropertyTabs({
               <h3 className="text-lg font-semibold mb-4">Reglas del apartamento</h3>
               <div className="space-y-3">
                 {Object.entries(property.houseRules).map(([key, value]) => {
-                  if (typeof value === 'boolean') {
-                    const rule = key === 'petsAllowed' ? 'Mascotas permitidas' :
-                      key === 'smokingAllowed' ? 'Fumar permitido' :
-                      key === 'partiesAllowed' ? 'Fiestas permitidas' : '';
+                  const ruleKey = key as keyof HouseRules;
+                  const ruleValue = value as HouseRules[keyof HouseRules];
+                  if (typeof ruleValue === 'boolean') {
+                    const rule = ruleKey === 'petsAllowed' ? 'Mascotas permitidas' :
+                      ruleKey === 'smokingAllowed' ? 'Fumar permitido' :
+                      ruleKey === 'partiesAllowed' ? 'Fiestas permitidas' : '';
                     if (rule) {
                       return (
-                        <div key={key} className="flex items-center space-x-3">
+                        <div key={ruleKey} className="flex items-center space-x-3">
                           {getRuleIcon(rule)}
                           <span className="text-sm">{rule}</span>
                         </div>

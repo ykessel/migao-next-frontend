@@ -4,7 +4,7 @@ import {Label} from '@/components/ui/label';
 import {Select, SelectTrigger, SelectValue, SelectContent, SelectItem} from '@/components/ui/select';
 import {Checkbox} from '@/components/ui/checkbox';
 import type {IPropertyServices} from '@/types/property-services';
-import {GAS_AVAILABILITY} from '@/constants/gas-availability.enum.ts';
+import {GAS_AVAILABILITY} from '@/constants/gas-availability.enum';
 import {
     Zap,
     Droplet,

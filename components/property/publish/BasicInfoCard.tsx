@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { PROPERTY_TYPE } from '@/constants/property-type.enum.ts';
+import { PROPERTY_TYPE } from '@/constants/property-type.enum';
 
 interface BasicInfoCardProps {
   formData: {

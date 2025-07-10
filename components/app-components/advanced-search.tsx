@@ -8,13 +8,14 @@ import {
     createPriceRangeFilter,
     createLocationFilter,
 } from "@/utils/filter-builder"
-import type {SearchPropertyRequest, PropertyFilter} from "@/types/property"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Loader2, Search, Filter, X, Calendar, MapPin, DollarSign} from "lucide-react"
+import { SearchPropertyRequest, Filter as PropertyFilter } from "@/types/filter"
+import type { Property } from "@/types/property";
 
 export default function AdvancedPropertySearch() {
     const [searchText, setSearchText] = useState("")
@@ -40,9 +41,6 @@ export default function AdvancedPropertySearch() {
             search: searchText || undefined,
             filters: activeFilters,
             page: 1,
-            limit: 10,
-            sortBy: "rentPricePerMonth",
-            sortOrder: "asc",
         }
 
         setSearchParams(newSearchParams)
@@ -93,7 +91,7 @@ export default function AdvancedPropertySearch() {
         const filter = builder.term("propertyType", propertyType, "string").build()[0]
 
         // Remove existing property type filters
-        const filteredFilters = activeFilters.filter((f) => !(f.field === "propertyType" && f.type === "EXACT"))
+        const filteredFilters = activeFilters.filter((f) => !(f.field === "propertyType" && f.type === "TERM"))
         setActiveFilters([...filteredFilters, filter])
     }
 
@@ -127,33 +125,33 @@ export default function AdvancedPropertySearch() {
     const getFilterDisplayText = (filter: PropertyFilter): string => {
         switch (filter.type) {
             case "RANGE":
-                if (filter.field === "rentPricePerMonth") {
-                    const value = filter.value as any
-                    return `Precio: $${value.gte || 0} - $${value.lte || "∞"}`
+                if (filter.field === "rentPricePerMonth" || filter.field === "rooms" || filter.field === "isAvailableForRentalFrom") {
+                    const value = filter.value as import("@/types/filter").RangeFilterValue;
+                    if (filter.field === "rentPricePerMonth") {
+                        return `Precio: $${value.gte || 0} - $${value.lte || "∞"}`;
+                    }
+                    if (filter.field === "rooms") {
+                        return `Habitaciones: ${value.gte || 0} - ${value.lte || "∞"}`;
+                    }
+                    if (filter.field === "isAvailableForRentalFrom") {
+                        return `Disponible: ${value.gte ? new Date(value.gte).toLocaleDateString() : ""} - ${value.lte ? new Date(value.lte).toLocaleDateString() : ""}`;
+                    }
                 }
-                if (filter.field === "rooms") {
-                    const value = filter.value as any
-                    return `Habitaciones: ${value.gte || 0} - ${value.lte || "∞"}`
-                }
-                if (filter.field === "isAvailableForRentalFrom") {
-                    const value = filter.value as any
-                    return `Disponible: ${value.gte ? new Date(value.gte).toLocaleDateString() : ""} - ${value.lte ? new Date(value.lte).toLocaleDateString() : ""}`
-                }
-                break
-            case "EXACT":
+                break;
+            case "TERM":
                 if (filter.field === "propertyType") {
-                    const value = filter.value as any
-                    return `Tipo: ${value.value}`
+                    const value = filter.value as import("@/types/filter").TermFilterValue;
+                    return `Tipo: ${value.value}`;
                 }
-                break
+                break;
             case "GEO_DISTANCE": {
-                const value = filter.value as any
-                return `Ubicación: ${value.distance}${value.unit} de radio`
+                const value = filter.value as import("@/types/filter").GeoDistanceFilterValue;
+                return `Ubicación: ${value.distance}${value.unit} de radio`;
             }
             default:
-                return `${filter.field}: ${JSON.stringify(filter.value)}`
+                return `${filter.field}: ${JSON.stringify(filter.value)}`;
         }
-        return ""
+        return "";
     }
 
     // Example of using the FilterBuilder for complex searches
@@ -389,7 +387,7 @@ export default function AdvancedPropertySearch() {
                                 )
                             </h3>
                             <div className="grid gap-4">
-                                {searchResults?.data?.map((property) => (
+                                {searchResults?.data?.map((property: Property) => (
                                     <Card key={property.propertyId} className="hover:shadow-md transition-shadow">
                                         <CardContent className="p-4">
                                             <div className="flex justify-between items-start">

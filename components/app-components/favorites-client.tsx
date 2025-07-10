@@ -92,7 +92,7 @@ export function FavoritesClient({ initialFavorites }: FavoritesClientProps) {
   }
 
   const handleShareFavorites = () => {
-    const shareUrl = `${window.location.origin}/favorites?shared=${btoa(JSON.stringify(initialFavorites.map(p => p._id)))}`
+    const shareUrl = `${window.location.origin}/favorites?shared=${btoa(JSON.stringify(initialFavorites.map(p => p?.propertyId)))}`
     navigator.clipboard.writeText(shareUrl)
     
     toast({
