@@ -106,7 +106,13 @@ export async function getInitialProperties(searchParams: SearchPropertyRequest =
     });
   } catch (error) {
     console.error('Failed to fetch initial properties:', error);
-    return { data: [], total: 0 };
+    return { 
+      data: [], 
+      total: 0, 
+      page: 1, 
+      limit: 9, 
+      totalPages: 0 
+    };
   }
 }
 

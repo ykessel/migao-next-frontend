@@ -9,10 +9,11 @@ import type { Property } from '@/types/property';
 import { Amenities } from '@/types/amenities';
 import { HouseRules } from '@/types/house-rules';
 import { GAS_AVAILABILITY } from '@/constants/gas-availability.enum';
+import { PlaceOfInterestMarkersProps } from "./PlaceOfInterestMarkers";
 
 export interface PropertyTabsProps {
   property: Property;
-  placeTypeIconLabel: Record<PlaceType, { icon: React.ReactNode; label: string }>;
+  placeTypeIconLabel: Record<string, { icon: string; label?: string }>;
   typeColors: Record<PlaceType, string>;
   allTypes: PlaceType[];
   selectedTypes: PlaceType[];
@@ -21,8 +22,8 @@ export interface PropertyTabsProps {
   getApartmentAmenityIcon: (amenity: string) => React.ReactNode;
   getApartmentAmenityLabel: (amenity: string) => string;
   getRuleIcon: (rule: string) => React.ReactNode;
-  PropertyMap: React.ComponentType<Record<string, unknown>>;
-  PlaceOfInterestMarkers: React.ComponentType<Record<string, unknown>>;
+  PropertyMap: React.ComponentType<{ property: Property }>;
+  PlaceOfInterestMarkers: React.ComponentType<PlaceOfInterestMarkersProps>;
 }
 
 export default function PropertyTabs({
@@ -82,7 +83,7 @@ export default function PropertyTabs({
                 if (typeof amenityValue === 'boolean' && amenityValue) {
                   return (
                     <div key={amenityKey} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                      <div className="text-teal-600">{getApartmentAmenityIcon(amenityKey)}</div>
+                      <div className="text-teal-600 text-xl">{getApartmentAmenityIcon(amenityKey)}</div>
                       <span className="text-sm">{getApartmentAmenityLabel(amenityKey)}</span>
                     </div>
                   );
@@ -90,7 +91,7 @@ export default function PropertyTabs({
                 if (amenityKey === 'gasAvailability' && amenityValue !== undefined && amenityValue !== GAS_AVAILABILITY.NONE) {
                   return (
                     <div key={amenityKey} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                      <div className="text-teal-600">{getApartmentAmenityIcon(amenityKey)}</div>
+                      <div className="text-teal-600 text-xl">{getApartmentAmenityIcon(amenityKey)}</div>
                       <span className="text-sm">{getApartmentAmenityLabel(amenityKey)}</span>
                     </div>
                   );

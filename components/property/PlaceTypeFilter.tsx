@@ -5,7 +5,7 @@ type PlaceTypeFilterProps = {
   allTypes: PlaceType[];
   selectedTypes: PlaceType[];
   setSelectedTypes: React.Dispatch<React.SetStateAction<PlaceType[]>>;
-  placeTypeIconLabel: Record<PlaceType, { icon: React.ReactNode; label: string }>;
+  placeTypeIconLabel: Record<string, { icon: string; label?: string }>;
 };
 
 export default function PlaceTypeFilter({ allTypes, selectedTypes, setSelectedTypes, placeTypeIconLabel }: PlaceTypeFilterProps) {
@@ -21,7 +21,7 @@ export default function PlaceTypeFilter({ allTypes, selectedTypes, setSelectedTy
             : [...selectedTypes, type])}
           type="button"
         >
-          {placeTypeIconLabel[type]?.icon}
+          <span className="text-xl">{placeTypeIconLabel[type]?.icon}</span>
           {placeTypeIconLabel[type]?.label || type}
         </button>
       ))}

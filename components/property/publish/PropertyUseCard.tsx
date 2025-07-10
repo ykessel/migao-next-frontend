@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { PROPERTY_USE } from '@/constants/property-use.enum.ts';
+import { PROPERTY_USE } from '@/constants/property-use.enum';
 
 interface PropertyUseCardProps {
   formData: {

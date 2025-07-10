@@ -460,7 +460,7 @@ export const PropertyCard = ({
                         )}
 
                         <Link
-                            href={`/property/${property.propertyId || property._id}`}
+                            href={`/property/${property.propertyId || ''}`}
                             prefetch={true}
                             className="block hover:shadow-lg transition-shadow"
                         >

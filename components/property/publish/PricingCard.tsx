@@ -3,7 +3,7 @@ import {Card, CardHeader, CardTitle, CardContent} from '@/components/ui/card';
 import {Label} from '@/components/ui/label';
 import {Input} from '@/components/ui/input';
 import {Select, SelectTrigger, SelectValue, SelectContent, SelectItem} from '@/components/ui/select';
-import {CURRENCY} from '@/constants/currencies.enum.ts';
+import {CURRENCY} from '@/constants/currencies.enum';
 
 interface PricingCardProps {
     formData: {

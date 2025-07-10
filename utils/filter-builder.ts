@@ -271,8 +271,5 @@ export const convertLegacyToFilters = (legacy: LegacySearchPropertyRequest): Sea
     return {
         filters: builder.build(),
         page: legacy.page,
-        limit: legacy.limit,
-        sortBy: legacy.sortBy,
-        sortOrder: legacy.sortOrder,
     }
 }

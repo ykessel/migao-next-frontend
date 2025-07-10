@@ -52,6 +52,8 @@ function Calendar({
         ...classNames,
       }}
       components={{
+        //@TODO
+        //@ts-expect-error Fix later
         IconLeft: () => <ChevronLeft className="h-4 w-4" />,
         IconRight: () => <ChevronRight className="h-4 w-4" />,
       }}

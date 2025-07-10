@@ -1,9 +1,14 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
+export interface AuthOptionsExtended extends AuthOptions {
+    access_token?: string,
+    refresh_token?:  string,
+    expres_in?: string
+} 
 
-export const authOptions = {
+export const authOptions: AuthOptionsExtended = {
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -11,7 +16,7 @@ export const authOptions = {
         }),
     ],
     callbacks: {
-        async jwt({token, profile, account}: { token: JWT, profile?: Record<string, unknown>, account?: Record<string, unknown> }) {
+        async jwt({ token, profile, account }) {
             // Solo en el primer login
             if (account && profile?.email) {
                 // Llamar a tu backend con la info del usuario de Google
@@ -48,7 +53,6 @@ export const authOptions = {
     secret: process.env.NEXTAUTH_SECRET,
 };
 
-// @ts-expect-error NextAuth type issue
 const handler = NextAuth(authOptions);
 
 export {handler as GET, handler as POST};

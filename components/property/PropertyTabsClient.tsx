@@ -2,32 +2,67 @@
 import dynamic from "next/dynamic";
 import React, { useState } from "react";
 import PropertyTabs, { PropertyTabsProps } from "./PropertyTabs";
+import { PlaceType } from '@/constants/places.enum';
 
 const PropertyMap = dynamic(() => import("@/components/app-components/property-map-client"), { ssr: false });
 const PlaceOfInterestMarkers = dynamic(() => import("./PlaceOfInterestMarkers"), { ssr: false });
+
+const placeTypeIconLabel: Record<string, { icon: string; label?: string }> = {
+  [PlaceType.HOSPITAL]: { icon: '🏥', label: 'Hospital' },
+  [PlaceType.SCHOOL]: { icon: '🏫', label: 'Escuela' },
+  [PlaceType.RESTAURANT]: { icon: '🍽️', label: 'Restaurante' },
+  [PlaceType.BUS_STOP]: { icon: '🚌', label: 'Parada de bus' },
+  [PlaceType.HOTEL]: { icon: '🏨', label: 'Hotel' },
+  [PlaceType.POLICE_STATION]: { icon: '🚓', label: 'Policía' },
+  [PlaceType.PHARMACY]: { icon: '💊', label: 'Farmacia' },
+  [PlaceType.BANK]: { icon: '🏦', label: 'Banco' },
+  [PlaceType.GAS_STATION]: { icon: '⛽', label: 'Gasolinera' },
+  [PlaceType.SUPERMARKET]: { icon: '🛒', label: 'Supermercado' },
+  [PlaceType.PARK]: { icon: '🏞️', label: 'Parque' },
+  [PlaceType.CHURCH]: { icon: '⛪', label: 'Iglesia' },
+  [PlaceType.POST_OFFICE]: { icon: '🏤', label: 'Correo' },
+  [PlaceType.LIBRARY]: { icon: '📚', label: 'Biblioteca' },
+  [PlaceType.MUSEUM]: { icon: '🏛️', label: 'Museo' },
+  [PlaceType.CINEMA]: { icon: '🎬', label: 'Cine' },
+  [PlaceType.SHOPPING_MALL]: { icon: '🏬', label: 'Centro comercial' },
+  [PlaceType.AIRPORT]: { icon: '✈️', label: 'Aeropuerto' },
+  [PlaceType.TRAIN_STATION]: { icon: '🚉', label: 'Estación de tren' },
+  [PlaceType.SUBWAY_STATION]: { icon: '🚇', label: 'Metro' },
+  [PlaceType.TAXI_STAND]: { icon: '🚕', label: 'Taxi' },
+  [PlaceType.PARKING]: { icon: '🅿️', label: 'Parqueo' },
+  [PlaceType.ATM]: { icon: '🏧', label: 'Cajero' },
+  [PlaceType.FIRE_STATION]: { icon: '🚒', label: 'Bomberos' },
+  [PlaceType.VETERINARY]: { icon: '🐾', label: 'Veterinario' },
+  [PlaceType.DENTIST]: { icon: '🦷', label: 'Dentista' },
+  [PlaceType.CLINIC]: { icon: '🏥', label: 'Clínica' },
+  [PlaceType.CAFE]: { icon: '☕', label: 'Café' },
+  [PlaceType.BAR]: { icon: '🍸', label: 'Bar' },
+  [PlaceType.UNIVERSITY]: { icon: '🎓', label: 'Universidad' },
+  [PlaceType.KINDERGARTEN]: { icon: '👶', label: 'Kindergarten' },
+};
 
 type PropertyTabsClientProps = Omit<PropertyTabsProps, 'PropertyMap' | 'PlaceOfInterestMarkers' | 'selectedTypes' | 'setSelectedTypes' | 'getApartmentAmenityIcon' | 'getApartmentAmenityLabel' | 'getRuleIcon'> & {
   initialSelectedTypes?: PropertyTabsProps['selectedTypes'];
 };
 
-function getApartmentAmenityIcon(amenity: string): React.ReactNode {
+function getApartmentAmenityIcon(amenity: string): string {
   switch (amenity) {
-    case 'garage': return <span className="w-5 h-5">🚗</span>;
-    case 'garden': return <span className="w-5 h-5">🌳</span>;
-    case 'terrace': return <span className="w-5 h-5">🏞️</span>;
-    case 'kitchen': return <span className="w-5 h-5">🍳</span>;
-    case 'furnished': return <span className="w-5 h-5">🛋️</span>;
-    case 'hasTV': return <span className="w-5 h-5">📺</span>;
-    case 'hasWifi': return <span className="w-5 h-5">📶</span>;
-    case 'hasAC': return <span className="w-5 h-5">❄️</span>;
-    case 'hasFridge': return <span className="w-5 h-5">🧊</span>;
-    case 'hasWasher': return <span className="w-5 h-5">🧺</span>;
-    case 'hasMicrowave': return <span className="w-5 h-5">🍲</span>;
-    case 'hasElevator': return <span className="w-5 h-5">🛗</span>;
-    case 'hasBalcony': return <span className="w-5 h-5">🌅</span>;
-    case 'hasPool': return <span className="w-5 h-5">🏊</span>;
-    case 'gasAvailability': return <span className="w-5 h-5">🔥</span>;
-    default: return null;
+    case 'garage': return '🚗';
+    case 'garden': return '🌳';
+    case 'terrace': return '🏞️';
+    case 'kitchen': return '🍳';
+    case 'furnished': return '🛋️';
+    case 'hasTV': return '📺';
+    case 'hasWifi': return '📶';
+    case 'hasAC': return '❄️';
+    case 'hasFridge': return '🧊';
+    case 'hasWasher': return '🧺';
+    case 'hasMicrowave': return '🍲';
+    case 'hasElevator': return '🛗';
+    case 'hasBalcony': return '🌅';
+    case 'hasPool': return '🏊';
+    case 'gasAvailability': return '🔥';
+    default: return '';
   }
 }
 
@@ -72,6 +107,7 @@ export default function PropertyTabsClient({ initialSelectedTypes = [], ...props
       getRuleIcon={getRuleIcon}
       PropertyMap={PropertyMap}
       PlaceOfInterestMarkers={PlaceOfInterestMarkers}
+      placeTypeIconLabel={placeTypeIconLabel}
     />
   );
 } 

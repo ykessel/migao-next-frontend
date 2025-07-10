@@ -37,7 +37,7 @@ interface TypeColors {
   [type: string]: string;
 }
 
-interface PlaceOfInterestMarkersProps {
+export interface PlaceOfInterestMarkersProps {
   property: Property;
   selectedTypes: string[];
   placeTypeIconLabel: PlaceTypeIconLabel;

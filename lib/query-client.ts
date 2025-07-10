@@ -7,6 +7,7 @@ export function queryClient() {
         staleTime: 5 * 60 * 1000, // 5 minutes
         gcTime: 10 * 60 * 1000, // 10 minutes
         retry: (failureCount, error) => {
+          // @ts-expect-error status could exist
           if (error?.status === 404) return false
           return failureCount < 3
         },

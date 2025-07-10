@@ -1,11 +1,24 @@
 import { PROPERTY_TYPE } from "@/constants/property-type.enum";
 import { PROPERTY_USE } from "@/constants/property-use.enum";
-import type { IPlaceOfInterest } from '@/types/place-of-Interest';
 import { Amenities } from "./amenities";
 import { HouseRules } from "./house-rules";
 import { Owner } from "./owner";
 import { Image } from "./image";
 import { Location } from "./location";
+
+export type { Location };
+
+export interface PlaceOfInterest {
+  id: string | number;
+  name: string;
+  address?: string;
+  phone?: string;
+  website?: string;
+  type: string;
+  coordinates: {
+    coordinates: [number, number];
+  };
+}
 
 export interface Property {
     propertyId?: string
@@ -33,7 +46,7 @@ export interface Property {
     images: Image[]
     createdAt?: string
     updatedAt?: string
-    placesOfInterest?: IPlaceOfInterest[];
+    placesOfInterest?: PlaceOfInterest[];
     services?: import('./property-services').IPropertyServices;
 }
 

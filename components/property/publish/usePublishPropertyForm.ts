@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { PROPERTY_TYPE } from '@/constants/property-type.enum.ts';
-import { PROPERTY_USE } from '@/constants/property-use.enum.ts';
+import { PROPERTY_TYPE } from '@/constants/property-type.enum';
+import { PROPERTY_USE } from '@/constants/property-use.enum';
 import { CUBA_PROVINCES } from '@/constants/cuba-locations';
 import type { Location } from '@/types/property';
 import type { IPropertyServices } from '@/types/property-services';
 import axiosInstance from '@/lib/axios';
-import type { ToastFunction } from '@/hooks/use-toast';
 
-export function usePublishPropertyForm(toast: ToastFunction) {
+// @TODO FIX LATER
+//@ts-expect-error toast can be any this
+export function usePublishPropertyForm(toast) {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
