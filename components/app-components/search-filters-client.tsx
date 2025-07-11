@@ -1,8 +1,9 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SearchFilters } from './search-filters'
+import { Suspense } from 'react'
 
-export function SearchFiltersClient() {
+function SearchFiltersClientContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -42,4 +43,17 @@ export function SearchFiltersClient() {
   }
 
   return <SearchFilters filters={currentFilters} onFiltersChange={handleFiltersChange} />
+}
+
+export function SearchFiltersClient() {
+  return (
+    <Suspense fallback={
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-600 text-center">Cargando filtros...</p>
+      </div>
+    }>
+      <SearchFiltersClientContent />
+    </Suspense>
+  )
 } 

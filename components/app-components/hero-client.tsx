@@ -2,8 +2,9 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Hero } from './hero'
+import { Suspense } from 'react'
 
-export function HeroClient() {
+function HeroClientContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -36,4 +37,19 @@ export function HeroClient() {
   const selectedAddress = searchParams.get('search') || undefined
 
   return <Hero onSearch={handleSearch} selectedAddress={selectedAddress} />
+}
+
+export function HeroClient() {
+  return (
+    <Suspense fallback={
+      <div className="bg-gradient-to-br from-teal-600 to-teal-700 text-white py-16">
+        <div className="container mx-auto px-4 text-center">
+          <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <HeroClientContent />
+    </Suspense>
+  )
 } 

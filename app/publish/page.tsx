@@ -21,7 +21,7 @@ import { usePublishPropertyForm } from "@/components/property/publish/usePublish
 import type { CreatePropertyRequest } from "@/types/property";
 import { GAS_AVAILABILITY } from "@/constants/gas-availability.enum";
 import { ArrowLeft, Home, Upload } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
 const uniqueAmenitiesList = [
   { id: 'kitchen', label: 'Cocina equipada' },
@@ -37,7 +37,7 @@ const uniqueAmenitiesList = [
   { id: 'furnished', label: 'Propiedad amueblada' },
 ];
 
-const PublishProperty = () => {
+const PublishPropertyContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -355,6 +355,21 @@ const PublishProperty = () => {
         )}
       </div>
     </div>
+  );
+};
+
+const PublishProperty = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <PublishPropertyContent />
+    </Suspense>
   );
 };
 

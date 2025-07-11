@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchProperties } from '@/hooks/use-properties'
 import { PropertyCard } from './property-card'
 import { Pagination } from '../app-components/pagination'
@@ -34,7 +34,7 @@ const ITEMS_PER_PAGE = 9
 type ViewMode = 'card' | 'list' | 'map'
 type SortOption = 'price-asc' | 'price-desc' | 'created-asc' | 'created-desc' | 'updated-asc' | 'updated-desc'
 
-export function PropertyListClient({ initialData, searchParams }: PropertyListClientProps) {
+function PropertyListClientContent({ initialData, searchParams }: PropertyListClientProps) {
   const router = useRouter();
   const urlSearchParams = useSearchParams();
   const currentPage = searchParams.page || 1;
@@ -279,5 +279,13 @@ export function PropertyListClient({ initialData, searchParams }: PropertyListCl
         </div>
       )}
     </div>
+  )
+}
+
+export function PropertyListClient({ initialData, searchParams }: PropertyListClientProps) {
+  return (
+    <Suspense fallback={<PropertyListSkeleton />}>
+      <PropertyListClientContent initialData={initialData} searchParams={searchParams} />
+    </Suspense>
   )
 }
