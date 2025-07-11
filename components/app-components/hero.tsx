@@ -61,7 +61,7 @@ export const Hero = ({onSearch, selectedAddress}: HeroProps) => {
                 fill
                 priority
                 fetchPriority="high"
-                quality={70}
+                quality={60}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
                 className="object-cover object-center z-0"
             />
@@ -120,7 +120,7 @@ export const Hero = ({onSearch, selectedAddress}: HeroProps) => {
                         {/* Property Type Select */}
                         <div className="lg:w-64">
                             <Select value={propertyType} onValueChange={setPropertyType}>
-                                <SelectTrigger
+                                <SelectTrigger aria-label="Property type select button"
                                     className="h-14 text-lg border-gray-200 focus:border-teal-500 focus:ring-teal-500">
                                     <SelectValue placeholder="Tipo de propiedad"/>
                                 </SelectTrigger>
@@ -137,6 +137,7 @@ export const Hero = ({onSearch, selectedAddress}: HeroProps) => {
                             size="lg"
                             className="h-14 px-8 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200"
                             onClick={handleSearch}
+                            aria-label="Search properties button"
                         >
                             <Search className="w-5 h-5 mr-2"/>
                             Buscar Propiedades

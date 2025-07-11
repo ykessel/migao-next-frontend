@@ -189,6 +189,7 @@ function PropertyListClientContent({ initialData, searchParams }: PropertyListCl
                 size="sm"
                 onClick={() => setViewMode('card')}
                 className="flex items-center gap-2"
+                aria-label="Vista de tarjetas"
               >
                 <Grid3X3 className="w-4 h-4" />
                 <span className="hidden sm:inline">Tarjetas</span>
@@ -198,6 +199,7 @@ function PropertyListClientContent({ initialData, searchParams }: PropertyListCl
                 size="sm"
                 onClick={() => setViewMode('list')}
                 className="flex items-center gap-2"
+                aria-label="Vista de lista"
               >
                 <List className="w-4 h-4" />
                 <span className="hidden sm:inline">Lista</span>
@@ -207,6 +209,7 @@ function PropertyListClientContent({ initialData, searchParams }: PropertyListCl
                 size="sm"
                 onClick={() => setViewMode('map')}
                 className="flex items-center gap-2"
+                aria-label="Vista de mapa"
               >
                 <Map className="w-4 h-4" />
                 <span className="hidden sm:inline">Mapa</span>
@@ -217,45 +220,33 @@ function PropertyListClientContent({ initialData, searchParams }: PropertyListCl
           {/* Sort Options */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-gray-700 mr-2">Ordenar por:</span>
-            <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-              <SelectTrigger className="w-48">
+            <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)} aria-label="Ordenar propiedades">
+              <SelectTrigger className="w-48" aria-label="Selector de orden">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="price-asc">
+                <SelectItem value="price-asc" aria-label="Ordenar por precio menor a mayor">
                   <div className="flex items-center gap-2">
                     <SortAsc className="w-4 h-4" />
                     <span>Precio: Menor a Mayor</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="price-desc">
+                <SelectItem value="price-desc" aria-label="Ordenar por precio mayor a menor">
                   <div className="flex items-center gap-2">
                     <SortDesc className="w-4 h-4" />
                     <span>Precio: Mayor a Menor</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="created-desc">
+                <SelectItem value="created-desc" aria-label="Ordenar por fecha de creación más reciente">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    <span>Fecha de Creación (Nuevo)</span>
+                    <span>Nuevas</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="created-asc">
+                <SelectItem value="created-asc" aria-label="Ordenar por fecha de creación más antigua">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    <span>Fecha de Creación (Antiguo)</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="updated-desc">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>Última Actualización</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="updated-asc">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>Actualización Antigua</span>
+                    <span>Antiguas</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -275,6 +266,7 @@ function PropertyListClientContent({ initialData, searchParams }: PropertyListCl
             totalItems={properties.total}
             pageSize={ITEMS_PER_PAGE}
             onPageChange={handlePageChange}
+            aria-label="Paginación de propiedades"
           />
         </div>
       )}

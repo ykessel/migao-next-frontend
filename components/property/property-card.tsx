@@ -205,6 +205,7 @@ export const PropertyCard = ({
                                     onError={handleImageError}
                                     priority={currentImageIndex === 0}
                                     placeholder="blur"
+                                    quality={60}
                                     blurDataURL={blurDataURL}
                                 />
 
@@ -264,9 +265,8 @@ export const PropertyCard = ({
                                     <div
                                         className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1 z-10">
                                         {property.images.map((_, index) => (
-                                            <button
+                                            <span
                                                 key={index}
-                                                onClick={(e) => handleImageNavigation(e, index)}
                                                 className={`
                                                     w-3 h-3 rounded-full transition-all duration-200
                                                     ${index === currentImageIndex
