@@ -5,6 +5,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Search, MapPin, Home, Users, Star} from "lucide-react";
 import {Badge} from "@/components/ui/badge";
 import {PROPERTY_TYPE} from "@/constants/property-type.enum";
+import Image from 'next/image';
 
 interface HeroProps {
     onSearch: (filters: { search: string; propertyType: string; minPrice: number; maxPrice: number; rooms: number; furnished: string }) => void;
@@ -43,7 +44,7 @@ export const Hero = ({onSearch, selectedAddress}: HeroProps) => {
     const [location, setLocation] = useState("")
     const [propertyType, setPropertyType] = useState("")
 
-    const popularSearches = ["Berlín", "Múnich", "Hamburgo", "Amueblado", "Admite mascotas", "Con piscina"]
+    const popularSearches = ["Habana", "Playa", "Terraza", "Amueblado", "Admite mascotas", "Con piscina"]
 
     const stats = [
         {icon: Home, label: "Propiedades", value: "10,000+"},
@@ -52,16 +53,25 @@ export const Hero = ({onSearch, selectedAddress}: HeroProps) => {
     ]
 
     return (
-        <div className="landing relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-            {/* Background Image with Overlay */}
-            <div className="absolute inset-0 z-0">
-                {/* Gradient Overlay for better contrast */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/30"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"/>
+        <div className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
+            {/* Optimized Next.js Background Image */}
+            <Image
+                src="/havana.webp"
+                alt="Havana city background"
+                fill
+                priority
+                quality={80}
+                sizes="100vw"
+                className="object-cover object-center z-0"
+            />
+            {/* Gradient Overlays for better contrast */}
+            <div className="absolute inset-0 z-10 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/30" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
             </div>
 
             {/* Content */}
-            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                     {/* Main Heading */}
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
@@ -173,9 +183,8 @@ export const Hero = ({onSearch, selectedAddress}: HeroProps) => {
             </div>
 
             {/* Floating Elements for Visual Interest */}
-            <div className="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-            <div
-                className="absolute bottom-32 right-16 w-32 h-32 bg-orange-400/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+            <div className="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse z-30"></div>
+            <div className="absolute bottom-32 right-16 w-32 h-32 bg-orange-400/20 rounded-full blur-2xl animate-pulse delay-1000 z-30"></div>
         </div>
     );
 };

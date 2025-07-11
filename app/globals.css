@@ -335,17 +335,6 @@
   animation: wave 2.5s infinite linear;
 }
 
-/* Landing page specific styles */
-.landing {
-  background-image: url('/havana.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  min-height: 100vh;
-  position: relative;
-}
-
 /* Enhanced mobile responsiveness */
 @media (max-width: 768px) {
   .landing {
