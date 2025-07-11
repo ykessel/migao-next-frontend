@@ -105,6 +105,7 @@ export const Navigation = () => {
                                         : 'text-gray-700 hover:text-teal-600'}
                                 `}
                                 style={{ boxShadow: 'none', background: 'none' }}
+                                aria-label={item.label}
                             >
                                 <div className="flex items-center gap-3">
                                     <item.icon className="w-5 h-5" />

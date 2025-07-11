@@ -268,7 +268,7 @@ export const PropertyCard = ({
                                                 key={index}
                                                 onClick={(e) => handleImageNavigation(e, index)}
                                                 className={`
-                                                    w-2 h-2 rounded-full transition-all duration-200
+                                                    w-3 h-3 rounded-full transition-all duration-200
                                                     ${index === currentImageIndex
                                                     ? 'bg-white shadow-md'
                                                     : 'bg-white/50 hover:bg-white/80'

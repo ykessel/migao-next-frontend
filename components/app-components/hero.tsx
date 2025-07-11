@@ -60,8 +60,9 @@ export const Hero = ({onSearch, selectedAddress}: HeroProps) => {
                 alt="Havana city background"
                 fill
                 priority
-                quality={80}
-                sizes="100vw"
+                fetchPriority="high"
+                quality={70}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
                 className="object-cover object-center z-0"
             />
             {/* Gradient Overlays for better contrast */}
@@ -149,7 +150,7 @@ export const Hero = ({onSearch, selectedAddress}: HeroProps) => {
                             {popularSearches.map((search, index) => (
                                 <Badge
                                     key={index}
-                                    variant="secondary"
+                                    variant="outline"
                                     className="cursor-pointer hover:bg-teal-100 hover:text-teal-700 transition-colors duration-200 px-4 py-2"
                                     onClick={() => {
                                         setLocation(search);
