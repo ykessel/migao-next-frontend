@@ -171,14 +171,16 @@ export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChan
                                 );
                             }
                             if (['electricity', 'water', 'gas', 'cleaningService'].includes(service.field)) {
+                                const fieldKey = service.field as keyof IPropertyServices;
+                                const fieldValue = formData.services[fieldKey];
                                 return (
                                     <div key={service.field} className={`flex items-center w-full ${isUtilidades ? 'justify-between' : 'gap-2'}`}>
                                         <div className="flex items-center gap-2">
                                             {service.icon}
                                             <Label className="text-sm">{service.label}</Label>
                                         </div>
-                                        <Select value={formData.services[service.field]}
-                                                onValueChange={v => handleServiceChange(service.field as keyof IPropertyServices, v)}>
+                                        <Select value={fieldValue as string}
+                                                onValueChange={v => handleServiceChange(fieldKey, v)}>
                                             <SelectTrigger className="w-32">
                                                 <SelectValue placeholder="Seleccionar"/>
                                             </SelectTrigger>

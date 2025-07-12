@@ -89,7 +89,7 @@ export function useCreateProperty(options?: UseMutationOptions<Property, ApiErro
             queryClient.invalidateQueries({queryKey: propertyKeys.owner(data.owner._id!)})
 
             // Agregar la nueva propiedad al cache
-            queryClient.setQueryData(propertyKeys.detail(data.propertyId!), data)
+            queryClient.setQueryData(propertyKeys.detail(data._id!), data)
         },
         ...options,
     })

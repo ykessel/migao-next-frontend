@@ -71,7 +71,7 @@ export function useFavorites() {
 
   const isFavorite = (propertyId: string) => {
     if (!isAuthenticated) return;
-    return favorites.some((fav) => fav.propertyId === propertyId);
+    return favorites.some((fav) => fav._id === propertyId);
   };
 
   return {

@@ -7,7 +7,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 function SearchFiltersClientContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-// TODO: Replace with your actual search params logic
+
   const currentFilters = useMemo(() => {
     return {
       location: searchParams.get('search') || '',
@@ -17,7 +17,7 @@ function SearchFiltersClientContent() {
       rooms: parseInt(searchParams.get('rooms') || '0'),
       furnished: searchParams.get('furnished') || 'any'
     }
-  },[])
+  },[searchParams])
 
   const [filters, setFilters] = useState(currentFilters)
   const debouncedFilters = useDebounce(filters, 1000)
