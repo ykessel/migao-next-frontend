@@ -42,6 +42,12 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       description: property.description || "Propiedad en MiGao",
       type: "website",
       url: `https://migao.cu/property/${propertyId}`,
+      images: [
+        {
+          url: property.images?.[0]?.url,
+          alt: property.description,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
