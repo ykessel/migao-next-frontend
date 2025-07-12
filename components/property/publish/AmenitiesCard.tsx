@@ -19,7 +19,7 @@ interface AmenitiesCardProps {
 export const AmenitiesCard: FC<AmenitiesCardProps> = ({ formData, handleAmenityToggle, uniqueAmenitiesList }) => (
   <Card>
     <CardHeader>
-      <CardTitle>Comodidades</CardTitle>
+      <CardTitle>4. Comodidades</CardTitle>
     </CardHeader>
     <CardContent>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

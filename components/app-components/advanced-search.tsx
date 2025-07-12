@@ -388,7 +388,7 @@ export default function AdvancedPropertySearch() {
                             </h3>
                             <div className="grid gap-4">
                                 {searchResults?.data?.map((property: Property) => (
-                                    <Card key={property.propertyId} className="hover:shadow-md transition-shadow">
+                                    <Card key={property._id} className="hover:shadow-md transition-shadow">
                                         <CardContent className="p-4">
                                             <div className="flex justify-between items-start">
                                                 <div className="space-y-2">

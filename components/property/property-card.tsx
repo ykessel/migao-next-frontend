@@ -35,6 +35,7 @@ import Image from "next/image";
 import {useSession} from "next-auth/react";
 import {blurDataURL} from '@/lib/utils'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation';
 
 interface PropertyCardProps {
     property: Property;
@@ -59,7 +60,6 @@ export const PropertyCard = ({
     const [imageError, setImageError] = useState(false);
     const {data: session} = useSession();
     const isAuthenticated = !!session;
-    // Remove: const { isFavorite, addFavorite, removeFavorite, loading: favLoading } = useFavorites();
 
     // Use the prop instead
     const isLiked = isFavorite;
@@ -91,21 +91,17 @@ export const PropertyCard = ({
 
         try {
             if (isLiked) {
-                await removeFavorite?.(property.propertyId!);
+                await removeFavorite?.(property._id!);
                 toast.success("Propiedad removida de favoritos");
             } else {
-                await addFavorite?.(property.propertyId!);
+                await addFavorite?.(property._id!);
                 toast.success("Propiedad agregada a favoritos");
             }
         } catch {
             toast.error("Error al actualizar favoritos");
         }
-    }, [isAuthenticated, isLiked, removeFavorite, addFavorite, property.propertyId]);
+    }, [isAuthenticated, isLiked, removeFavorite, addFavorite, property._id]);
 
-    const handleImageNavigation = useCallback((e: React.MouseEvent, index: number) => {
-        e.stopPropagation();
-        setCurrentImageIndex(index);
-    }, []);
 
     const handleImageLoad = useCallback(() => {
         setImageLoading(false);
@@ -171,6 +167,7 @@ export const PropertyCard = ({
     const propertyFeatures = getPropertyFeatures();
     const hasImages = property.images && property.images.length > 0;
     const currentImage = hasImages ? property.images[currentImageIndex] : null;
+    const router = useRouter();
 
     return (
         <TooltipProvider>
@@ -400,22 +397,39 @@ export const PropertyCard = ({
 
                     {/* Property Features */}
                     {propertyFeatures.length > 0 && (
-                        <div className={`flex items-center gap-3 ${isListView ? 'mb-3' : 'mb-4'}`}>
-                            {propertyFeatures.map((feature, index) => (
-                                <Tooltip key={index}>
-                                    <TooltipTrigger asChild>
-                                        <div
-                                            className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                            <feature.icon className="w-3 h-3"/>
-                                            <span className="hidden sm:inline">{feature.label}</span>
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>{feature.label}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            ))}
-                        </div>
+                        // Show only a limited number of features, and a "+N más" button if there are more
+                        (() => {
+                            const MAX_FEATURES = 2;
+                            const visibleFeatures = propertyFeatures.slice(0, MAX_FEATURES);
+                            const hiddenCount = propertyFeatures.length - MAX_FEATURES;
+                            return (
+                                <div className={`flex items-center gap-3 ${isListView ? 'mb-3' : 'mb-4'}`}>
+                                    {visibleFeatures.map((feature, index) => (
+                                        <Tooltip key={index}>
+                                            <TooltipTrigger asChild>
+                                                <div
+                                                    className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                    <feature.icon className="w-3 h-3"/>
+                                                    <span className="hidden sm:inline">{feature.label}</span>
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>{feature.label}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    ))}
+                                    {hiddenCount > 0 && (
+                                        <button
+                                            className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full hover:bg-gray-200 transition"
+                                            onClick={() => router.push(`/property/${property._id}`)}
+                                            aria-label={`Ver ${hiddenCount} características más`}
+                                        >
+                                            +{hiddenCount} más
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })()
                     )}
 
                     {/* Contact Actions */}
@@ -460,7 +474,7 @@ export const PropertyCard = ({
                         )}
 
                         <Link
-                            href={`/property/${property.propertyId || ''}`}
+                            href={`/property/${property._id || ''}`}
                             prefetch={true}
                             className="block hover:shadow-lg transition-shadow"
                         >

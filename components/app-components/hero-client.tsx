@@ -32,6 +32,15 @@ function HeroClientContent() {
     const url = queryString ? `/?${queryString}` : '/'
     
     router.push(url, { scroll: false })
+    // Scroll to property list after navigation
+    setTimeout(() => {
+      const section = document.getElementById('properties-section');
+      if (section) {
+        const offset = 100; // adjust for header if needed
+        const top = section.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    }, 400);
   }
 
   const selectedAddress = searchParams.get('search') || undefined

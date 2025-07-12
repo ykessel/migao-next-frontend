@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import dynamic from 'next/dynamic';
-const MapView = dynamic(() => import('@/components/app-components/map-view').then(mod => mod.MapView), { ssr: false });
+const MapView = dynamic(() => import('@/components/map/map-view').then(mod => mod.MapView), { ssr: false });
 import { MapPin } from 'lucide-react';
 import { Location } from '@/types/location';
 
@@ -28,8 +28,6 @@ interface LocationCardProps {
   CUBA_PROVINCES: Province[];
 }
 
-// This component ensures the Select dropdowns for province and municipality appear above the map by using z-index classes (z-20 for containers, z-50 for dropdowns).
-// The address is now editable via an Input field, allowing the user to modify the address after selecting a point on the map.
 export const LocationCard: FC<LocationCardProps> = ({
   selectedProvince,
   selectedMunicipality,
@@ -41,7 +39,7 @@ export const LocationCard: FC<LocationCardProps> = ({
 }) => (
   <Card>
     <CardHeader>
-      <CardTitle>Ubicación</CardTitle>
+      <CardTitle>7. Ubicación</CardTitle>
     </CardHeader>
     <CardContent className="space-y-4">
       <div className="flex gap-4">

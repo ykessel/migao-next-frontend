@@ -1,6 +1,5 @@
 'use client'
-
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchProperties } from '@/hooks/use-properties'
 import { PropertyCard } from './property-card'
 import { Pagination } from '../app-components/pagination'
@@ -8,7 +7,7 @@ import { SearchResponse, SearchPropertyRequest } from '@/types/filter'
 import { Property } from '@/types/property'
 import { PropertyListSkeleton } from '../skeletons/PropertyListSkeleton'
 import dynamic from 'next/dynamic'
-const MapView = dynamic(() => import('../app-components/map-view').then(mod => mod.MapView), { ssr: false })
+const MapView = dynamic(() => import('../map/map-view').then(mod => mod.MapView), { ssr: false })
 import { Button } from '../ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { 
@@ -18,7 +17,6 @@ import {
   SortAsc, 
   SortDesc,
   Calendar,
-  Clock
 } from 'lucide-react'
 import { useFavorites } from '@/hooks/use-favorites';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -41,16 +39,6 @@ function PropertyListClientContent({ initialData, searchParams }: PropertyListCl
   const [viewMode, setViewMode] = useState<ViewMode>('card')
   const [sortBy, setSortBy] = useState<SortOption>('created-desc')
   
-  // Restore scroll position after filter changes
-  useEffect(() => {
-    const savedScrollPosition = sessionStorage.getItem('scrollPosition')
-    if (savedScrollPosition) {
-      const scrollY = parseInt(savedScrollPosition)
-      window.scrollTo(0, scrollY)
-      sessionStorage.removeItem('scrollPosition')
-    }
-  }, [searchParams])
-
   const { data: properties, isLoading } = useSearchProperties(
     { ...searchParams, page: currentPage },
     { 
@@ -149,10 +137,10 @@ function PropertyListClientContent({ initialData, searchParams }: PropertyListCl
       <div className={gridClass}>
         {sortedProperties.map((property: Property, idx: number) => (
           <PropertyCard 
-            key={property.propertyId || `property-${idx}`} 
+            key={property._id || `property-${idx}`} 
             property={property} 
             className={viewMode === 'list' ? 'flex flex-row h-auto' : ''}
-            isFavorite={Boolean(isFavorite(property.propertyId!))}
+            isFavorite={Boolean(isFavorite(property._id!))}
             addFavorite={addFavorite}
             removeFavorite={removeFavorite}
             favLoading={favLoading}

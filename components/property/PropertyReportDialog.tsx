@@ -47,7 +47,7 @@ export function PropertyReportDialog({ property, children }: PropertyReportDialo
 
     try {
       await createReportMutation.mutateAsync({
-        propertyId: property.propertyId!,
+        propertyId: property._id!,
         reason: reason as REPORT_REASON,
         description: description.trim(),
       });

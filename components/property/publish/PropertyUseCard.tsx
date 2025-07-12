@@ -15,7 +15,7 @@ interface PropertyUseCardProps {
 export const PropertyUseCard: FC<PropertyUseCardProps> = ({ formData, handleInputChange, PROPERTY_USE }) => (
   <Card>
     <CardHeader>
-      <CardTitle>Uso de la propiedad</CardTitle>
+      <CardTitle>5. Uso de la propiedad</CardTitle>
     </CardHeader>
     <CardContent>
       <div>

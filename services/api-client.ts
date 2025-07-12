@@ -43,12 +43,14 @@ export const propertyService = {
 // --- Favorites Service ---
 export const favoritesService = {
   async getFavorites(token?: string) {
+    console.log('Making favorites request to:', axiosInstance.defaults.baseURL + '/property/favorites/me');
     const response = await axiosInstance.get('/property/favorites/me',
       token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
     );
     return response.data;
   },
   async addFavorite(propertyId: string, token?: string) {
+    console.log('Making add favorite request to:', axiosInstance.defaults.baseURL + `/property/${propertyId}/favorite/me`);
     const response = await axiosInstance.post(
       `/property/${propertyId}/favorite/me`,
       {},
@@ -57,6 +59,7 @@ export const favoritesService = {
     return response.data;
   },
   async removeFavorite(propertyId: string, token?: string) {
+    console.log('Making remove favorite request to:', axiosInstance.defaults.baseURL + `/property/${propertyId}/favorite/me`);
     const response = await axiosInstance.delete(
       `/property/${propertyId}/favorite/me`,
       token ? { headers: { Authorization: `Bearer ${token}` } } : undefined

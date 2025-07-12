@@ -106,7 +106,7 @@ export default function PropertySidebar({
       </Card>
       
       {/* Report Property Card */}
-      <Card className="border-red-200 bg-red-50/50">
+      <Card className="border-red-200 bg-white">
         <CardContent className="p-6">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import PropertyTabs, { PropertyTabsProps } from "./PropertyTabs";
 import { PlaceType } from '@/constants/places.enum';
 
-const PropertyMap = dynamic(() => import("@/components/app-components/property-map-client"), { ssr: false });
+const PropertyMap = dynamic(() => import("@/components/map/property-map-client"), { ssr: false });
 const PlaceOfInterestMarkers = dynamic(() => import("./PlaceOfInterestMarkers"), { ssr: false });
 
 const placeTypeIconLabel: Record<string, { icon: string; label?: string }> = {

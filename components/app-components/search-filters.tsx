@@ -19,6 +19,7 @@ import {
   Sofa,
   Search
 } from "lucide-react";
+import { PROPERTY_TYPE } from '@/constants/property-type.enum'
 
 interface SearchFiltersProps {
   filters: {
@@ -39,14 +40,6 @@ interface SearchFiltersProps {
   }) => void;
 }
 
-const propertyTypes = [
-  { value: "any", label: "Cualquier tipo" },
-  { value: "apartment", label: "Apartamento" },
-  { value: "house", label: "Casa" },
-  { value: "studio", label: "Estudio" },
-  { value: "room", label: "Habitación" },
-];
-
 const roomOptions = [
   { value: 0, label: "Cualquiera" },
   { value: 1, label: "1+" },
@@ -65,7 +58,7 @@ const furnishedOptions = [
 
 const quickFilters = [
   { key: "furnished", value: "furnished", label: "Amueblado", icon: Sofa },
-  { key: "propertyType", value: "apartment", label: "Apartamento", icon: Home },
+  { key: "propertyType", value: "APARTAMENTO_INDEPENDIENTE", label: "Apartamento independiente", icon: Home },
   { key: "rooms", value: 2, label: "2+ Habitaciones", icon: BedDouble },
 ];
 
@@ -115,8 +108,8 @@ export const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) 
     const activeFilters = [];
     if (filters.location) activeFilters.push(filters.location);
     if (filters.propertyType !== "any") {
-      const type = propertyTypes.find(t => t.value === filters.propertyType);
-      if (type) activeFilters.push(type.label);
+      const type = Object.entries(PROPERTY_TYPE).find(([key, _]) => key === filters.propertyType);
+      if (type) activeFilters.push(type[1]);
     }
     if (filters.rooms > 0) activeFilters.push(`${filters.rooms}+ hab.`);
     if (filters.furnished !== "any") {
@@ -176,7 +169,7 @@ export const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) 
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Filter className="w-5 h-5 text-teal-600" />
-              Filtros de Búsqueda
+              Filtros
               {activeFiltersCount > 0 && (
                 <Badge variant="secondary" className="bg-teal-100 text-teal-700">
                   {activeFiltersCount}
@@ -251,12 +244,11 @@ export const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) 
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-3">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   placeholder="Ingresa ciudad, barrio o dirección"
                   value={filters.location}
                   onChange={(e) => updateFilter('location', e.target.value)}
-                  className="pl-10 form-input"
+                  className="pl-12 form-input text-base"
                 />
               </div>
             </CollapsibleContent>
@@ -325,15 +317,14 @@ export const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) 
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-3">
-              <Select value={filters.propertyType || "any"} onValueChange={(value) => updateFilter('propertyType', value)}>
+              <Select value={filters.propertyType || 'any'} onValueChange={(value) => updateFilter('propertyType', value)}>
                 <SelectTrigger className="form-input">
                   <SelectValue placeholder="Selecciona tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {propertyTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
+                  <SelectItem value="any">Cualquier tipo</SelectItem>
+                  {Object.entries(PROPERTY_TYPE).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

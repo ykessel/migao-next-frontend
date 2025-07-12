@@ -2,6 +2,7 @@ import GoogleProvider from "next-auth/providers/google";
 import type { AuthOptions } from "next-auth";
 import { Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
+import {API_BASE_URL} from "@/lib/axios";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -15,7 +16,7 @@ export const authOptions: AuthOptions = {
       // Solo en el primer login
       if (account && profile?.email) {
         // Llamar a tu backend con la info del usuario de Google
-        const res = await fetch(`${process.env.NEXT_API_BASE_URL}/auth/google/verify`, {
+        const res = await fetch(`${API_BASE_URL}/auth/google/verify`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

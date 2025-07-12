@@ -1,7 +1,8 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SearchFilters } from './search-filters'
-import { Suspense } from 'react'
+import { Suspense, useState, useEffect } from 'react'
+import { useDebounce } from '@/hooks/use-debounce'
 
 function SearchFiltersClientContent() {
   const router = useRouter()
@@ -16,33 +17,30 @@ function SearchFiltersClientContent() {
     furnished: searchParams.get('furnished') || 'any'
   }
 
-  const handleFiltersChange = (filters: {
-    location: string
-    minPrice: number
-    maxPrice: number
-    propertyType: string
-    rooms: number
-    furnished: string
-  }) => {
+  const [filters, setFilters] = useState(currentFilters)
+  const debouncedFilters = useDebounce(filters, 1000)
+
+  // Sync filters with URL changes
+  useEffect(() => {
+    setFilters(currentFilters)
+  }, [currentFilters, searchParams])
+
+  useEffect(() => {
     // Save current scroll position
     sessionStorage.setItem('scrollPosition', window.scrollY.toString())
-    
     const params = new URLSearchParams()
-    
-    if (filters.location) params.set('search', filters.location)
-    if (filters.propertyType !== 'any') params.set('propertyType', filters.propertyType)
-    if (filters.minPrice > 0) params.set('minPrice', filters.minPrice.toString())
-    if (filters.maxPrice < 5000) params.set('maxPrice', filters.maxPrice.toString())
-    if (filters.rooms > 0) params.set('rooms', filters.rooms.toString())
-    if (filters.furnished !== 'any') params.set('furnished', filters.furnished)
-    
+    if (debouncedFilters.location) params.set('search', debouncedFilters.location)
+    if (debouncedFilters.propertyType !== 'any') params.set('propertyType', debouncedFilters.propertyType)
+    if (debouncedFilters.minPrice > 0) params.set('minPrice', debouncedFilters.minPrice.toString())
+    if (debouncedFilters.maxPrice < 5000) params.set('maxPrice', debouncedFilters.maxPrice.toString())
+    if (debouncedFilters.rooms > 0) params.set('rooms', debouncedFilters.rooms.toString())
+    if (debouncedFilters.furnished !== 'any') params.set('furnished', debouncedFilters.furnished)
     const queryString = params.toString()
     const url = queryString ? `/?${queryString}` : '/'
-    
     router.push(url, { scroll: false })
-  }
+  }, [debouncedFilters, router])
 
-  return <SearchFilters filters={currentFilters} onFiltersChange={handleFiltersChange} />
+  return <SearchFilters filters={filters} onFiltersChange={setFilters} />
 }
 
 export function SearchFiltersClient() {

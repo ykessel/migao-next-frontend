@@ -21,7 +21,7 @@ export interface PlaceOfInterest {
 }
 
 export interface Property {
-    propertyId?: string
+    _id?: string
     title: string
     description: string
     rentPricePerMonth: number

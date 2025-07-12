@@ -52,16 +52,16 @@ export function UserPropertiesList() {
   const deletePropertyMutation = useDeleteProperty();
 
   const handleEditProperty = (property: Property) => {
-    router.push(`/publish?edit=${property.propertyId}`);
+    router.push(`/publish?edit=${property._id}`);
   };
 
   const handleViewProperty = (property: Property) => {
-    router.push(`/property/${property.propertyId}`);
+    router.push(`/property/${property._id}`);
   };
 
   const handleDeleteProperty = async (property: Property) => {
     try {
-      await deletePropertyMutation.mutateAsync(property.propertyId!);
+      await deletePropertyMutation.mutateAsync(property._id!);
     } catch (error) {
       // @ts-expect-error error.message can not exist
       const errorMessage = error?.message || "No se pudo eliminar la propiedad. Intenta de nuevo.";
@@ -111,7 +111,7 @@ export function UserPropertiesList() {
       {properties && properties.length > 0 ? (
         <div className="grid gap-6">
           {properties.map((property: Property) => (
-            <Card key={property.propertyId} className="shadow-lg border-0 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
+            <Card key={property._id} className="shadow-lg border-0 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">

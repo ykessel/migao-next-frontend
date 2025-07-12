@@ -105,6 +105,16 @@
       @apply outline-none ring-2 ring-teal-500 ring-offset-2;
   }
 
+  /* Ensure all shadcn cards have white background */
+  .bg-card {
+      background-color: white !important;
+  }
+
+  /* Force white background on shadcn card components */
+  .rounded-lg.border.bg-card {
+      background-color: white !important;
+  }
+
   /* Fix transparent backgrounds for UI components */
   [data-radix-popper-content-wrapper] {
       background-color: hsl(var(--popover));

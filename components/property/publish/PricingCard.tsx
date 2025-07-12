@@ -20,7 +20,7 @@ interface PricingCardProps {
 export const PricingCard: FC<PricingCardProps> = ({formData, handleInputChange, CURRENCY}) => (
     <Card>
         <CardHeader>
-            <CardTitle>Precio y Condiciones</CardTitle>
+            <CardTitle>2. Precio y Condiciones</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

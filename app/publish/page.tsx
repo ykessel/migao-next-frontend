@@ -1,7 +1,6 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Navigation } from "@/components/app-components/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateProperty, useProperty } from "@/hooks/use-properties";
 import { useUpdateProperty } from "@/hooks/use-user-properties";
@@ -10,7 +9,6 @@ import { CURRENCY } from "@/constants/currencies.enum";
 import { PROPERTY_USE } from "@/constants/property-use.enum";
 import { CUBA_PROVINCES } from "@/constants/cuba-locations";
 import { BasicInfoCard } from "@/components/property/publish/BasicInfoCard";
-import { PropertyDetailsCard } from "@/components/property/publish/PropertyDetailsCard";
 import { PricingCard } from "@/components/property/publish/PricingCard";
 import { ServicesCard } from "@/components/property/publish/ServicesCard";
 import { AmenitiesCard } from "@/components/property/publish/AmenitiesCard";
@@ -20,8 +18,9 @@ import { LocationCard } from "@/components/property/publish/LocationCard";
 import { usePublishPropertyForm } from "@/components/property/publish/usePublishPropertyForm";
 import type { CreatePropertyRequest } from "@/types/property";
 import { GAS_AVAILABILITY } from "@/constants/gas-availability.enum";
-import { ArrowLeft, Home, Upload } from "lucide-react";
-import { useEffect, Suspense } from "react";
+import { Home } from "lucide-react";
+import React, { useEffect, Suspense } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const uniqueAmenitiesList = [
   { id: 'kitchen', label: 'Cocina equipada' },
@@ -50,7 +49,7 @@ const PublishPropertyContent = () => {
   const isEditMode = !!editPropertyId;
   
   // Load property data if in edit mode
-  const { data: propertyToEdit, isLoading: isLoadingProperty } = useProperty(
+  const { data: propertyToEdit } = useProperty(
     editPropertyId || '',
     { enabled: isEditMode }
   );
@@ -239,120 +238,111 @@ const PublishPropertyContent = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50">
-      <Navigation />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Button
-            onClick={() => router.push('/')}
-            variant="ghost"
-            className="mb-6 text-teal-600 hover:text-teal-700 hover:bg-teal-50 flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver al inicio
-          </Button>
-          
-          <div className="text-center mb-8">
-            <div className="mx-auto w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mb-4">
-              <Upload className="w-10 h-10 text-teal-600" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              {isEditMode ? 'Editar Propiedad' : 'Publicar Propiedad'}
-            </h1>
-            <p className="text-gray-600 text-lg">
-              {isEditMode 
-                ? 'Modifica la información de tu propiedad en MiGao'
-                : 'Completa la información de tu propiedad para publicarla en MiGao'
-              }
-            </p>
-          </div>
+  type FormType = typeof form;
+  const steps: ((form: FormType) => React.ReactNode)[] = [
+    (form) => <BasicInfoCard formData={form.formData} handleInputChange={form.handleInputChange} PROPERTY_TYPE={PROPERTY_TYPE} />, 
+    (form) => <PricingCard formData={form.formData} handleInputChange={form.handleInputChange} CURRENCY={CURRENCY} />, 
+    (form) => <ServicesCard formData={form.formData} handleServiceChange={form.handleServiceChange} />, 
+    (form) => (
+      <div className="flex flex-col gap-6">
+        <div className="flex-1">
+          <AmenitiesCard formData={form.formData} handleAmenityToggle={form.handleAmenityToggle} uniqueAmenitiesList={uniqueAmenitiesList} />
         </div>
+        <div className="flex-1">
+          <PropertyUseCard formData={form.formData} handleInputChange={form.handleInputChange} PROPERTY_USE={PROPERTY_USE} />
+        </div>
+      </div>
+    ),
+    (form) => <LocationCard selectedProvince={form.selectedProvince} selectedMunicipality={form.selectedMunicipality} handleProvinceChange={form.handleProvinceChange} handleMunicipalityChange={form.handleMunicipalityChange} selectedLocation={form.selectedLocation} setSelectedLocation={form.setSelectedLocation} CUBA_PROVINCES={CUBA_PROVINCES} />,
+    (form) => <ImagesUploadCard uploadedImages={form.uploadedImages} handleImageSelect={form.handleImageSelect} removeImage={form.removeImage} isUploading={form.isUploading} />, 
+  ];
 
-        {isLoadingProperty ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Cargando propiedad...</p>
-            </div>
+  
+  const [step, setStep] = React.useState(0);
+  const [direction, setDirection] = React.useState(0); // 1 for next, -1 for back
+
+  return (
+    <div className="min-h-[calc(100vh-65px)] bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stepper UI */}
+        <div className="mb-8">
+          {/* Progress bar header */}
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm text-gray-700 font-medium">Paso {step + 1} de {steps.length}</span>
+            <span className="text-sm text-gray-700 font-medium">{Math.round(((step + 1) / steps.length) * 100)}% completado</span>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-8">
-          <BasicInfoCard
-            formData={form.formData}
-            handleInputChange={form.handleInputChange}
-            PROPERTY_TYPE={PROPERTY_TYPE}
-          />
-          <PropertyDetailsCard
-            formData={form.formData}
-            handleInputChange={form.handleInputChange}
-          />
-          <PricingCard
-            formData={form.formData}
-            handleInputChange={form.handleInputChange}
-            CURRENCY={CURRENCY}
-          />
-          <ServicesCard
-            formData={form.formData}
-            handleServiceChange={form.handleServiceChange}
-          />
-          <AmenitiesCard
-            formData={form.formData}
-            handleAmenityToggle={form.handleAmenityToggle}
-            uniqueAmenitiesList={uniqueAmenitiesList}
-          />
-          <PropertyUseCard
-            formData={form.formData}
-            handleInputChange={form.handleInputChange}
-            PROPERTY_USE={PROPERTY_USE}
-          />
-          <ImagesUploadCard
-            uploadedImages={form.uploadedImages}
-            handleImageSelect={form.handleImageSelect}
-            removeImage={form.removeImage}
-            isUploading={form.isUploading}
-          />
-          <LocationCard
-            selectedProvince={form.selectedProvince}
-            selectedMunicipality={form.selectedMunicipality}
-            handleProvinceChange={form.handleProvinceChange}
-            handleMunicipalityChange={form.handleMunicipalityChange}
-            selectedLocation={form.selectedLocation}
-            setSelectedLocation={form.setSelectedLocation}
-            CUBA_PROVINCES={CUBA_PROVINCES}
-          />
-          
-          {/* Submit Buttons */}
-          <div className="flex flex-col sm:flex-row justify-end gap-4 pt-8 border-t border-gray-200">
+          <div className="w-full mb-4">
+          <div
+              style={{ width: `${((step + 1) / steps.length) * 100}%` }}
+              className="h-2 rounded-md shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500 transition-all duration-500 ease-out"
+            ></div>
+          </div>
+          {/* Step labels removed */}
+        </div>
+        {/* Wizard Step */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div style={{ minHeight: 400 }}>
+            <AnimatePresence initial={false} custom={direction} mode="wait">
+              <motion.div
+                key={step}
+                custom={direction}
+                initial={{ x: direction === 1 ? 100 : -100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction === 1 ? -100 : 100, opacity: 0 }}
+                transition={{ duration: 0.35, ease: "easeInOut" }}
+              >
+                {steps[step](form)}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          <div className="flex flex-row justify-between gap-4 pt-8 border-t border-gray-200">
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push('/')}
+              onClick={() => {
+                if (step > 0) {
+                  setDirection(-1);
+                  setStep(step - 1);
+                } else {
+                  router.push('/');
+                }
+              }}
               className="h-12 px-8 text-lg font-medium border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
             >
-              Cancelar
+              {step === 0 ? 'Cancelar' : 'Atrás'}
             </Button>
-            <Button
-              type="submit"
-              className="h-12 px-8 text-lg font-medium bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-              disabled={createProperty.isPending || updateProperty.isPending}
-            >
-              {createProperty.isPending || updateProperty.isPending ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {isEditMode ? 'Actualizando...' : 'Publicando...'}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4" />
-                  {isEditMode ? 'Actualizar Propiedad' : 'Publicar Propiedad'}
-                </div>
-              )}
-            </Button>
+            {step < steps.length - 1 ? (
+              <Button
+                type="button"
+                className="h-12 px-8 text-lg font-medium bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                onClick={() => {
+                  setDirection(1);
+                  setStep(step + 1);
+                }}
+              >
+                Siguiente
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="h-12 px-8 text-lg font-medium bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                disabled={createProperty.isPending || updateProperty.isPending}
+              >
+                {createProperty.isPending || updateProperty.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    {isEditMode ? 'Actualizando...' : 'Publicando...'}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Home className="w-4 h-4" />
+                    {isEditMode ? 'Actualizar Propiedad' : 'Publicar Propiedad'}
+                  </div>
+                )}
+              </Button>
+            )}
           </div>
         </form>
-        )}
       </div>
     </div>
   );

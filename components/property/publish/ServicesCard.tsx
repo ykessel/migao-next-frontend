@@ -44,7 +44,7 @@ interface ServicesCardProps {
 const serviceCategories = [
     {
         label: 'Utilidades',
-        color: 'bg-blue-50',
+        color: 'bg-white border border-blue-200',
         services: [
             {field: 'electricity', label: 'Electricidad', icon: <Zap className="text-yellow-500 w-4 h-4"/>},
             {field: 'water', label: 'Agua', icon: <Droplet className="text-blue-400 w-4 h-4"/>},
@@ -56,7 +56,7 @@ const serviceCategories = [
     },
     {
         label: 'Entretenimiento y Conectividad',
-        color: 'bg-purple-50',
+        color: 'bg-white border border-purple-200',
         services: [
             {field: 'cableTV', label: 'TV por cable', icon: <Tv className="text-purple-500 w-4 h-4"/>},
             {field: 'streamingServices', label: 'Streaming', icon: <Tv className="text-pink-500 w-4 h-4"/>},
@@ -67,7 +67,7 @@ const serviceCategories = [
     },
     {
         label: 'Mantenimiento y Seguridad',
-        color: 'bg-green-50',
+        color: 'bg-white border border-green-200',
         services: [
             {field: 'maintenanceService', label: 'Mantenimiento', icon: <Hammer className="text-green-700 w-4 h-4"/>},
             {field: 'gardenMaintenance', label: 'Jardín', icon: <Leaf className="text-green-500 w-4 h-4"/>},
@@ -88,7 +88,7 @@ const serviceCategories = [
     },
     {
         label: 'Hospitalidad y Servicios',
-        color: 'bg-yellow-50',
+        color: 'bg-white border border-yellow-200',
         services: [
             {field: 'airportTransfer', label: 'Transfer aeropuerto', icon: <MapPin className="text-blue-400 w-4 h-4"/>},
             {field: 'conciergeService', label: 'Conserje', icon: <ConciergeBell className="text-yellow-600 w-4 h-4"/>},
@@ -117,19 +117,23 @@ const serviceCategories = [
 export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChange}) => (
     <Card>
         <CardHeader>
-            <CardTitle>Servicios de la Propiedad</CardTitle>
+            <CardTitle>3. Servicios de la Propiedad</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
             {serviceCategories.map((cat) => (
                 <div key={cat.label} className={`rounded-lg p-4 mb-2 ${cat.color}`}>
                     <h4 className="font-semibold mb-3 text-base">{cat.label}</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {cat.services.map((service) => {
+                            // Only apply to Utilidades section
+                            const isUtilidades = cat.label === 'Utilidades';
                             if (service.field === 'gasAvailability') {
                                 return (
-                                    <div key={service.field} className="flex items-center gap-2">
-                                        {service.icon}
-                                        <Label className="text-sm">{service.label}</Label>
+                                    <div key={service.field} className={`flex items-center w-full ${isUtilidades ? 'justify-between' : 'gap-2'}`}>
+                                        <div className="flex items-center gap-2">
+                                            {service.icon}
+                                            <Label className="text-sm">{service.label}</Label>
+                                        </div>
                                         <Select value={formData.services.gasAvailability || ''}
                                                 onValueChange={v => handleServiceChange('gasAvailability', v)}>
                                             <SelectTrigger className="w-32">
@@ -146,9 +150,11 @@ export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChan
                             }
                             if (service.field === 'internetType') {
                                 return (
-                                    <div key={service.field} className="flex items-center gap-2">
-                                        {service.icon}
-                                        <Label className="text-sm">{service.label}</Label>
+                                    <div key={service.field} className={`flex items-center w-full ${isUtilidades ? 'justify-between' : 'gap-2'}`}>
+                                        <div className="flex items-center gap-2">
+                                            {service.icon}
+                                            <Label className="text-sm">{service.label}</Label>
+                                        </div>
                                         <Select value={formData.services.internetType}
                                                 onValueChange={v => handleServiceChange('internetType', v)}>
                                             <SelectTrigger className="w-32">
@@ -164,11 +170,13 @@ export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChan
                                     </div>
                                 );
                             }
-                            if (service.field === 'electricity' || service.field === 'water' || service.field === 'gas' || service.field === 'cleaningService') {
+                            if (['electricity', 'water', 'gas', 'cleaningService'].includes(service.field)) {
                                 return (
-                                    <div key={service.field} className="flex items-center gap-2">
-                                        {service.icon}
-                                        <Label className="text-sm">{service.label}</Label>
+                                    <div key={service.field} className={`flex items-center w-full ${isUtilidades ? 'justify-between' : 'gap-2'}`}>
+                                        <div className="flex items-center gap-2">
+                                            {service.icon}
+                                            <Label className="text-sm">{service.label}</Label>
+                                        </div>
                                         <Select value={formData.services[service.field]}
                                                 onValueChange={v => handleServiceChange(service.field as keyof IPropertyServices, v)}>
                                             <SelectTrigger className="w-32">
