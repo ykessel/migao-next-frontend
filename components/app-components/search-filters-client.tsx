@@ -7,7 +7,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 function SearchFiltersClientContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-
+// TODO: Replace with your actual search params logic
   const currentFilters = {
     location: searchParams.get('search') || '',
     minPrice: parseInt(searchParams.get('minPrice') || '0'),
