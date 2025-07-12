@@ -53,6 +53,12 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       card: "summary_large_image",
       title: property.title,
       description: property.description || "Propiedad en MiGao",
+      images: [
+        {
+          url: property.images?.[0]?.url,
+          alt: property.description,
+        },
+      ],
     },
   }
 }
