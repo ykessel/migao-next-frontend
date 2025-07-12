@@ -1,21 +1,23 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SearchFilters } from './search-filters'
-import { Suspense, useState, useEffect } from 'react'
+import {Suspense, useState, useEffect, useMemo} from 'react'
 import { useDebounce } from '@/hooks/use-debounce'
 
 function SearchFiltersClientContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 // TODO: Replace with your actual search params logic
-  const currentFilters = {
-    location: searchParams.get('search') || '',
-    minPrice: parseInt(searchParams.get('minPrice') || '0'),
-    maxPrice: parseInt(searchParams.get('maxPrice') || '5000'),
-    propertyType: searchParams.get('propertyType') || 'any',
-    rooms: parseInt(searchParams.get('rooms') || '0'),
-    furnished: searchParams.get('furnished') || 'any'
-  }
+  const currentFilters = useMemo(() => {
+    return {
+      location: searchParams.get('search') || '',
+      minPrice: parseInt(searchParams.get('minPrice') || '0'),
+      maxPrice: parseInt(searchParams.get('maxPrice') || '5000'),
+      propertyType: searchParams.get('propertyType') || 'any',
+      rooms: parseInt(searchParams.get('rooms') || '0'),
+      furnished: searchParams.get('furnished') || 'any'
+    }
+  },[])
 
   const [filters, setFilters] = useState(currentFilters)
   const debouncedFilters = useDebounce(filters, 1000)

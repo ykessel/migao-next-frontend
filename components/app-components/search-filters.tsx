@@ -108,7 +108,7 @@ export const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) 
     const activeFilters = [];
     if (filters.location) activeFilters.push(filters.location);
     if (filters.propertyType !== "any") {
-      const type = Object.entries(PROPERTY_TYPE).find(([key, _]) => key === filters.propertyType);
+      const type = Object.entries(PROPERTY_TYPE).find(([key,]) => key === filters.propertyType);
       if (type) activeFilters.push(type[1]);
     }
     if (filters.rooms > 0) activeFilters.push(`${filters.rooms}+ hab.`);
