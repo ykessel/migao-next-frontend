@@ -34,22 +34,12 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
     }
   }
 
-  const firstImage = property.images?.[0]?.url || "/placeholder.svg"
-
   return {
     title: property.title,
     description: property.description || "Propiedad en MiGao",
     openGraph: {
       title: property.title,
       description: property.description || "Propiedad en MiGao",
-      images: [
-        {
-          url: firstImage,
-          width: 1200,
-          height: 630,
-          alt: property.title,
-        },
-      ],
       type: "website",
       url: `https://migao.cu/property/${propertyId}`,
     },
@@ -57,7 +47,6 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       card: "summary_large_image",
       title: property.title,
       description: property.description || "Propiedad en MiGao",
-      images: [firstImage],
     },
   }
 }
