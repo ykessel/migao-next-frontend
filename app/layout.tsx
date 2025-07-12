@@ -17,19 +17,20 @@ export const metadata: Metadata = {
     locale: 'es_ES',
     images: [
       {
-        url: '/og.png',
+        url: '/opengraph-image.jpg',
         width: 1200,
         height: 630,
         alt: 'MiGao - Plataforma de propiedades en Cuba',
       },
     ],
+    url: 'https://migao-next-frontend.vercel.app',
     siteName: 'MiGao',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'MiGao - Encuentra tu hogar ideal en Cuba',
     description: 'Plataforma líder para encontrar propiedades en alquiler en Cuba',
-    images: ['/og.png'],
+    images: ['/opengraph-image.jpg'],
   },
   robots: {
     index: true,
