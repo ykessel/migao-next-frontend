@@ -23,14 +23,15 @@ export function Pagination({currentPage, totalItems, pageSize, onPageChange}: Pa
     if (totalPages <= 1) return null;
 
     return (
-        <div className="flex items-center justify-center gap-2 mt-8">
+        <div className="flex items-center justify-center gap-2 mt-8" role="navigation" aria-label="Paginación">
             <Button
                 variant="outline"
                 size="icon"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
+                aria-label={`Ir a la página anterior (página ${currentPage - 1})`}
             >
-                <ChevronLeft className="h-4 w-4"/>
+                <ChevronLeft className="h-4 w-4" aria-hidden="true"/>
             </Button>
 
             {visiblePages[0] > 1 && (
@@ -38,11 +39,12 @@ export function Pagination({currentPage, totalItems, pageSize, onPageChange}: Pa
                     <Button
                         variant="outline"
                         onClick={() => onPageChange(1)}
+                        aria-label="Ir a la página 1"
                     >
                         1
                     </Button>
                     {visiblePages[0] > 2 && (
-                        <span className="px-2">...</span>
+                        <span className="px-2" aria-label="Páginas omitidas">...</span>
                     )}
                 </>
             )}
@@ -52,6 +54,8 @@ export function Pagination({currentPage, totalItems, pageSize, onPageChange}: Pa
                     key={page}
                     variant={currentPage === page ? "default" : "outline"}
                     onClick={() => onPageChange(page)}
+                    aria-label={`Ir a la página ${page}`}
+                    aria-current={currentPage === page ? "page" : undefined}
                 >
                     {page}
                 </Button>
@@ -60,11 +64,12 @@ export function Pagination({currentPage, totalItems, pageSize, onPageChange}: Pa
             {visiblePages[visiblePages.length - 1] < totalPages && (
                 <>
                     {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-                        <span className="px-2">...</span>
+                        <span className="px-2" aria-label="Páginas omitidas">...</span>
                     )}
                     <Button
                         variant="outline"
                         onClick={() => onPageChange(totalPages)}
+                        aria-label={`Ir a la página ${totalPages}`}
                     >
                         {totalPages}
                     </Button>
@@ -76,8 +81,9 @@ export function Pagination({currentPage, totalItems, pageSize, onPageChange}: Pa
                 size="icon"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
+                aria-label={`Ir a la página siguiente (página ${currentPage + 1})`}
             >
-                <ChevronRight className="h-4 w-4"/>
+                <ChevronRight className="h-4 w-4" aria-hidden="true"/>
             </Button>
         </div>
     );

@@ -319,8 +319,8 @@ export const PropertyCard = ({
                             className={`
                                 font-medium shadow-sm
                                 ${property.isAvailable
-                                ? 'bg-green-500 hover:bg-green-600 text-white'
-                                : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                ? 'bg-green-600 hover:bg-green-700 text-white'
+                                : 'bg-amber-600 text-white border-amber-700'
                             }
                             `}
                         >
@@ -344,7 +344,7 @@ export const PropertyCard = ({
                                 </div>
                             </div>
 
-                            <div className="flex items-center text-gray-600 mb-2">
+                            <div className="flex items-center text-gray-700 mb-2">
                                 <MapPin className="w-4 h-4 mr-1 shrink-0"/>
                                 <span className="text-sm line-clamp-1">{(property?.location as {
                                     address?: string
@@ -356,7 +356,7 @@ export const PropertyCard = ({
                                     <span className="text-2xl sm:text-3xl font-bold text-teal-600">
                                         {formatPrice()}
                                     </span>
-                                    <span className="text-sm text-gray-500 mb-1">/mes</span>
+                                    <span className="text-sm text-gray-600 mb-1">/mes</span>
                                 </div>
                             )}
                         </div>
@@ -367,14 +367,14 @@ export const PropertyCard = ({
                                     <span className="text-2xl font-bold text-teal-600">
                                         {formatPrice()}
                                     </span>
-                                    <span className="text-sm text-gray-500 mb-1">/mes</span>
+                                    <span className="text-sm text-gray-600 mb-1">/mes</span>
                                 </div>
                             </div>
                         )}
                     </div>
 
                     {/* Property Details */}
-                    <div className={`flex items-center gap-4 text-sm text-gray-600 ${isListView ? 'mb-3' : 'mb-4'}`}>
+                    <div className={`flex items-center gap-4 text-sm text-gray-700 ${isListView ? 'mb-3' : 'mb-4'}`}>
                         {property.rooms > 0 && (
                             <div className="flex items-center gap-1">
                                 <BedDouble className="w-4 h-4"/>
@@ -408,7 +408,7 @@ export const PropertyCard = ({
                                         <Tooltip key={index}>
                                             <TooltipTrigger asChild>
                                                 <div
-                                                    className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                    className="flex items-center gap-1 text-xs text-gray-700 bg-gray-200 px-2 py-1 rounded-full">
                                                     <feature.icon className="w-3 h-3"/>
                                                     <span className="hidden sm:inline">{feature.label}</span>
                                                 </div>
@@ -420,7 +420,7 @@ export const PropertyCard = ({
                                     ))}
                                     {hiddenCount > 0 && (
                                         <button
-                                            className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full hover:bg-gray-200 transition"
+                                            className="flex items-center gap-1 text-xs text-gray-700 bg-gray-200 px-2 py-1 rounded-full hover:bg-gray-300 transition"
                                             onClick={() => router.push(`/property/${property._id}`)}
                                             aria-label={`Ver ${hiddenCount} características más`}
                                         >
@@ -477,13 +477,16 @@ export const PropertyCard = ({
                             href={`/property/${property._id || ''}`}
                             prefetch={true}
                             className="block hover:shadow-lg transition-shadow"
+                            aria-label={`Ver detalles de ${property.title}`}
+                            title={`Ver detalles de ${property.title}`}
                         >
                             <Button
                                 size="sm"
                                 className={`btn-primary ${isListView ? '' : 'flex-1'}`}
+                                aria-label={`Ver detalles de ${property.title}`}
                             >
                                 <span className="hidden sm:inline">Ver Detalles</span>
-                                <ArrowRight className="w-4 h-4 sm:ml-1"/>
+                                <ArrowRight className="w-4 h-4 sm:ml-1" aria-hidden="true"/>
                             </Button>
                         </Link>
                     </div>
