@@ -2,18 +2,18 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Home, MapPin } from "lucide-react";
-import PlaceTypeFilter from "./PlaceTypeFilter";
+import { Home, MapPin, Info, Users } from "lucide-react";
+import PlaceTypeFilter from "./place-type-filter";
 import { PlaceType } from '@/constants/places.enum';
 import type { Property } from '@/types/property';
 import { Amenities } from '@/types/amenities';
 import { HouseRules } from '@/types/house-rules';
 import { GAS_AVAILABILITY } from '@/constants/gas-availability.enum';
-import { PlaceOfInterestMarkersProps } from "./PlaceOfInterestMarkers";
+import { PlaceOfInterestMarkersProps } from "./place-of-interest-markers";
 
 export interface PropertyTabsProps {
   property: Property;
-  placeTypeIconLabel: Record<string, { icon: string; label?: string }>;
+  placeTypeIconLabel: Record<string, { icon: React.ReactNode; label?: string }>;
   typeColors: Record<PlaceType, string>;
   allTypes: PlaceType[];
   selectedTypes: PlaceType[];
@@ -42,11 +42,51 @@ export default function PropertyTabs({
 }: PropertyTabsProps) {
   return (
     <Tabs defaultValue="description" className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="description">Descripción</TabsTrigger>
-        <TabsTrigger value="amenities">Comodidades</TabsTrigger>
-        <TabsTrigger value="rules">Qué saber</TabsTrigger>
-        <TabsTrigger value="neighborhood">Vecindario</TabsTrigger>
+      <TabsList className="flex w-full justify-between bg-gray-50 rounded-xl p-1 shadow-sm mb-6">
+        <TabsTrigger
+          value="description"
+          className="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 mx-1 font-semibold transition-all duration-200
+            data-[state=active]:bg-teal-600 data-[state=active]:text-white
+            data-[state=active]:shadow
+            data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
+            hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400"
+        >
+          <Info className="w-5 h-5" />
+          Descripción
+        </TabsTrigger>
+        <TabsTrigger
+          value="amenities"
+          className="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 mx-1 font-semibold transition-all duration-200
+            data-[state=active]:bg-teal-600 data-[state=active]:text-white
+            data-[state=active]:shadow
+            data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
+            hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400"
+        >
+          <Home className="w-5 h-5" />
+          Comodidades
+        </TabsTrigger>
+        <TabsTrigger
+          value="rules"
+          className="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 mx-1 font-semibold transition-all duration-200
+            data-[state=active]:bg-teal-600 data-[state=active]:text-white
+            data-[state=active]:shadow
+            data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
+            hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400"
+        >
+          <Users className="w-5 h-5" />
+          Qué saber
+        </TabsTrigger>
+        <TabsTrigger
+          value="neighborhood"
+          className="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 mx-1 font-semibold transition-all duration-200
+            data-[state=active]:bg-teal-600 data-[state=active]:text-white
+            data-[state=active]:shadow
+            data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
+            hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400"
+        >
+          <MapPin className="w-5 h-5" />
+          Vecindario
+        </TabsTrigger>
       </TabsList>
       {/* Description Tab */}
       <TabsContent value="description" className="space-y-4">
@@ -157,8 +197,14 @@ export default function PropertyTabs({
         <Card>
           <CardContent className="p-6">
             <h3 className="text-xl font-semibold mb-4">Vecindario y lugares de interés</h3>
-            <PlaceTypeFilter allTypes={allTypes} selectedTypes={selectedTypes} setSelectedTypes={setSelectedTypes} placeTypeIconLabel={placeTypeIconLabel} />
+            <PlaceTypeFilter allTypes={allTypes} selectedTypes={selectedTypes} setSelectedTypes={setSelectedTypes} placeTypeIconLabel={placeTypeIconLabel} typeColors={typeColors} />
             <PlaceOfInterestMarkers property={property} selectedTypes={selectedTypes} placeTypeIconLabel={placeTypeIconLabel} typeColors={typeColors} />
+            <div className="mt-4 flex items-start gap-2 bg-gray-50 rounded-lg border-l-4 border-teal-400 p-3 text-xs text-gray-500">
+              <svg className="w-4 h-4 mt-0.5 text-teal-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+              <span>
+                Tenga en cuenta que la información es proporcionada por servicios de terceros y que el equipo de Migao no controla ni puede cambiar su contenido.
+              </span>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>

@@ -1,4 +1,4 @@
-import { PropertyCardSkeleton } from '@/components/property/PropertyCardSkeleton'
+import { PropertyCardSkeleton } from '@/components/property/property-card-skeleton'
 
 export function PropertyListSkeleton() {
   return (

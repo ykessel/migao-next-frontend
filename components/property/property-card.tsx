@@ -319,8 +319,8 @@ export const PropertyCard = ({
                             className={`
                                 font-medium shadow-sm
                                 ${property.isAvailable
-                                ? 'bg-green-600 hover:bg-green-700 text-white'
-                                : 'bg-amber-600 text-white border-amber-700'
+                                ? 'bg-green-800 hover:bg-green-700 text-white'
+                                : 'bg-orange-700 text-white border-orange-800'
                             }
                             `}
                         >

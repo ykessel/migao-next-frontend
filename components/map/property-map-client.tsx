@@ -2,6 +2,7 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Property } from '@/types/property';
+import PropertyIconMarker from './property-icon-marker';
 
 export default function PropertyMap({ property }: { property: Property }) {
   return (
@@ -14,7 +15,7 @@ export default function PropertyMap({ property }: { property: Property }) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <Marker position={[property.location.coordinates[1], property.location.coordinates[0]]}>
+      <Marker position={[property.location.coordinates[1], property.location.coordinates[0]]} icon={PropertyIconMarker()}>
         <Popup>
           <div className="p-2">
             <h3 className="font-semibold">{property.title}</h3>

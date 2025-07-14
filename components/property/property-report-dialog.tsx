@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -12,19 +14,19 @@ import { toast } from 'sonner';
 
 interface PropertyReportDialogProps {
   property: Property;
-  children?: React.ReactNode;
 }
 
-export function PropertyReportDialog({ property, children }: PropertyReportDialogProps) {
+export function PropertyReportDialog({ property }: PropertyReportDialogProps) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<REPORT_REASON | ''>('');
   const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { createReport, loading, error } = useCreatePropertyReport();
+  const createReportMutation = useCreatePropertyReport();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!reason) {
       toast.error('Por favor selecciona una razón para el reporte');
       return;
@@ -40,24 +42,30 @@ export function PropertyReportDialog({ property, children }: PropertyReportDialo
       return;
     }
 
-    await createReport({
-      propertyId: property._id!,
-      reason: reason as REPORT_REASON,
-      description: description.trim(),
-    });
+    setIsSubmitting(true);
 
-    if (!error) {
+    try {
+      await createReportMutation.mutateAsync({
+        propertyId: property._id!,
+        reason: reason as REPORT_REASON,
+        description: description.trim(),
+      });
+
       // Reset form and close dialog
       setReason('');
       setDescription('');
       setOpen(false);
-      toast.success('Reporte enviado exitosamente');
+    } catch {
+      // Error is handled by the mutation
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && loading) return; // Prevent closing while submitting
+    if (!newOpen && isSubmitting) return; // Prevent closing while submitting
     setOpen(newOpen);
+    
     if (!newOpen) {
       // Reset form when closing
       setReason('');
@@ -68,12 +76,13 @@ export function PropertyReportDialog({ property, children }: PropertyReportDialo
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {children || (
-          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-            <Flag className="w-4 h-4 mr-2" />
-            Reportar
+          <Button
+              variant="outline"
+              className="w-full border-red-300 text-red-700 hover:bg-red-100 hover:border-red-400 hover:text-red-800"
+            >
+              <Flag className="w-4 h-4 mr-2" />
+              Reportar Propiedad
           </Button>
-        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -120,7 +129,7 @@ export function PropertyReportDialog({ property, children }: PropertyReportDialo
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">
-              Descripción detallada *
+              Descripción detallada * 
               <span className="text-xs text-gray-500 ml-1">
                 ({description.length}/1000)
               </span>
@@ -145,17 +154,17 @@ export function PropertyReportDialog({ property, children }: PropertyReportDialo
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              disabled={loading}
+              disabled={isSubmitting}
               className="flex-1"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              disabled={loading || !reason || !description.trim() || description.trim().length < 10}
+              disabled={isSubmitting || !reason || !description.trim() || description.trim().length < 10}
               className="flex-1 bg-red-600 hover:bg-red-700"
             >
-              {loading ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Enviando...
@@ -169,7 +178,6 @@ export function PropertyReportDialog({ property, children }: PropertyReportDialo
             </Button>
           </div>
         </form>
-        {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
       </DialogContent>
     </Dialog>
   );

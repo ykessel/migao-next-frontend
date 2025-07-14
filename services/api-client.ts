@@ -2,6 +2,7 @@ import axiosInstance from '@/lib/axios';
 import type {CreatePropertyRequest, Property} from '@/types/property';
 import type {SearchPropertyRequest, SearchResponse} from '@/types/filter';
 import type {CreatePropertyReport, PropertyReport} from '@/types/property-report';
+import type {Plan} from '@/types/plan';
 
 // --- Property Service ---
 export const propertyService = {
@@ -99,6 +100,18 @@ export const propertyReportService = {
   },
 };
 
+// --- Plans Service ---
+export const plansService = {
+  async searchPlans(): Promise<{ total: number; page: number; data: Plan[] }> {
+    const response = await axiosInstance.post('/plans/search');
+    return response.data;
+  },
+  async getPlanById(id: string): Promise<Plan> {
+    const response = await axiosInstance.get(`/plans/${id}`);
+    return response.data;
+  },
+};
+
 // --- Utility for SSR/Server Functions ---
 export async function getInitialProperties(searchParams: SearchPropertyRequest = {}) {
   try {
@@ -125,5 +138,15 @@ export async function getPropertyById(id: string) {
   } catch (error) {
     console.error('Failed to fetch property:', error);
     return null;
+  }
+}
+
+export async function getPlans() {
+  try {
+    const response = await plansService.searchPlans();
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch plans:', error);
+    return [];
   }
 } 

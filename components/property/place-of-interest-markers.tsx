@@ -2,7 +2,8 @@
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-// Removed: import { renderToString } from 'react-dom/server';
+import { renderToString } from 'react-dom/server';
+import PropertyIconMarkerNeighborhood from '../map/property-icon-marker-neighborhood';
 
 interface PlaceOfInterest {
   id: string | number;
@@ -25,23 +26,19 @@ interface Property {
   placesOfInterest?: PlaceOfInterest[];
 }
 
-// icon must be a static SVG string, not a React element
+// icon is now a ReactNode
 interface PlaceTypeIconLabel {
   [type: string]: {
-    icon: string; // SVG string
+    icon: React.ReactNode;
     label?: string;
   };
-}
-
-interface TypeColors {
-  [type: string]: string;
 }
 
 export interface PlaceOfInterestMarkersProps {
   property: Property;
   selectedTypes: string[];
   placeTypeIconLabel: PlaceTypeIconLabel;
-  typeColors: TypeColors;
+  typeColors: Record<string, string>;
 }
 
 export default function PlaceOfInterestMarkers({
@@ -70,7 +67,7 @@ export default function PlaceOfInterestMarkers({
           Array.isArray(property.location?.coordinates)
             ? [property.location.coordinates[1], property.location.coordinates[0]]
             : [0, 0]
-        }>
+        } icon={PropertyIconMarkerNeighborhood()} zIndexOffset={1000}>
           <Popup>
             <div className="p-2">
               <h3 className="font-semibold">{property.title}</h3>
@@ -79,13 +76,15 @@ export default function PlaceOfInterestMarkers({
           </Popup>
         </Marker>
         {/* Places of Interest Markers */}
-        {(property.placesOfInterest || [])
+        {property.placesOfInterest && property.placesOfInterest
           .filter((place) => selectedTypes.length === 0 || selectedTypes.includes(place.type))
           .map((place) => (
             <Marker
               key={place.id}
               icon={L.divIcon({
-                html: `<div class='leaflet-custom-marker' style='border-color: ${typeColors[place.type] || '#00b894'};'>${placeTypeIconLabel[place.type]?.icon || ""}</div>`,
+                html: `<div class='leaflet-custom-marker' style='border-color: ${typeColors[place.type] || '#00b894'}; color: ${typeColors[place.type] || '#00b894'};'>` +
+                  `${renderToString(placeTypeIconLabel[place.type]?.icon || placeTypeIconLabel[place.type]?.label || "")}` +
+                  `</div>`,
                 className: '',
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],

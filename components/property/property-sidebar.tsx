@@ -2,9 +2,9 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, BedDouble, Bath, Square, MessageCircle, Phone, Flag, AlertTriangle } from "lucide-react";
-import PropertyContactCard from "@/components/property/PropertyContactCard"
-import { PropertyReportDialog } from "@/components/property/PropertyReportDialog"
+import { MapPin, BedDouble, Bath, Square, MessageCircle, Phone, AlertTriangle } from "lucide-react";
+import PropertyContactCard from "@/components/property/property-contact-card"
+import { PropertyReportDialog } from "@/components/property/property-report-dialog"
 import { Property } from "@/types/property";
 
 interface PropertySidebarProps {
@@ -119,16 +119,8 @@ export default function PropertySidebar({
               </p>
             </div>
           </div>
-          
-          <PropertyReportDialog property={property}>
-            <Button
-              variant="outline"
-              className="w-full border-red-300 text-red-700 hover:bg-red-100 hover:border-red-400 hover:text-red-800"
-            >
-              <Flag className="w-4 h-4 mr-2" />
-              Reportar Propiedad
-            </Button>
-          </PropertyReportDialog>
+
+          <PropertyReportDialog property={property} />
         </CardContent>
       </Card>
       

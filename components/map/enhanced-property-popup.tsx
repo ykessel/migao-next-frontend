@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { blurDataURL } from '@/lib/utils';
-import { PropertyReportDialog } from '@/components/property/PropertyReportDialog';
+import { PropertyReportDialog } from '@/components/property/property-report-dialog';
 import { Property } from "@/types/property";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

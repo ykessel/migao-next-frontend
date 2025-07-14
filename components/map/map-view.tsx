@@ -10,8 +10,8 @@ import {MapContainer, TileLayer, Marker, Popup, useMapEvents} from 'react-leafle
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Image from "next/image";
-import PropertyIconMarker from "./PropertyIconMarker";
-import EnhancedPropertyPopup from "./EnhancedPropertyPopup";
+import PropertyIconMarker from "./property-icon-marker";
+import EnhancedPropertyPopup from "./enhanced-property-popup";
 
 interface MapViewProps {
     properties: Property[];

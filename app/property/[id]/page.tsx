@@ -1,15 +1,15 @@
 import { Button } from "@/components/ui/button"
-import { Navigation } from "@/components/app-components/navigation"
 import { ArrowLeft } from "lucide-react"
 import type { Metadata } from "next"
 import { getPropertyById } from "@/services/api-client"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import PropertyGallery from "@/components/property/PropertyGallery"
-import PropertyTabsClient from "@/components/property/PropertyTabsClient"
-import PropertySidebar from "@/components/property/PropertySidebar"
+import PropertyGallery from "@/components/property/property-gallery"
+import PropertyTabsClient from "@/components/property/property-tabs-client"
+import PropertySidebar from "@/components/property/property-sidebar"
 import { formatDate, placeTypeIconLabel, typeColors } from "@/components/property/utils"
 import type { PlaceType } from "@/constants/places.enum"
+import NoImagesInfo from "@/components/property/NoImagesInfo"
 
 // Correct App Router page props type
 type PageProps = {
@@ -97,7 +97,6 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50">
-      <Navigation />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link href="/" className="mb-6 inline-block">
@@ -113,7 +112,11 @@ export default async function Page({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content: Gallery and Tabs */}
           <div className="lg:col-span-2">
-            <PropertyGallery images={property.images || []} title={property.title} />
+            {property.images && property.images.length > 0 ? (
+              <PropertyGallery images={property.images} title={property.title} />
+            ) : (
+              <NoImagesInfo />
+            )}
             <PropertyTabsClient
               property={property}
               placeTypeIconLabel={placeTypeIconLabel}

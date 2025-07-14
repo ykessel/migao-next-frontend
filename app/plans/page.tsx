@@ -1,104 +1,183 @@
-"use client";
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Star, Rocket } from "lucide-react";
+import { Check, Star, Rocket, Zap } from "lucide-react";
 import Link from "next/link";
+import { getPlans } from "@/services/api-client";
+import type { Metadata } from "next";
 
-export default function PlansPage() {
+export const metadata: Metadata = {
+  title: "Planes y Precios - MiGao",
+  description: "Elige el plan perfecto para publicar y gestionar tus propiedades en Cuba. Planes desde $19/mes para propietarios y agencias.",
+  openGraph: {
+    title: "Planes y Precios - MiGao",
+    description: "Elige el plan perfecto para publicar y gestionar tus propiedades en Cuba.",
+    type: "website",
+  },
+};
+
+const getPlanIcon = (planName: string) => {
+  const name = planName.toLowerCase();
+  if (name.includes('básico') || name.includes('basic') || name.includes('casual')) return <Star className="w-8 h-8 text-yellow-500 fill-yellow-500 mb-4" />;
+  if (name.includes('profesional') || name.includes('professional')) return <Rocket className="w-8 h-8 text-indigo-500 mb-4" />;
+  if (name.includes('premium')) return <Zap className="w-8 h-8 text-teal-600 mb-4" />;
+  return <Star className="w-8 h-8 text-gray-500 mb-4" />;
+};
+
+const getPlanColors = (planName: string) => {
+  const name = planName.toLowerCase();
+  if (name.includes('básico') || name.includes('basic') || name.includes('casual')) {
+    return {
+      price: 'text-green-600',
+      button: 'bg-yellow-500 hover:bg-yellow-600 text-white',
+      checkIcon: 'text-green-500'
+    };
+  }
+  if (name.includes('profesional') || name.includes('professional')) {
+    return {
+      price: 'text-indigo-600',
+      button: 'bg-indigo-500 hover:bg-indigo-600 text-white',
+      checkIcon: 'text-indigo-500'
+    };
+  }
+  if (name.includes('premium')) {
+    return {
+      price: 'text-teal-600',
+      button: 'bg-teal-500 hover:bg-teal-600 text-white',
+      checkIcon: 'text-teal-500'
+    };
+  }
+  return {
+    price: 'text-gray-600',
+    button: 'bg-gray-500 hover:bg-gray-600 text-white',
+    checkIcon: 'text-gray-500'
+  };
+};
+
+const formatPrice = (price: number, duration: number, durationType?: string) => {
+  if (price === 0) {
+    return 'Gratis';
+  }
+  if (duration === 1) {
+    return `$${price}/${durationType || 'mes'}`;
+  }
+  const durationText = durationType === 'days' ? 'días' : 
+                      durationType === 'weeks' ? 'semanas' : 
+                      durationType === 'months' ? 'meses' : 
+                      durationType || 'meses';
+  return `$${price}/${duration} ${durationText}`;
+};
+
+const getButtonText = (planName: string) => {
+  const name = planName.toLowerCase();
+  if (name.includes('básico') || name.includes('basic') || name.includes('casual')) return 'Comenzar Gratis';
+  if (name.includes('profesional') || name.includes('professional')) return 'Hazte Profesional';
+  if (name.includes('premium')) return 'Hazte Premium';
+  return 'Seleccionar Plan';
+};
+
+export default async function PlansPage() {
+  const plans = await getPlans();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto text-center mb-12">
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4">
-          ¡Elige el plan perfecto para ti!
-        </h1>
-        <p className="text-lg sm:text-xl text-gray-700 mb-2">
-          <span className="font-bold text-teal-600">¿Buscas una propiedad para rentar?</span> <span className="text-indigo-600 font-bold">¡Es totalmente GRATIS!</span> Explora, guarda favoritos y contacta a propietarios sin costo alguno. Los planes a continuación son para propietarios y agencias que desean publicar y gestionar propiedades.
-        </p>
-        <p className="text-gray-600">Si eres propietario o agencia, elige el plan que mejor se adapte a tus necesidades y llega a miles de inquilinos potenciales.</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-        {/* Basic Plan */}
-        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm transition-transform duration-200 hover:scale-105 ring-2 ring-teal-100">
-          <CardContent className="p-8 flex flex-col items-center">
-            <Star className="w-8 h-8 text-yellow-500 mb-4" />
-            <h2 className="text-2xl font-bold mb-2 text-gray-900">Básico</h2>
-            <div className="text-3xl font-extrabold mb-2 text-teal-600">$19/mes</div>
-            <p className="text-gray-700 mb-6 min-h-[56px]">Perfecto para propietarios individuales que inician en la plataforma.</p>
-            <ul className="text-left mb-6 space-y-2 w-full max-w-xs mx-auto">
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />3 propiedades activas</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />10 fotos por propiedad</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Editor básico de descripciones</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Plantillas estándar de anuncios</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Calendario de disponibilidad manual</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Aparición estándar en búsquedas</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Formulario de contacto simple</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />50 consultas al mes</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Soporte por email (48h)</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Panel de vistas básico</li>
-            </ul>
-            <Link href="/publish">
-              <Button className="w-full py-2 text-lg font-semibold bg-gradient-to-r from-yellow-400 to-yellow-500 text-white" size="lg">
-                Publicar propiedad
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-        {/* Professional Plan */}
-        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm transition-transform duration-200 hover:scale-105 ring-4 ring-indigo-200">
-          <CardContent className="p-8 flex flex-col items-center">
-            <Rocket className="w-8 h-8 text-indigo-500 mb-4" />
-            <h2 className="text-2xl font-bold mb-2 text-gray-900">Profesional</h2>
-            <div className="text-3xl font-extrabold mb-2 text-indigo-600">$49/mes</div>
-            <p className="text-gray-700 mb-6 min-h-[56px]">Ideal para pequeñas empresas de gestión de propiedades.</p>
-            <ul className="text-left mb-6 space-y-2 w-full max-w-xs mx-auto">
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />10 propiedades activas</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />25 fotos y 2 videos por propiedad</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Editor avanzado de descripciones</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Plantillas personalizadas</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Sincronización automática de disponibilidad</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Posicionamiento prioritario en búsquedas</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Formulario de contacto profesional</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />200 consultas al mes</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Soporte prioritario (24h)</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Panel de analíticas avanzado</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Sistema de reservas integrado</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Notificaciones por SMS (50/mes)</li>
-            </ul>
-            <Link href="/publish">
-              <Button className="w-full py-2 text-lg font-semibold bg-gradient-to-r from-indigo-500 to-blue-500 text-white" size="lg">
-                Hazte Profesional
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-        {/* Premium Plan */}
-        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm transition-transform duration-200 hover:scale-105 ring-4 ring-teal-400">
-            <CardContent className="p-8 flex flex-col items-center">
-            <Rocket className="w-8 h-8 text-teal-600 mb-4" />
-            <h2 className="text-2xl font-bold mb-2 text-gray-900">Premium</h2>
-            <div className="text-3xl font-extrabold mb-2 text-teal-700">$99/mes</div>
-            <p className="text-gray-700 mb-6 min-h-[56px]">Para agencias y gestores de propiedades consolidados.</p>
-              <ul className="text-left mb-6 space-y-2 w-full max-w-xs mx-auto">
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />25 propiedades activas</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />50 fotos y 5 videos por propiedad</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Opciones de branding personalizado</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Herramientas de gestión masiva</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Posicionamiento top en búsquedas</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Destacado en la página principal (2/mes)</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Consultas ilimitadas</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Integración avanzada de CRM</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Reportes personalizados y API</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Gestor de reseñas y reputación</li>
-              <li className="flex items-center gap-2 text-gray-700"><CheckCircle className="w-4 h-4 text-teal-500" />Soporte premium 24/7</li>
-              </ul>
-            <Link href="/publish">
-              <Button className="w-full py-2 text-lg font-semibold bg-gradient-to-r from-teal-600 to-teal-700 text-white" size="lg">
-                Hazte Premium
+      <div className="container px-4 md:px-6">
+        <div className="flex flex-col items-center justify-center space-y-6 text-center mb-16">
+          <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-gray-900 mb-4 leading-tight">
+            ¡Elige el plan perfecto para ti!
+          </h1>
+          <p className="max-w-2xl md:max-w-3xl lg:max-w-4xl text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed mb-2 leading-relaxed">
+            Explora, guarda favoritos y contacta a propietarios sin costo alguno. Los planes a continuación son para
+            propietarios y agencias que desean publicar y gestionar propiedades.
+          </p>
+          <p className="max-w-2xl md:max-w-3xl lg:max-w-4xl text-gray-600 md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed leading-relaxed">
+            Si eres propietario o agencia, elige el plan que mejor se adapte a tus necesidades y llega a miles de
+            inquilinos potenciales.
+          </p>
+        </div>
+        {plans.length === 0 ? (
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg p-8 shadow-xl">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">No hay planes disponibles</h2>
+              <p className="text-gray-600 mb-6">En este momento no hay planes disponibles. Por favor, contacta con nuestro equipo de soporte.</p>
+              <Link href="/#">
+                <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+                  Contactar Soporte
                 </Button>
               </Link>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        ) : (
+          <div className="grid max-w-6xl justify-center mx-auto md:grid-cols-2 lg:grid-cols-3">
+            {plans.map((plan) => {
+              const colors = getPlanColors(plan.name);
+              const features = Object.entries(plan.features)
+                .filter(([, feature]) => feature.enabled)
+                .map(([key, feature]) => ({
+                  key,
+                  description: feature.description,
+                  value: feature.value,
+                  interval: feature.interval
+                }))
+                .sort((a, b) => {
+                  const order = ['propertyPosts', 'Busqueda de Propiedades'];
+                  const aIndex = order.indexOf(a.key);
+                  const bIndex = order.indexOf(b.key);
+                  if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                  if (aIndex !== -1) return -1;
+                  if (bIndex !== -1) return 1;
+                  return a.description.localeCompare(b.description);
+                });
+
+              return (
+                <Card key={plan._id} className="flex flex-col h-full min-w-[300px] max-w-[350px] w-full rounded-2xl shadow-lg hover:scale-105 transition-transform duration-200 p-4 mx-auto">
+                  <CardHeader className="flex flex-col items-center text-center pb-2">
+                    {getPlanIcon(plan.name)}
+                    <CardTitle className="text-2xl font-bold text-gray-800 mb-1">
+                      {plan.name}
+                    </CardTitle>
+                    <CardDescription className={`text-4xl font-extrabold ${colors.price} mt-1 mb-2`}> 
+                      {formatPrice(plan.price, plan.duration, plan.durationType)}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col flex-grow pt-2 pb-4 px-2">
+                    <p className="text-sm text-gray-600 mb-6 text-center min-h-[48px]">
+                      {plan.description}
+                    </p>
+                    {features.length > 0 && (
+                      <ul className="grid gap-3 text-sm text-gray-700 mb-4">
+                        {features.map((feature) => (
+                          <li key={feature.key} className="flex items-center gap-2">
+                            <Check className={`h-4 w-4 ${colors.checkIcon}`} />
+                            <span>
+                              {feature.description}
+                              {feature.value > 0 && feature.interval !== 'unlimited' && (
+                                <span className="font-medium"> ({feature.value})</span>
+                              )}
+                              {feature.value === 0 && feature.interval === 'unlimited' && (
+                                <span className="font-medium"> (Ilimitado)</span>
+                              )}
+                              {feature.value > 0 && feature.interval === 'unlimited' && (
+                                <span className="font-medium"> ({feature.value} ilimitado)</span>
+                              )}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </CardContent>
+                  <CardFooter className="mt-auto pt-2 pb-2 px-2">
+                    <Link href="/publish" className="w-full">
+                      <Button className={`w-full ${colors.button} font-bold py-2 px-4 rounded-lg transition-colors duration-200`}>
+                        {getButtonText(plan.name)}
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
