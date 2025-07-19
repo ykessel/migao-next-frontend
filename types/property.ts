@@ -22,6 +22,7 @@ export interface PlaceOfInterest {
 
 export interface Property {
     _id?: string
+    slug: string
     title: string
     description: string
     rentPricePerMonth: number
@@ -48,6 +49,13 @@ export interface Property {
     updatedAt?: string
     placesOfInterest?: PlaceOfInterest[];
     services?: import('./property-services').IPropertyServices;
+    publicationViews?: number;
+    averageRating?: number,
+    totalRatings?: number,
+    entPricePerDay?: number,
+    sold?: boolean,
+    telegramPublish?: boolean
+    verified?: boolean,
 }
 
 export type CreatePropertyRequest = Omit<Property, "propertyId" | "createdAt" | "updatedAt">

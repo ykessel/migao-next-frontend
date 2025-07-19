@@ -4,11 +4,7 @@ import { SearchFiltersClient } from '@/components/app-components/search-filters-
 import { PropertyListSkeleton } from '@/components/skeletons/PropertyListSkeleton'
 import { PropertyList } from '@/components/property/property-list'
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Suspense fallback={
@@ -21,7 +17,6 @@ export default async function HomePage({
       }>
         <HeroClient />
       </Suspense>
-      
       <div className="container-fluid py-8 sm:py-12">
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-1/4">
@@ -34,10 +29,9 @@ export default async function HomePage({
               <SearchFiltersClient />
             </Suspense>
           </aside>
-          
           <main className="lg:w-3/4">
             <Suspense fallback={<PropertyListSkeleton />}>
-              <PropertyList searchParams={searchParams} />
+              <PropertyList />
             </Suspense>
           </main>
         </div>

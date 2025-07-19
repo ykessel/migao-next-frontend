@@ -1,7 +1,7 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SearchFilters } from './search-filters'
-import {Suspense, useState, useEffect, useMemo} from 'react'
+import {Suspense, useState, useEffect, useMemo, useRef} from 'react'
 import { useDebounce } from '@/hooks/use-debounce'
 
 function SearchFiltersClientContent() {
@@ -21,10 +21,12 @@ function SearchFiltersClientContent() {
 
   const [filters, setFilters] = useState(currentFilters)
   const debouncedFilters = useDebounce(filters, 1000)
+  const prevFiltersRef = useRef(currentFilters)
 
   // Sync filters with URL changes
   useEffect(() => {
     setFilters(currentFilters)
+    prevFiltersRef.current = currentFilters
   }, [currentFilters, searchParams])
 
   useEffect(() => {
@@ -37,10 +39,30 @@ function SearchFiltersClientContent() {
     if (debouncedFilters.maxPrice < 5000) params.set('maxPrice', debouncedFilters.maxPrice.toString())
     if (debouncedFilters.rooms > 0) params.set('rooms', debouncedFilters.rooms.toString())
     if (debouncedFilters.furnished !== 'any') params.set('furnished', debouncedFilters.furnished)
+
+    // Compare previous filters to current debounced filters
+    const prev = prevFiltersRef.current
+    const filtersChanged =
+      prev.location !== debouncedFilters.location ||
+      prev.minPrice !== debouncedFilters.minPrice ||
+      prev.maxPrice !== debouncedFilters.maxPrice ||
+      prev.propertyType !== debouncedFilters.propertyType ||
+      prev.rooms !== debouncedFilters.rooms ||
+      prev.furnished !== debouncedFilters.furnished
+
+    if (filtersChanged) {
+      params.set('page', '1') // Reset to page 1 if filters changed
+    } else {
+      // Preserve current page param from URL if present
+      const page = searchParams.get('page')
+      if (page) params.set('page', page)
+    }
+
     const queryString = params.toString()
     const url = queryString ? `/?${queryString}` : '/'
     router.push(url, { scroll: false })
-  }, [debouncedFilters, router])
+    prevFiltersRef.current = debouncedFilters
+  }, [debouncedFilters, router, searchParams])
 
   return <SearchFilters filters={filters} onFiltersChange={setFilters} />
 }

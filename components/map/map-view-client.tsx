@@ -274,7 +274,7 @@ const PropertyDetailsPanel = ({selectedProperty}: { selectedProperty: Property |
                                     size="sm"
                                     variant="outline"
                                     className="flex-1 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white"
-                                    onClick={() => window.location.href = `/property/${selectedProperty._id}`}
+                                    onClick={() => window.location.href = `/property/${selectedProperty.slug}`}
                                 >
                                     Ver Detalles
                                 </Button>

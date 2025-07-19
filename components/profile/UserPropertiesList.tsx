@@ -52,11 +52,11 @@ export function UserPropertiesList() {
   const deletePropertyMutation = useDeleteProperty();
 
   const handleEditProperty = (property: Property) => {
-    router.push(`/publish?edit=${property._id}`);
+    router.push(`/publish?edit=${property.slug}`);
   };
 
   const handleViewProperty = (property: Property) => {
-    router.push(`/property/${property._id}`);
+    router.push(`/property/${property.slug}`);
   };
 
   const handleDeleteProperty = async (property: Property) => {

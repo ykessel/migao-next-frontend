@@ -206,7 +206,7 @@ const EnhancedPropertyPopup = ({ property }: { property: Property }) => {
                     <Button
                         size="sm"
                         className="btn-primary flex-1 text-xs py-1 px-2"
-                        onClick={() => window.location.href = `/property/${property._id}`}
+                        onClick={() => window.location.href = `/property/${property.slug}`}
                     >
                         Ver Detalles
                     </Button>

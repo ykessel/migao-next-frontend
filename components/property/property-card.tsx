@@ -1,41 +1,16 @@
 "use client";
-import {Button} from "@/components/ui/button";
-import {Badge} from "@/components/ui/badge";
-import {
-    Heart,
-    MapPin,
-    BedDouble,
-    Bath,
-    Square,
-    MessageCircle,
-    Phone,
-    ArrowRight,
-    Star,
-    Wifi,
-    Utensils,
-    Tv,
-    Snowflake,
-    Refrigerator,
-    WashingMachine,
-    Microwave,
-    Building2,
-    MemoryStick,
-    Car,
-    Leaf,
-    Home,
-    WavesLadder,
-    Flame,
-    CheckCircle,
-} from "lucide-react";
+import Image from "next/image"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Heart, MapPin, Star, Eye, Bed, Bath, Square, ArrowRight } from "lucide-react"
 import {useState, useCallback} from "react";
 import {Property} from "@/types/property";
 import {toast} from "sonner";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
-import Image from "next/image";
 import {useSession} from "next-auth/react";
 import {blurDataURL} from '@/lib/utils'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation';
 
 interface PropertyCardProps {
     property: Property;
@@ -60,26 +35,7 @@ export const PropertyCard = ({
     const [imageError, setImageError] = useState(false);
     const {data: session} = useSession();
     const isAuthenticated = !!session;
-
-    // Use the prop instead
     const isLiked = isFavorite;
-
-    // Memoized handlers for better performance
-    const handleContactWhatsApp = useCallback((e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (property.owner?.whatsapp) {
-            const message = encodeURIComponent(`¡Hola! Estoy interesado en la propiedad: ${property.title}`);
-            const phoneNumber = property.owner?.whatsapp.replace(/[^0-9]/g, '');
-            window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-        }
-    }, [property.owner?.whatsapp, property.title]);
-
-    const handleContactPhone = useCallback((e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (property.owner?.phone) {
-            window.open(`tel:${property.owner?.phone}`, '_self');
-        }
-    }, [property.owner?.phone]);
 
     const handleFavoriteClick = useCallback(async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -102,7 +58,6 @@ export const PropertyCard = ({
         }
     }, [isAuthenticated, isLiked, removeFavorite, addFavorite, property._id]);
 
-
     const handleImageLoad = useCallback(() => {
         setImageLoading(false);
         setImageError(false);
@@ -112,46 +67,6 @@ export const PropertyCard = ({
         setImageLoading(false);
         setImageError(true);
     }, []);
-
-    // Get property features for display (all amenities)
-    const AMENITY_ICONS: { [key: string]: { icon: React.ComponentType<{ className?: string }>, label: string } } = {
-        hasWifi: {icon: Wifi, label: "WiFi"},
-        kitchen: {icon: Utensils, label: "Cocina"},
-        hasTV: {icon: Tv, label: "TV"},
-        hasAC: {icon: Snowflake, label: "A/C"},
-        hasFridge: {icon: Refrigerator, label: "Refrigerador"},
-        hasWasher: {icon: WashingMachine, label: "Lavadora"},
-        hasMicrowave: {icon: Microwave, label: "Microondas"},
-        hasElevator: {icon: Building2, label: "Elevador"},
-        hasBalcony: {icon: MemoryStick, label: "Balcón"},
-        garage: {icon: Car, label: "Garaje"},
-        garden: {icon: Leaf, label: "Jardín"},
-        terrace: {icon: Home, label: "Terraza"},
-        furnished: {icon: CheckCircle, label: "Amueblado"},
-        hasPool: {icon: WavesLadder, label: "Piscina"},
-        gasAvailability: {icon: Flame, label: "Gas"},
-    };
-
-    const getPropertyFeatures = () => {
-        const features: { icon: React.ComponentType<{ className?: string }>; label: string; }[] = [];
-        if (!property.amenities) return features;
-        for (const [key, value] of Object.entries(property.amenities)) {
-            if (
-                value &&
-                AMENITY_ICONS[key]
-            ) {
-                // For gasAvailability, only show if not "NONE"
-                if (key === "gasAvailability" && value === "NONE") continue;
-                features.push({
-                    icon: AMENITY_ICONS[key].icon,
-                    label: key === "gasAvailability"
-                        ? `Gas: ${String(value).charAt(0).toUpperCase() + String(value).slice(1).toLowerCase()}`
-                        : AMENITY_ICONS[key].label,
-                });
-            }
-        }
-        return features.slice(0, 3); // Show max 3 features
-    };
 
     // Format currency display
     const formatPrice = () => {
@@ -164,40 +79,22 @@ export const PropertyCard = ({
         return `${price} ${currency}`;
     };
 
-    const propertyFeatures = getPropertyFeatures();
     const hasImages = property.images && property.images.length > 0;
     const currentImage = hasImages ? property.images[currentImageIndex] : null;
-    const router = useRouter();
+    const locationAddress = (property?.location as { address?: string })?.address || 'Ubicación no disponible';
 
     return (
         <TooltipProvider>
-            <div
-                className={`
-                    card-enhanced group cursor-pointer
-                    transition-all duration-300 ease-out
-                    ${className}
-                    ${isListView ? 'flex flex-row items-stretch h-full' : ''}
-                `}
-                role="button"
-                tabIndex={0}
-                aria-label={`Ver detalles de ${property.title}`}
-            >
-                {/* Image Section */}
-                <div
-                    className={`relative overflow-hidden bg-gray-100 ${isListView ? 'w-48 h-32 sm:h-40 flex-shrink-0' : 'h-56 sm:h-64'}`}>
+            <Card className={`w-full max-w-xs rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ${className} ${isListView ? 'flex flex-row items-stretch h-full' : ''}`}>
+                <div className="relative h-48 w-full bg-gray-100 flex items-center justify-center">
                     {hasImages ? (
                         <>
-                            <div className="relative w-full h-full">
                                 <Image
                                     src={currentImage?.url || "/placeholder.svg"}
                                     alt={property.title}
                                     fill
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                    className={`
-                                        object-cover transition-all duration-500 ease-out
-                                        group-hover:scale-110 
-                                        ${imageLoading ? 'blur-sm' : 'blur-0'}
-                                    `}
+                                className={`object-cover transition-all duration-500 ease-out ${imageLoading ? 'blur-sm' : 'blur-0'}`}
                                     onLoad={handleImageLoad}
                                     onError={handleImageError}
                                     priority={currentImageIndex === 0}
@@ -206,12 +103,10 @@ export const PropertyCard = ({
                                     blurDataURL={blurDataURL}
                                 />
 
-                                {/* Loading skeleton */}
                                 {imageLoading && (
                                     <div className="absolute inset-0 skeleton animate-pulse"/>
                                 )}
 
-                                {/* Error state */}
                                 {imageError && (
                                     <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
                                         <div className="text-gray-400 text-center">
@@ -220,12 +115,9 @@ export const PropertyCard = ({
                                         </div>
                                     </div>
                                 )}
-                            </div>
 
-                            {/* Image Navigation */}
-                            {property?.images && property?.images?.length > 1 && (
+                            {property.images.length > 1 && (
                                 <>
-                                    {/* Navigation Arrows */}
                                     <button
                                         className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
                                         onClick={(e) => {
@@ -258,19 +150,15 @@ export const PropertyCard = ({
                                         </svg>
                                     </button>
 
-                                    {/* Image Indicators */}
-                                    <div
-                                        className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1 z-10">
+                                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1 z-10">
                                         {property.images.map((_, index) => (
                                             <span
                                                 key={index}
-                                                className={`
-                                                    w-3 h-3 rounded-full transition-all duration-200
-                                                    ${index === currentImageIndex
+                                                className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                                                    index === currentImageIndex
                                                     ? 'bg-white shadow-md'
                                                     : 'bg-white/50 hover:bg-white/80'
-                                                }
-                                                `}
+                                                }`}
                                                 aria-label={`Ver imagen ${index + 1}`}
                                             />
                                         ))}
@@ -279,8 +167,7 @@ export const PropertyCard = ({
                             )}
                         </>
                     ) : (
-                        <div
-                            className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                             <div className="text-gray-400 text-center">
                                 <Square className="w-16 h-16 mx-auto mb-2"/>
                                 <p className="text-sm font-medium">Sin imágenes</p>
@@ -288,210 +175,100 @@ export const PropertyCard = ({
                         </div>
                     )}
 
-                    {/* Favorite Button */}
+                    {!property.isAvailable && (
+                        <Badge className="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                            Próximamente
+                        </Badge>
+                    )}
+
+                    {property.isAvailable && (
+                        <Badge className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                            Disponible
+                        </Badge>
+                    )}
+
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <button
+                            <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={handleFavoriteClick}
                                 disabled={favLoading}
-                                className={`
-                                    absolute top-3 left-3 p-2 rounded-full transition-all duration-200
-                                    ${isLiked
-                                    ? 'bg-red-500 text-white shadow-lg'
-                                    : 'bg-white/90 text-gray-600 hover:bg-white hover:text-red-500'
-                                }
-                                    ${favLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'}
-                                `}
+                                className={`absolute top-3 left-3 rounded-full ${isLiked ? 'bg-red-500 text-white' : 'bg-white/80 hover:bg-white'} ${favLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'}`}
                                 aria-label={isLiked ? "Remover de favoritos" : "Agregar a favoritos"}
                             >
-                                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`}/>
-                            </button>
+                                <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : 'text-gray-600'}`}/>
+                            </Button>
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>{isLiked ? "Remover de favoritos" : "Agregar a favoritos"}</p>
                         </TooltipContent>
                     </Tooltip>
-
-                    {/* Availability Badge */}
-                    <div className="absolute top-3 right-3">
-                        <Badge
-                            variant={property.isAvailable ? 'default' : 'secondary'}
-                            className={`
-                                font-medium shadow-sm
-                                ${property.isAvailable
-                                ? 'bg-green-800 hover:bg-green-700 text-white'
-                                : 'bg-orange-700 text-white border-orange-800'
-                            }
-                            `}
-                        >
-                            {property.isAvailable ? 'Disponible' : 'Próximamente'}
-                        </Badge>
-                    </div>
                 </div>
 
-                {/* Content Section */}
-                <div className={`${isListView ? 'flex-1 p-4 flex flex-col justify-between' : 'p-4 sm:p-5'}`}>
-                    {/* Header */}
-                    <div className={isListView ? 'flex items-start justify-between gap-4' : 'mb-3'}>
-                        <div className={isListView ? 'flex-1' : 'mb-3'}>
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                                <h3 className={`font-bold text-gray-900 group-hover:text-teal-600 transition-colors duration-200 leading-tight ${isListView ? 'text-lg line-clamp-1' : 'text-lg sm:text-xl line-clamp-2'}`}>
-                                    {property.title}
-                                </h3>
-                                <div className="flex items-center gap-1 text-yellow-500 shrink-0">
-                                    <Star className="w-4 h-4 fill-current"/>
-                                    <span className="text-sm font-medium text-gray-700">4.8</span>
-                                </div>
+                <CardHeader className="p-4 pb-2">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-800 truncate">{property.title}</h3>
+                        <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <div className="flex items-center gap-1">
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                <span>4.8</span>
                             </div>
-
-                            <div className="flex items-center text-gray-700 mb-2">
-                                <MapPin className="w-4 h-4 mr-1 shrink-0"/>
-                                <span className="text-sm line-clamp-1">{(property?.location as {
-                                    address?: string
-                                })?.address || 'Ubicación no disponible'}</span>
-                            </div>
-
-                            {!isListView && (
-                                <div className="flex items-end gap-2">
-                                    <span className="text-2xl sm:text-3xl font-bold text-teal-600">
-                                        {formatPrice()}
-                                    </span>
-                                    <span className="text-sm text-gray-600 mb-1">/mes</span>
-                                </div>
-                            )}
                         </div>
-
-                        {isListView && (
-                            <div className="text-right">
-                                <div className="flex items-end gap-2">
-                                    <span className="text-2xl font-bold text-teal-600">
-                                        {formatPrice()}
-                                    </span>
-                                    <span className="text-sm text-gray-600 mb-1">/mes</span>
                                 </div>
+                    <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <MapPin className="h-4 w-4 mr-1 shrink-0" />
+                        <span className="truncate">{locationAddress}</span>
                             </div>
-                        )}
-                    </div>
+                </CardHeader>
 
-                    {/* Property Details */}
-                    <div className={`flex items-center gap-4 text-sm text-gray-700 ${isListView ? 'mb-3' : 'mb-4'}`}>
+                <CardContent className="p-4 pt-0 grid gap-3">
+                    <div className="text-2xl font-bold text-emerald-600">
+                        {formatPrice()} /mes
+                    </div>
+                    <div className="flex items-center space-x-4 text-sm text-gray-700">
                         {property.rooms > 0 && (
                             <div className="flex items-center gap-1">
-                                <BedDouble className="w-4 h-4"/>
+                                <Bed className="h-4 w-4" />
                                 <span>{property.rooms}</span>
                             </div>
                         )}
                         {property.bathrooms > 0 && (
                             <div className="flex items-center gap-1">
-                                <Bath className="w-4 h-4"/>
+                                <Bath className="h-4 w-4" />
                                 <span>{property.bathrooms}</span>
                             </div>
                         )}
                         {property.area && (
                             <div className="flex items-center gap-1">
-                                <Square className="w-4 h-4"/>
+                                <Square className="h-4 w-4" />
                                 <span>{property.area}m²</span>
                             </div>
                         )}
-                    </div>
-
-                    {/* Property Features */}
-                    {propertyFeatures.length > 0 && (
-                        // Show only a limited number of features, and a "+N más" button if there are more
-                        (() => {
-                            const MAX_FEATURES = 2;
-                            const visibleFeatures = propertyFeatures.slice(0, MAX_FEATURES);
-                            const hiddenCount = propertyFeatures.length - MAX_FEATURES;
-                            return (
-                                <div className={`flex items-center gap-3 ${isListView ? 'mb-3' : 'mb-4'}`}>
-                                    {visibleFeatures.map((feature, index) => (
-                                        <Tooltip key={index}>
-                                            <TooltipTrigger asChild>
-                                                <div
-                                                    className="flex items-center gap-1 text-xs text-gray-700 bg-gray-200 px-2 py-1 rounded-full">
-                                                    <feature.icon className="w-3 h-3"/>
-                                                    <span className="hidden sm:inline">{feature.label}</span>
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{feature.label}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    ))}
-                                    {hiddenCount > 0 && (
-                                        <button
-                                            className="flex items-center gap-1 text-xs text-gray-700 bg-gray-200 px-2 py-1 rounded-full hover:bg-gray-300 transition"
-                                            onClick={() => router.push(`/property/${property._id}`)}
-                                            aria-label={`Ver ${hiddenCount} características más`}
-                                        >
-                                            +{hiddenCount} más
-                                        </button>
-                                    )}
+                        {typeof property.publicationViews === 'number' && (
+                                <div className="flex items-center gap-1">
+                                    <Eye className="h-4 w-4" />
+                                    <span>{property.publicationViews}</span>
                                 </div>
-                            );
-                        })()
-                    )}
+                            )}
+                    </div>
+                </CardContent>
 
-                    {/* Contact Actions */}
-                    <div
-                        className={`flex items-center gap-2 pt-3 border-t border-gray-100 ${isListView ? 'justify-end' : ''}`}>
-                        {property.owner?.whatsapp && (
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className={`hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-colors ${isListView ? '' : 'flex-1'}`}
-                                        onClick={handleContactWhatsApp}
-                                    >
-                                        <MessageCircle className="w-4 h-4 mr-1"/>
-                                        <span className="hidden sm:inline">WhatsApp</span>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Contactar por WhatsApp</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        )}
-
-                        {property.owner?.phone && (
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className={`hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors ${isListView ? '' : 'flex-1'}`}
-                                        onClick={handleContactPhone}
-                                    >
-                                        <Phone className="w-4 h-4 mr-1"/>
-                                        <span className="hidden sm:inline">Llamar</span>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Llamar por teléfono</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        )}
-
+                <CardFooter className="p-4 pt-0">
                         <Link
-                            href={`/property/${property._id || ''}`}
+                            href={`/property/${property.slug || ''}`}
                             prefetch={true}
-                            className="block hover:shadow-lg transition-shadow"
+                        className="block w-full"
                             aria-label={`Ver detalles de ${property.title}`}
                             title={`Ver detalles de ${property.title}`}
                         >
-                            <Button
-                                size="sm"
-                                className={`btn-primary ${isListView ? '' : 'flex-1'}`}
-                                aria-label={`Ver detalles de ${property.title}`}
-                            >
-                                <span className="hidden sm:inline">Ver Detalles</span>
-                                <ArrowRight className="w-4 h-4 sm:ml-1" aria-hidden="true"/>
+                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                            Ver Detalles
+                            <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         </Link>
-                    </div>
-                </div>
-            </div>
+                </CardFooter>
+            </Card>
         </TooltipProvider>
     );
 };

@@ -1,12 +1,7 @@
 import { PropertyListClient } from './property-list-client'
-import { getInitialProperties } from '@/services/api-client';
 import { SearchPropertyRequest, Filter } from '@/types/filter'
 
-interface PropertyListProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
-
-async function parseSearchParams(searchParams: { [key: string]: string | string[] | undefined }): Promise<SearchPropertyRequest> {
+function parseSearchParams(searchParams: { [key: string]: string | string[] | undefined }): SearchPropertyRequest {
   const filters: Filter[] = []
   
   // Parse location search
@@ -67,17 +62,38 @@ async function parseSearchParams(searchParams: { [key: string]: string | string[
     })
   }
   
-  return {
-    search: typeof searchParams.search === 'string' ? searchParams.search : undefined,
-    filters,
-    page: typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1,
-    size: 9
+  const hasFilters = filters.length > 0;
+  const hasSearch = typeof searchParams.search === 'string' && searchParams.search.trim() !== '';
+  const page = typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
+  const size = searchParams.size && typeof searchParams.size === 'string' ? parseInt(searchParams.size) : 9;
+
+  if (!hasFilters && !hasSearch && page === 1 && size === 9) {
+    return {};
   }
+
+  // Only include page/size if not default or if there are filters/search
+  const result: SearchPropertyRequest = {};
+  if (hasSearch && typeof searchParams.search === 'string') {
+    result.search = searchParams.search;
+  }
+  if (hasFilters) {
+    result.filters = filters;
+  }
+  // Always include page if present in the URL (even if 1)
+  if (typeof searchParams.page === 'string') {
+    result.page = page;
+  }
+  // Only include size if not default or explicitly set
+  if (hasFilters || hasSearch) {
+    if (size !== 9) result.size = size;
+  } else {
+    if (typeof searchParams.size === 'string' && size !== 9) result.size = size;
+  }
+  return result;
 }
 
-export async function PropertyList({ searchParams }: PropertyListProps) {
-  const resolvedSearchParams = await searchParams
-  const parsedParams = await parseSearchParams(resolvedSearchParams)
-  const initialData = await getInitialProperties(parsedParams)
-  return <PropertyListClient initialData={initialData} searchParams={parsedParams} />
+export { parseSearchParams };
+
+export function PropertyList() {
+  return <PropertyListClient />;
 }

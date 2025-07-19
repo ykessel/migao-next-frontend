@@ -31,7 +31,7 @@ export const propertyKeys = {
 // Hook para buscar propiedades con filtros avanzados
 export function useSearchProperties(
     searchParams: SearchPropertyRequest = {},
-    options?: Omit<UseQueryOptions<SearchResponse<Property>, ApiError>, "queryKey" | "queryFn">,
+    options?: UseQueryOptions<SearchResponse<Property>, ApiError>,
 ) {
     return useQuery({
         queryKey: propertyKeys.list(searchParams),
@@ -43,7 +43,7 @@ export function useSearchProperties(
 // Hook para buscar propiedades con parámetros legacy (backward compatibility)
 export function useSearchPropertiesLegacy(
     searchParams: LegacySearchPropertyRequest = {},
-    options?: Omit<UseQueryOptions<SearchResponse<Property>, ApiError>, "queryKey" | "queryFn">,
+    options?: UseQueryOptions<SearchResponse<Property>, ApiError>,
 ) {
     const convertedParams = convertLegacyToFilters(searchParams)
 

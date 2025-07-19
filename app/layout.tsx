@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: '%s | MiGao'
   },
   description: 'Plataforma líder para encontrar propiedades en alquiler en Cuba',
-  keywords: ['alquiler', 'propiedades', 'Cuba', 'vivienda'],
+  keywords: ['alquiler', 'propiedades', 'Cuba', 'vivienda', 'apartemento', 'habana', "negacio","playa"],
   openGraph: {
     title: 'MiGao - Encuentra tu hogar ideal en Cuba',
     description: 'Plataforma líder para encontrar propiedades en alquiler en Cuba',
@@ -40,13 +40,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  dehydratedState
 }: {
-  children: React.ReactNode
+  children: React.ReactNode,
+  dehydratedState?: unknown
 }) {
   return (
     <html lang="es">
       <body className="antialiased">
-        <ClientProviders>
+        <ClientProviders dehydratedState={dehydratedState}>
           <ConditionalNavigation />
           <main className='mt-16'>
             {children}

@@ -15,6 +15,10 @@ export default function ProfileUpdate() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [referralError, setReferralError] = useState("");
+  const [referralSuccess, setReferralSuccess] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +34,7 @@ export default function ProfileUpdate() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone, referralCode }),
       });
       
       if (res.ok) {
@@ -44,6 +48,36 @@ export default function ProfileUpdate() {
       setError("Error de conexión. Verifica tu internet e intenta de nuevo.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReferralSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReferralLoading(true);
+    setReferralError("");
+    setReferralSuccess(false);
+    try {
+      const session = await getSession() as unknown as NextAuthSession & { access_token?: string };
+      const res = await fetch("/api/profile/referral-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ referralCode }),
+      });
+      if (res.ok) {
+        setReferralSuccess(true);
+        setReferralCode("");
+        toast.success("Código de referido guardado exitosamente");
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setReferralError(errorData.message || "No se pudo guardar el código. Intenta de nuevo.");
+      }
+    } catch {
+      setReferralError("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setReferralLoading(false);
     }
   };
 
@@ -85,7 +119,7 @@ export default function ProfileUpdate() {
         </div>
 
         {/* Form Card */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm mb-6">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-xl">
               <Phone className="w-5 h-5 text-teal-600" />
@@ -95,7 +129,6 @@ export default function ProfileUpdate() {
               Tu número de teléfono nos ayudará a contactarte sobre las propiedades que te interesen
             </CardDescription>
           </CardHeader>
-          
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Phone Input */}
@@ -121,7 +154,6 @@ export default function ProfileUpdate() {
                   Formato: +53 5XX XXX XXXX (Cuba)
                 </p>
               </div>
-
               {/* Error Alert */}
               {error && (
                 <Alert variant="destructive" className="border-red-200 bg-red-50">
@@ -131,7 +163,6 @@ export default function ProfileUpdate() {
                   </AlertDescription>
                 </Alert>
               )}
-
               {/* Success Info */}
               <Alert className="border-teal-200 bg-teal-50">
                 <CheckCircle className="h-4 w-4 text-teal-600" />
@@ -139,7 +170,6 @@ export default function ProfileUpdate() {
                   Esta información nos ayudará a conectarte con los propietarios de las propiedades que te interesen
                 </AlertDescription>
               </Alert>
-
               {/* Submit Button */}
               <Button
                 type="submit"
@@ -153,6 +183,66 @@ export default function ProfileUpdate() {
                   </div>
                 ) : (
                   "Completar perfil"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+        {/* Referral Code Card */}
+        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm mb-6">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              Código de referido
+            </CardTitle>
+            <CardDescription>
+              Si tienes un código de referido, ingrésalo aquí para recibir beneficios.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleReferralSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="referralCode" className="text-sm font-medium text-gray-700">
+                  Código de referido (opcional)
+                </Label>
+                <Input
+                  id="referralCode"
+                  name="referralCode"
+                  type="text"
+                  value={referralCode}
+                  onChange={e => setReferralCode(e.target.value)}
+                  placeholder="Ingresa tu código de referido"
+                  className="h-12 text-lg"
+                  maxLength={32}
+                />
+              </div>
+              {referralError && (
+                <Alert variant="destructive" className="border-red-200 bg-red-50">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-red-700">
+                    {referralError}
+                  </AlertDescription>
+                </Alert>
+              )}
+              {referralSuccess && (
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-700">
+                    ¡Código de referido guardado exitosamente!
+                  </AlertDescription>
+                </Alert>
+              )}
+              <Button
+                type="submit"
+                disabled={referralLoading || !referralCode.trim()}
+                className="w-full h-12 text-lg font-medium bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                {referralLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Guardando...
+                  </div>
+                ) : (
+                  "Guardar código de referido"
                 )}
               </Button>
             </form>

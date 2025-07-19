@@ -10,8 +10,8 @@ export const propertyService = {
     const response = await axiosInstance.post('/property', data);
     return response.data;
   },
-  async getPropertyById(id: string): Promise<Property> {
-    const response = await axiosInstance.get(`/property/${id}`);
+  async getPropertyById(slug: string): Promise<Property> {
+    const response = await axiosInstance.get(`/property/slug/${slug}`);
     return response.data;
   },
   async searchProperties(searchParams: SearchPropertyRequest = {}): Promise<SearchResponse<Property>> {
@@ -116,9 +116,9 @@ export const plansService = {
 export async function getInitialProperties(searchParams: SearchPropertyRequest = {}) {
   try {
     return await propertyService.searchProperties({
-      page: 1,
-      size: 9,
       ...searchParams,
+      page: searchParams.page ?? 1,
+      size: searchParams.size ?? 9,
     });
   } catch (error) {
     console.error('Failed to fetch initial properties:', error);

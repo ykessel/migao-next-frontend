@@ -6,6 +6,7 @@ import { MapPin, BedDouble, Bath, Square, MessageCircle, Phone, AlertTriangle } 
 import PropertyContactCard from "@/components/property/property-contact-card"
 import { PropertyReportDialog } from "@/components/property/property-report-dialog"
 import { Property } from "@/types/property";
+import { RatingCard } from "../app-components/rating-client";
 
 interface PropertySidebarProps {
   property: Property;
@@ -143,6 +144,9 @@ export default function PropertySidebar({
           </div>
         </CardContent>
       </Card>
+
+       {/* Rating Card */}
+       <RatingCard property={property}/>
     </div>
   );
 } 
