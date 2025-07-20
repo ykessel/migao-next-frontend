@@ -1,7 +1,7 @@
 import GoogleProvider from "next-auth/providers/google";
-import type { AuthOptions } from "next-auth";
-import { Session } from "next-auth";
-import type { JWT } from "next-auth/jwt";
+import type {AuthOptions} from "next-auth";
+import {Session} from "next-auth";
+import type {JWT} from "next-auth/jwt";
 import {API_BASE_URL} from "@/lib/axios";
 
 export const authOptions: AuthOptions = {
@@ -26,25 +26,25 @@ export const authOptions: AuthOptions = {
           }),
         });
 
-        const data = await res.json();
-        console.log('data', data);
+                const data = await res.json();
+                console.log('data', data);
 
-        // Guarda el token personalizado (JWT del backend)
-        token.access_token = data.access_token;
-        token.refresh_token = data.refresh_token;
-        token.expires_in = data.expires_in;
-      }
+                // Guarda el token personalizado (JWT del backend)
+                token.access_token = data.access_token;
+                token.refresh_token = data.refresh_token;
+                token.expires_in = data.expires_in;
+            }
 
-      return token;
+            return token;
+        },
+        async session({session, token}: { session: Session; token: JWT }) {
+            return {
+                ...session,
+                access_token: token.access_token,
+                refresh_token: token.refresh_token,
+                expires_in: token.expires_in,
+            };
+        },
     },
-    async session({ session, token }: { session: Session; token: JWT }) {
-      return {
-        ...session,
-        access_token: token.access_token,
-        refresh_token: token.refresh_token,
-        expires_in: token.expires_in,
-      };
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET,
 }; 

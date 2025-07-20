@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "linter": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "prepush": "npm run linter && npm run typecheck",
+    "prepare": "husky"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
@@ -70,8 +74,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
+    "eslint": "^9.31.0",
     "eslint-config-next": "15.3.4",
+    "husky": "^9.1.7",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -42,7 +42,9 @@ function PropertyListClientContent() {
         {...parsedParams, page: currentPage, size: ITEMS_PER_PAGE}
     )
 
-    const {addFavorite, removeFavorite, isFavorite, loading: favLoading} = useFavorites();
+    const {addFavorite, removeFavorite, isFavorite, loading: favLoading, favorites} = useFavorites();
+
+    console.log('favorites', favorites);
 
     const handlePageChange = (page: number) => {
         const params = new URLSearchParams(urlSearchParams.toString());
@@ -132,13 +134,13 @@ function PropertyListClientContent() {
             return (
                 <div className="space-y-4">
                     {sortedProperties.map((property: Property, idx: number) => (
-                        <PropertyCardItemList 
-                          key={property?._id || `property-${idx}`}
-                          property={property}
-                          isFavorite={Boolean(isFavorite(property._id!))}
-                          addFavorite={addFavorite}
-                          removeFavorite={removeFavorite}
-                          favLoading={favLoading}
+                        <PropertyCardItemList
+                            key={property?._id || `property-${idx}`}
+                            property={property}
+                            isFavorite={Boolean(isFavorite(property._id!))}
+                            addFavorite={addFavorite}
+                            removeFavorite={removeFavorite}
+                            favLoading={favLoading}
                         />
                     ))}
                 </div>

@@ -45,6 +45,7 @@ export const propertyService = {
 export const favoritesService = {
   async getFavorites(token?: string) {
     console.log('Making favorites request to:', axiosInstance.defaults.baseURL + '/property/favorites/me');
+    console.log('Token:', token);
     const response = await axiosInstance.get('/property/favorites/me',
       token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
     );
