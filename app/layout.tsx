@@ -5,6 +5,7 @@ import Footer from '@/components/ui/footer';
 import './globals.css'
 
 export const metadata: Metadata = {
+    metadataBase: new URL('https://migao-next-frontend.vercel.app'),
     title: {
         default: 'MiGao - Encuentra tu hogar ideal en Cuba',
         template: '%s | MiGao'

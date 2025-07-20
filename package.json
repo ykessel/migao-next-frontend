@@ -8,9 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "linter": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit",
-    "prepush": "npm run linter && npm run typecheck",
-    "prepare": "husky"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",

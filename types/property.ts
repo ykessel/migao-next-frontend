@@ -58,6 +58,6 @@ export interface Property {
     verified?: boolean,
 }
 
-export type CreatePropertyRequest = Omit<Property, "propertyId" | "createdAt" | "updatedAt">
+export type CreatePropertyRequest = Omit<Property, "propertyId" | "slug" | "createdAt" | "updatedAt">
 
 export type FavoriteProperty = Property;

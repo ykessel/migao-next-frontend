@@ -20,9 +20,8 @@ export function PropertyReportDialog({ property }: PropertyReportDialogProps) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<REPORT_REASON | ''>('');
   const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const createReportMutation = useCreatePropertyReport();
+  const { createReport, loading: isSubmitting } = useCreatePropertyReport();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,10 +41,8 @@ export function PropertyReportDialog({ property }: PropertyReportDialogProps) {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      await createReportMutation.mutateAsync({
+      await createReport({
         propertyId: property._id!,
         reason: reason as REPORT_REASON,
         description: description.trim(),
@@ -56,9 +53,7 @@ export function PropertyReportDialog({ property }: PropertyReportDialogProps) {
       setDescription('');
       setOpen(false);
     } catch {
-      // Error is handled by the mutation
-    } finally {
-      setIsSubmitting(false);
+      // Error is handled by the hook
     }
   };
 

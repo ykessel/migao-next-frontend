@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight, Flag } from "lucide-react";
+import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-react";
 import { blurDataURL } from '@/lib/utils';
 import { PropertyReportDialog } from '@/components/property/property-report-dialog';
 import { Property } from "@/types/property";
@@ -211,15 +211,7 @@ const EnhancedPropertyPopup = ({ property }: { property: Property }) => {
                         Ver Detalles
                     </Button>
                     
-                    <PropertyReportDialog property={property}>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300 text-xs py-1 px-2"
-                        >
-                            <Flag className="w-3 h-3" />
-                        </Button>
-                    </PropertyReportDialog>
+                    <PropertyReportDialog property={property} />
                 </div>
             </div>
         </div>
