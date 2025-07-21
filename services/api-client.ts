@@ -44,8 +44,6 @@ export const propertyService = {
 // --- Favorites Service ---
 export const favoritesService = {
   async getFavorites(token?: string) {
-    console.log('Making favorites request to:', axiosInstance.defaults.baseURL + '/property/favorites/me');
-    console.log('Token:', token);
     const response = await axiosInstance.get('/property/favorites/me',
       token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
     );
@@ -112,26 +110,6 @@ export const plansService = {
     return response.data;
   },
 };
-
-// --- Utility for SSR/Server Functions ---
-export async function getInitialProperties(searchParams: SearchPropertyRequest = {}) {
-  try {
-    return await propertyService.searchProperties({
-      ...searchParams,
-      page: searchParams.page ?? 1,
-      size: searchParams.size ?? 9,
-    });
-  } catch (error) {
-    console.error('Failed to fetch initial properties:', error);
-    return { 
-      data: [], 
-      total: 0, 
-      page: 1, 
-      limit: 9, 
-      totalPages: 0 
-    };
-  }
-}
 
 export async function getPropertyById(id: string) {
   try {

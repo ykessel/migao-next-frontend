@@ -1,8 +1,9 @@
 import Image from "next/image"
 import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card"
-import {Badge} from "@/components/ui/badge"
 import {Button} from "@/components/ui/button"
-import {Heart, MapPin, Star, Eye, Bed, Bath, Square, ArrowRight} from "lucide-react"
+import {MapPin, Star, Eye, Bed, Bath, Square, ArrowRight} from "lucide-react"
+import FavoriteButton from "../app-components/favorite-button";
+import AvailableBagde from "../app-components/available-bagde";
 import { Property } from '@/types/property';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -73,31 +74,18 @@ export default function PropertyCardItemList({
                     objectFit="cover"
                     className="rounded-l-xl"
                 />
-                {!property.isAvailable && (
-                  <Badge className="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    Próximamente
-                  </Badge>
-                )}
-                {property.isAvailable && (
-                  <Badge className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    Disponible
-                  </Badge>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <AvailableBagde isAvailable={property.isAvailable} />
+                <FavoriteButton
+                  isLiked={!!isLiked}
+                  favLoading={favLoading}
                   onClick={handleFavoriteClick}
-                  disabled={favLoading}
-                  className={`absolute top-3 left-3 rounded-full ${isLiked ? 'bg-red-500 text-white' : 'bg-white/80 hover:bg-white'} ${favLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'}`}
                   aria-label={isLiked ? "Remover de favoritos" : "Agregar a favoritos"}
-                >
-                  <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : 'text-gray-600'}`}/>
-                </Button>
+                />
             </div>
 
             {/* Data Section */}
-            <div className="flex flex-col flex-grow p-4">
-                <CardHeader className="p-0 pb-2">
+            <div className="flex flex-col w-full p-4 truncate">
+                <CardHeader className="p-0 pb-2 w-full">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-800 truncate">{property.title}</h3>
                         <div className="flex items-center space-x-2 text-sm text-gray-500 flex-shrink-0 ml-4">
@@ -117,7 +105,7 @@ export default function PropertyCardItemList({
                     </div>
                     <div className="flex items-center text-sm text-gray-500 mt-1">
                         <MapPin className="h-4 w-4 mr-1 shrink-0"/>
-                        <span className="truncate">{locationAddress}</span>
+                        <span className="truncate flex-1" title={locationAddress}>{locationAddress}</span>
                     </div>
                 </CardHeader>
 
@@ -151,13 +139,18 @@ export default function PropertyCardItemList({
                   <Link
                     href={`/property/${property.slug || ''}`}
                     prefetch={true}
-                    className="block w-full"
-                    aria-label={`Ver detalles de ${property.title}`}
+                    className="block w-full cursor-pointer"
+                    aria-label={`Ver detalles de la propiedad: ${property.title}`}
                     title={`Ver detalles de ${property.title}`}
+                    tabIndex={0}
                   >
-                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                    <Button
+                      className="w-full bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer"
+                      aria-label={`Botón para ver detalles de la propiedad: ${property.title}`}
+                      tabIndex={0}
+                    >
                       Ver Detalles
-                      <ArrowRight className="ml-2 h-4 w-4"/>
+                      <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" focusable="false" />
                     </Button>
                   </Link>
                 </CardFooter>

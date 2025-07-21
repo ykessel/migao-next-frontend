@@ -21,7 +21,6 @@ export default function ProfileCheck() {
             return;
         }
         const decoded = jwtDecode(session.access_token as string);
-        console.log('decoded', decoded);
         if (!(decoded as { isNew?: boolean }).isNew) {
           router.replace("/profile/update");
         } else {

@@ -15,7 +15,6 @@ export function FavoritesClient({ initialFavorites }: FavoritesClientProps) {
   const { toast } = useToast()
   const { removeFavorite, addFavorite, isFavorite, loading: favLoading, favorites } = useFavorites()
 
-console.log('favorites', favorites)
   const handleShareFavorites = () => {
     const shareUrl = `${window.location.origin}/favorites?shared=${btoa(JSON.stringify(initialFavorites.map(p => p?._id)))}`
     navigator.clipboard.writeText(shareUrl)
@@ -56,7 +55,7 @@ console.log('favorites', favorites)
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <Heart className="w-8 h-8 mr-3 text-coral-500 fill-current" />
+              <Heart className="w-8 h-8 mr-3 text-red fill-current" />
               Mis Favoritos
             </h1>
             <p className="text-gray-600 mt-2">
@@ -78,7 +77,7 @@ console.log('favorites', favorites)
       </div>
 
       {/* Properties Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {favorites.map((property) => (
           <div key={property._id} className="relative">
             <PropertyCard 

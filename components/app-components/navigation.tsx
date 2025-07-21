@@ -108,8 +108,8 @@ export const Navigation = () => {
                                 aria-label={item.label}
                             >
                                 <div className="flex items-center gap-3">
-                                    <item.icon className="w-5 h-5" />
-                                    {item.label}
+                                    <item.icon className="w-5 h-5" aria-hidden="true" focusable="false" />
+                                    <span className="sr-only">{item.label}</span>
                                 </div>
                                 <span
                                   className={`block w-4 h-1 mt-1 rounded transition-colors duration-200 ${
@@ -145,6 +145,7 @@ export const Navigation = () => {
                                     setIsMenuOpen(false);
                                 }}
                                 className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-gray-700 hover:text-teal-600 hover:bg-teal-50 transition-all duration-200"
+                                aria-label="Mi perfil"
                             >
                                 <User className="w-5 h-5" />
                                 Mi Perfil
@@ -153,6 +154,7 @@ export const Navigation = () => {
                             <button
                                 onClick={handleLogout}
                                 className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-red-600 hover:bg-red-50 transition-all duration-200"
+                                aria-label="Cerrar sesión"
                             >
                                 <LogOut className="w-5 h-5" />
                                 Cerrar Sesión
@@ -167,6 +169,7 @@ export const Navigation = () => {
                                 }}
                                 variant="outline" 
                                 className="w-full justify-start gap-3 h-12"
+                                aria-label="Iniciar sesión"
                             >
                                 <User className="w-5 h-5" />
                                 Iniciar Sesión
@@ -222,10 +225,12 @@ export const Navigation = () => {
                                             : 'text-gray-700 hover:text-teal-600'}
                                     `}
                                     style={{ boxShadow: 'none', background: 'none' }}
+                                    aria-label={item.label}
                                 >
                                     <div className="flex items-center gap-2">
-                                        <item.icon className="w-4 h-4" />
+                                        <item.icon className="w-4 h-4" aria-hidden="true" focusable="false" />
                                         <span className="hidden lg:inline">{item.label}</span>
+                                        <span className="sr-only">{item.label}</span>
                                     </div>
                                     <span
                                       className={`block w-4 h-1 mt-1 rounded transition-colors duration-200 ${
@@ -242,7 +247,7 @@ export const Navigation = () => {
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="flex items-center gap-2 p-1 rounded-full hover:bg-white/20 transition-all duration-200 group">
+                                    <button className="flex items-center gap-2 p-1 rounded-full hover:bg-white/20 transition-all duration-200 group" aria-label="Abrir menú de usuario">
                                         <Avatar className="w-9 h-9 border-2 border-teal-500 group-hover:border-teal-600 transition-colors">
                                             <AvatarImage src={user?.image ?? undefined} alt={user?.name?.[0] || 'U'} />
                                             <AvatarFallback className="bg-teal-100 text-teal-700 font-medium">
@@ -262,6 +267,7 @@ export const Navigation = () => {
                                     <DropdownMenuItem 
                                         onClick={() => router.push('/profile')}
                                         className="cursor-pointer hover:bg-teal-50 hover:text-teal-700"
+                                        aria-label="Perfil"
                                     >
                                         <User className="w-4 h-4 mr-2" />
                                         Perfil
@@ -269,6 +275,7 @@ export const Navigation = () => {
                                     <DropdownMenuItem 
                                         onClick={() => router.push('/favorites')}
                                         className="cursor-pointer hover:bg-teal-50 hover:text-teal-700"
+                                        aria-label="Favoritos"
                                     >
                                         <Heart className="w-4 h-4 mr-2" />
                                         Favoritos
@@ -277,6 +284,7 @@ export const Navigation = () => {
                                     <DropdownMenuItem 
                                         onClick={handleLogout}
                                         className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700"
+                                        aria-label="Cerrar sesión"
                                     >
                                         <LogOut className="w-4 h-4 mr-2" />
                                         Cerrar Sesión
@@ -290,6 +298,7 @@ export const Navigation = () => {
                                     size="sm"
                                     onClick={() => router.push('/login')}
                                     className="text-gray-700 hover:text-teal-600 hover:bg-white/20 transition-all duration-200"
+                                    aria-label="Iniciar sesión"
                                 >
                                     <User className="w-4 h-4 mr-2"/>
                                     <span className="hidden lg:inline">Iniciar Sesión</span>

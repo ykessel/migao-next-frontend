@@ -4,6 +4,31 @@ import { SearchFilters } from './search-filters'
 import {Suspense, useState, useEffect, useMemo, useRef} from 'react'
 import { useDebounce } from '@/hooks/use-debounce'
 
+// Simple debounce implementation
+function debounce<T extends (...args: unknown[]) => void>(func: T, wait: number) {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
+function mergeAndUpdateUrlParams(
+  router: ReturnType<typeof useRouter>,
+  searchParams: URLSearchParams,
+  newParams: Record<string, string | undefined>
+) {
+  const params = new URLSearchParams(searchParams.toString());
+  Object.entries(newParams).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "" || value === "any") {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+  });
+  router.push(`?${params.toString()}`, { scroll: false });
+}
+
 function SearchFiltersClientContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -23,6 +48,16 @@ function SearchFiltersClientContent() {
   const debouncedFilters = useDebounce(filters, 1000)
   const prevFiltersRef = useRef(currentFilters)
 
+  // Debounced update function
+  const debouncedUpdateUrl = useRef(
+    debounce(
+      (router: ReturnType<typeof useRouter>, searchParams: URLSearchParams, newParams: Record<string, string | undefined>) => {
+        mergeAndUpdateUrlParams(router, searchParams, newParams);
+      },
+      300
+    )
+  ).current;
+
   // Sync filters with URL changes
   useEffect(() => {
     setFilters(currentFilters)
@@ -30,39 +65,39 @@ function SearchFiltersClientContent() {
   }, [currentFilters, searchParams])
 
   useEffect(() => {
-    // Save current scroll position
     sessionStorage.setItem('scrollPosition', window.scrollY.toString())
-    const params = new URLSearchParams()
-    if (debouncedFilters.location) params.set('search', debouncedFilters.location)
-    if (debouncedFilters.propertyType !== 'any') params.set('propertyType', debouncedFilters.propertyType)
-    if (debouncedFilters.minPrice > 0) params.set('minPrice', debouncedFilters.minPrice.toString())
-    if (debouncedFilters.maxPrice < 5000) params.set('maxPrice', debouncedFilters.maxPrice.toString())
-    if (debouncedFilters.rooms > 0) params.set('rooms', debouncedFilters.rooms.toString())
-    if (debouncedFilters.furnished !== 'any') params.set('furnished', debouncedFilters.furnished)
+
+    // Build only the changed filter params
+    const newParams: Record<string, string | undefined> = {};
+    if (debouncedFilters.location) newParams.search = debouncedFilters.location;
+    if (debouncedFilters.propertyType !== "any") newParams.propertyType = debouncedFilters.propertyType;
+    if (debouncedFilters.minPrice > 0) newParams.minPrice = debouncedFilters.minPrice.toString();
+    if (debouncedFilters.maxPrice < 5000) newParams.maxPrice = debouncedFilters.maxPrice.toString();
+    if (debouncedFilters.rooms > 0) newParams.rooms = debouncedFilters.rooms.toString();
+    if (debouncedFilters.furnished !== "any") newParams.furnished = debouncedFilters.furnished;
 
     // Compare previous filters to current debounced filters
-    const prev = prevFiltersRef.current
+    const prev = prevFiltersRef.current;
     const filtersChanged =
       prev.location !== debouncedFilters.location ||
       prev.minPrice !== debouncedFilters.minPrice ||
       prev.maxPrice !== debouncedFilters.maxPrice ||
       prev.propertyType !== debouncedFilters.propertyType ||
       prev.rooms !== debouncedFilters.rooms ||
-      prev.furnished !== debouncedFilters.furnished
+      prev.furnished !== debouncedFilters.furnished;
 
     if (filtersChanged) {
-      params.set('page', '1') // Reset to page 1 if filters changed
+      newParams.page = "1";
     } else {
-      // Preserve current page param from URL if present
-      const page = searchParams.get('page')
-      if (page) params.set('page', page)
+      const page = searchParams.get("page");
+      if (page) newParams.page = page;
     }
 
-    const queryString = params.toString()
-    const url = queryString ? `/?${queryString}` : '/'
-    router.push(url, { scroll: false })
-    prevFiltersRef.current = debouncedFilters
-  }, [debouncedFilters, router, searchParams])
+    // Debounced URL update
+    debouncedUpdateUrl(router, searchParams, newParams);
+
+    prevFiltersRef.current = debouncedFilters;
+  }, [debouncedFilters, router, searchParams, debouncedUpdateUrl]);
 
   return <SearchFilters filters={filters} onFiltersChange={setFilters} />
 }

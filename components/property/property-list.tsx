@@ -67,10 +67,6 @@ function parseSearchParams(searchParams: { [key: string]: string | string[] | un
   const page = typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
   const size = searchParams.size && typeof searchParams.size === 'string' ? parseInt(searchParams.size) : 9;
 
-  if (!hasFilters && !hasSearch && page === 1 && size === 9) {
-    return {};
-  }
-
   // Only include page/size if not default or if there are filters/search
   const result: SearchPropertyRequest = {};
   if (hasSearch && typeof searchParams.search === 'string') {
@@ -88,6 +84,10 @@ function parseSearchParams(searchParams: { [key: string]: string | string[] | un
     if (size !== 9) result.size = size;
   } else {
     if (typeof searchParams.size === 'string' && size !== 9) result.size = size;
+  }
+  // Include sort if present
+  if (searchParams.sort && typeof searchParams.sort === 'string') {
+    result.sort = searchParams.sort;
   }
   return result;
 }

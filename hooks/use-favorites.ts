@@ -11,8 +11,6 @@ export function useFavorites() {
     const [error, setError] = useState<string | null>(null);
     const token = (session as unknown as { access_token?: string })?.access_token;
 
-    console.log('session', session);
-
     const fetchFavorites = useCallback(async () => {
         if (!isAuthenticated) return;
         setLoading(true);
