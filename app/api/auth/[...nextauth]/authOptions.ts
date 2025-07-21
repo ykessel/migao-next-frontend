@@ -72,15 +72,14 @@ export const authOptions = {
       return token;
     },
 
-    async session({ session, token }: { session: unknown; token: unknown }) {
-      // console.log('new token', (token as Record<string, unknown>)?.access_token)
+    async session({ session, token }: { session: Record<string, unknown>; token: Record<string, unknown> }) {
       return {
         ...(session as Record<string, unknown>),
-        access_token: (token as Record<string, unknown>)?.access_token,
-        refresh_token: (token as Record<string, unknown>)?.refresh_token,
-        expires_in: (token as Record<string, unknown>)?.expires_in,
+        access_token: token.access_token,
+        refresh_token: token.refresh_token,
+        expires_in: token.expires_in,
       };
+    },
   },
-},
   secret: process.env.NEXTAUTH_SECRET,
 };

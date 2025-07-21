@@ -27,7 +27,7 @@ const FavoriteButton = ({
             size="icon"
             onClick={onClick}
             disabled={favLoading}
-            className={`absolute top-3 left-3 rounded-full cursor-pointer ${
+            className={`absolute top-3 left-3 w-8 h-8 rounded-full cursor-pointer ${
               isLiked ? "bg-red-500 text-white" : "bg-white/80 hover:bg-white"
             } ${
               favLoading ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
@@ -37,7 +37,7 @@ const FavoriteButton = ({
             }
           >
             <Heart
-              className={`h-5 w-5 ${
+              className={`h-4 w-4 ${
                 isLiked ? "fill-current" : "text-gray-600"
               }`}
             />

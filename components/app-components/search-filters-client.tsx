@@ -1,17 +1,9 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SearchFilters } from './search-filters'
-import {Suspense, useState, useEffect, useMemo, useRef} from 'react'
-import { useDebounce } from '@/hooks/use-debounce'
-
-// Simple debounce implementation
-function debounce<T extends (...args: unknown[]) => void>(func: T, wait: number) {
-  let timeout: ReturnType<typeof setTimeout>;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
+import {Suspense, useEffect, useRef} from 'react'
+import { useFilterContext } from './search-filters/FilterProvider';
+import { FilterState } from './search-filters/filterStore';
 
 function mergeAndUpdateUrlParams(
   router: ReturnType<typeof useRouter>,
@@ -29,77 +21,66 @@ function mergeAndUpdateUrlParams(
   router.push(`?${params.toString()}`, { scroll: false });
 }
 
+function parseFiltersFromSearchParams(searchParams: URLSearchParams): FilterState {
+  return {
+    location: searchParams.get('search') || '',
+    minPrice: parseInt(searchParams.get('minPrice') || '0'),
+    maxPrice: parseInt(searchParams.get('maxPrice') || '5000'),
+    propertyType: searchParams.get('propertyType') || 'any',
+    rooms: parseInt(searchParams.get('rooms') || '0'),
+    furnished: searchParams.get('furnished') || 'any',
+  };
+}
+
 function SearchFiltersClientContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { filters, setFilter, setFilters, getUrlParams } = useFilterContext();
+  const prevFiltersRef = useRef<FilterState>(filters);
 
-  const currentFilters = useMemo(() => {
-    return {
-      location: searchParams.get('search') || '',
-      minPrice: parseInt(searchParams.get('minPrice') || '0'),
-      maxPrice: parseInt(searchParams.get('maxPrice') || '5000'),
-      propertyType: searchParams.get('propertyType') || 'any',
-      rooms: parseInt(searchParams.get('rooms') || '0'),
-      furnished: searchParams.get('furnished') || 'any'
-    }
-  },[searchParams])
-
-  const [filters, setFilters] = useState(currentFilters)
-  const debouncedFilters = useDebounce(filters, 1000)
-  const prevFiltersRef = useRef(currentFilters)
-
-  // Debounced update function
-  const debouncedUpdateUrl = useRef(
-    debounce(
-      (router: ReturnType<typeof useRouter>, searchParams: URLSearchParams, newParams: Record<string, string | undefined>) => {
-        mergeAndUpdateUrlParams(router, searchParams, newParams);
-      },
-      300
-    )
-  ).current;
-
-  // Sync filters with URL changes
+  // On mount and when URL changes, update store from URL
   useEffect(() => {
-    setFilters(currentFilters)
-    prevFiltersRef.current = currentFilters
-  }, [currentFilters, searchParams])
+    const urlFilters = parseFiltersFromSearchParams(searchParams);
+    setFilters(urlFilters);
+    prevFiltersRef.current = urlFilters;
+  }, [searchParams, setFilters]);
 
+  // When store changes, update URL
   useEffect(() => {
-    sessionStorage.setItem('scrollPosition', window.scrollY.toString())
-
-    // Build only the changed filter params
-    const newParams: Record<string, string | undefined> = {};
-    if (debouncedFilters.location) newParams.search = debouncedFilters.location;
-    if (debouncedFilters.propertyType !== "any") newParams.propertyType = debouncedFilters.propertyType;
-    if (debouncedFilters.minPrice > 0) newParams.minPrice = debouncedFilters.minPrice.toString();
-    if (debouncedFilters.maxPrice < 5000) newParams.maxPrice = debouncedFilters.maxPrice.toString();
-    if (debouncedFilters.rooms > 0) newParams.rooms = debouncedFilters.rooms.toString();
-    if (debouncedFilters.furnished !== "any") newParams.furnished = debouncedFilters.furnished;
-
-    // Compare previous filters to current debounced filters
+    sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+    const newParams = getUrlParams();
+    // Compare previous filters to current filters
     const prev = prevFiltersRef.current;
     const filtersChanged =
-      prev.location !== debouncedFilters.location ||
-      prev.minPrice !== debouncedFilters.minPrice ||
-      prev.maxPrice !== debouncedFilters.maxPrice ||
-      prev.propertyType !== debouncedFilters.propertyType ||
-      prev.rooms !== debouncedFilters.rooms ||
-      prev.furnished !== debouncedFilters.furnished;
-
+      prev.location !== filters.location ||
+      prev.minPrice !== filters.minPrice ||
+      prev.maxPrice !== filters.maxPrice ||
+      prev.propertyType !== filters.propertyType ||
+      prev.rooms !== filters.rooms ||
+      prev.furnished !== filters.furnished;
     if (filtersChanged) {
       newParams.page = "1";
     } else {
       const page = searchParams.get("page");
       if (page) newParams.page = page;
     }
+    // Only update the URL if needed
+    const urlIsEmpty = Object.keys(newParams).length === 0;
+    const urlParamsString = new URLSearchParams(searchParams.toString()).toString();
 
-    // Debounced URL update
-    debouncedUpdateUrl(router, searchParams, newParams);
+    if (!urlIsEmpty || urlParamsString) {
+      mergeAndUpdateUrlParams(router, searchParams, newParams);
+    }
+    prevFiltersRef.current = filters;
+  }, [filters, router, searchParams, getUrlParams]);
 
-    prevFiltersRef.current = debouncedFilters;
-  }, [debouncedFilters, router, searchParams, debouncedUpdateUrl]);
+  // Function to clear all filter params from URL and reset state
+  function handleClearFilters() {
+    router.push('/', { scroll: false });
+    // clearFilters();
+  }
 
-  return <SearchFilters filters={filters} onFiltersChange={setFilters} />
+  return <SearchFilters filters={filters} onFiltersChange={setFilters} onClearFilters={handleClearFilters} setFilter={setFilter} />
 }
 
 export function SearchFiltersClient() {

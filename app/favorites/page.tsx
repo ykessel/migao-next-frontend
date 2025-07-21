@@ -1,30 +1,25 @@
 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import type { NextAuthOptions } from "next-auth";
 import { FavoritesClient } from "@/components/app-components/favorites-client";
-import { favoritesService } from "@/services/api-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import Link from "next/link";
 
-async function getFavoritesServer() {
-  const session = await getServerSession(authOptions) as { access_token?: string };
-  if (!session?.access_token) return { favorites: [], isAuthenticated: false };
+async function getAuthServer() {
+  const session = await getServerSession(authOptions as unknown as NextAuthOptions) as { access_token?: string };
+  if (!session?.access_token) return { isAuthenticated: false };
   try {
-    const favorites = await favoritesService.getFavorites(session.access_token);
-    return { favorites, isAuthenticated: true };
+    return { isAuthenticated: true };
   } catch {
-    return { favorites: [], isAuthenticated: true, error: "Error al cargar favoritos" };
+    return { isAuthenticated: true, error: "Error al cargar favoritos" };
   }
 }
 
 export default async function FavoritesPage() {
-  const { favorites, isAuthenticated, error } = await getFavoritesServer();
-
-  console.log('isAuthenticated', isAuthenticated);
-  console.log('favorites server', favorites);
-  console.log('error', error);
+  const { isAuthenticated, error,  } = await getAuthServer();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50">
@@ -60,7 +55,7 @@ export default async function FavoritesPage() {
             </CardContent>
           </Card>
         ) : (
-          <FavoritesClient initialFavorites={favorites} />
+          <FavoritesClient />
         )}
       </div>
     </div>

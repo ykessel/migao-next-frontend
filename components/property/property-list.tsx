@@ -87,7 +87,7 @@ function parseSearchParams(searchParams: { [key: string]: string | string[] | un
   }
   // Include sort if present
   if (searchParams.sort && typeof searchParams.sort === 'string') {
-    result.sort = searchParams.sort;
+    result.sort = searchParams.sort as unknown as {[key: string]: 1 | -1};
   }
   return result;
 }

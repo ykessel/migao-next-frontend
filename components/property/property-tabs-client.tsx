@@ -36,6 +36,22 @@ import {
   Martini,
   GraduationCap,
   Baby,
+  Car,
+  Sun,
+  Layers,
+  Sofa,
+  Tv,
+  Wifi,
+  AirVent,
+  Home,
+  WashingMachine,
+  Microwave,
+  ArrowUpDown,
+  Waves,
+  Ban,
+  Volume2,
+  Clock,
+  Users,
 } from "lucide-react";
 
 const PropertyMap = dynamic(
@@ -172,40 +188,40 @@ type PropertyTabsClientProps = Omit<
   initialSelectedTypes?: PropertyTabsProps["selectedTypes"];
 };
 
-function getApartmentAmenityIcon(amenity: string): string {
+function getApartmentAmenityIcon(amenity: string): React.ReactNode {
   switch (amenity) {
     case "garage":
-      return "🚗";
+      return <Car className="w-5 h-5" />;
     case "garden":
-      return "🌳";
+      return <Sun className="w-5 h-5" />;
     case "terrace":
-      return "🏞️";
+      return <Layers className="w-5 h-5" />;
     case "kitchen":
-      return "🍳";
+      return <Utensils className="w-5 h-5" />;
     case "furnished":
-      return "🛋️";
+      return <Sofa className="w-5 h-5" />;
     case "hasTV":
-      return "📺";
+      return <Tv className="w-5 h-5" />;
     case "hasWifi":
-      return "📶";
+      return <Wifi className="w-5 h-5" />;
     case "hasAC":
-      return "❄️";
+      return <AirVent className="w-5 h-5" />;
     case "hasFridge":
-      return "🧊";
+      return <Home className="w-5 h-5" />;
     case "hasWasher":
-      return "🧺";
+      return <WashingMachine className="w-5 h-5" />;
     case "hasMicrowave":
-      return "🍲";
+      return <Microwave className="w-5 h-5" />;
     case "hasElevator":
-      return "🛗";
+      return <ArrowUpDown className="w-5 h-5" />;
     case "hasBalcony":
-      return "🌅";
+      return <Sun className="w-5 h-5" />;
     case "hasPool":
-      return "🏊";
+      return <Waves className="w-5 h-5" />;
     case "gasAvailability":
-      return "🔥";
+      return <Flame className="w-5 h-5" />;
     default:
-      return "";
+      return null;
   }
 }
 
@@ -248,14 +264,14 @@ function getApartmentAmenityLabel(amenity: string): string {
 
 function getRuleIcon(rule: string): React.ReactNode {
   if (rule.includes("fumar"))
-    return <span className="w-4 h-4 text-red-500">🚭</span>;
+    return <Ban className="w-4 h-4 text-red-500" />;
   if (rule.includes("fiestas"))
-    return <span className="w-4 h-4 text-red-500">🎉</span>;
+    return <Volume2 className="w-4 h-4 text-red-500" />;
   if (rule.includes("silencio"))
-    return <span className="w-4 h-4 text-orange-500">🔕</span>;
+    return <Clock className="w-4 h-4 text-orange-500" />;
   if (rule.includes("huéspedes"))
-    return <span className="w-4 h-4 text-blue-500">👥</span>;
-  return <span className="w-4 h-4 text-gray-500">🛡️</span>;
+    return <Users className="w-4 h-4 text-blue-500" />;
+  return <Shield className="w-4 h-4 text-gray-500" />;
 }
 
 export default function PropertyTabsClient({

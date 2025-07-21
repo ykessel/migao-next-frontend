@@ -1,25 +1,23 @@
 "use client";
 import {useState} from "react";
 import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
-import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible";
 import {
     X,
     Filter,
     ChevronDown,
     ChevronUp,
-    MapPin,
-    Euro,
-    Home,
-    BedDouble,
-    Sofa,
     Search
 } from "lucide-react";
 import {PROPERTY_TYPE} from '@/constants/property-type.enum'
+import { QuickFiltersSection } from "./search-filters/QuickFiltersSection";
+import { LocationFilterSection } from "./search-filters/LocationFilterSection";
+import { PriceRangeFilterSection } from "./search-filters/PriceRangeFilterSection";
+import { PropertyTypeFilterSection } from "./search-filters/PropertyTypeFilterSection";
+import { RoomsFilterSection } from "./search-filters/RoomsFilterSection";
+import { FurnishedFilterSection } from "./search-filters/FurnishedFilterSection";
+import React from "react";
 
 interface SearchFiltersProps {
     filters: {
@@ -30,24 +28,31 @@ interface SearchFiltersProps {
         rooms: number;
         furnished: string;
     };
-    onFiltersChange: (filters: {
+    onFiltersChange: (filters: Partial<{
         location: string;
         minPrice: number;
         maxPrice: number;
         propertyType: string;
         rooms: number;
         furnished: string;
-    }) => void;
+    }>) => void;
+    onClearFilters?: () => void;
+    setFilter?: <K extends keyof {
+        location: string;
+        minPrice: number;
+        maxPrice: number;
+        propertyType: string;
+        rooms: number;
+        furnished: string;
+    }>(key: K, value: {
+        location: string;
+        minPrice: number;
+        maxPrice: number;
+        propertyType: string;
+        rooms: number;
+        furnished: string;
+    }[K]) => void;
 }
-
-const roomOptions = [
-    {value: 0, label: "Cualquiera"},
-    {value: 1, label: "1+"},
-    {value: 2, label: "2+"},
-    {value: 3, label: "3+"},
-    {value: 4, label: "4+"},
-    {value: 5, label: "5+"},
-];
 
 const furnishedOptions = [
     {value: "any", label: "Cualquiera"},
@@ -56,38 +61,46 @@ const furnishedOptions = [
     {value: "semi-furnished", label: "Semi-amueblado"},
 ];
 
-const quickFilters = [
-    {key: "furnished", value: "furnished", label: "Amueblado", icon: Sofa},
-    {key: "propertyType", value: "APARTAMENTO_INDEPENDIENTE", label: "Apartamento independiente", icon: Home},
-    {key: "rooms", value: 2, label: "2+ Habitaciones", icon: BedDouble},
-];
-
-export const SearchFilters = ({filters, onFiltersChange}: SearchFiltersProps) => {
+export const SearchFilters = ({filters, onFiltersChange, onClearFilters, setFilter}: SearchFiltersProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [priceRange, setPriceRange] = useState([filters.minPrice, filters.maxPrice]);
+    const [priceRange, setPriceRange] = useState<[number | '', number | '']>([filters.minPrice, filters.maxPrice]);
     const [locationOpen, setLocationOpen] = useState(true);
     const [priceOpen, setPriceOpen] = useState(true);
     const [propertyOpen, setPropertyOpen] = useState(false);
     const [roomsOpen, setRoomsOpen] = useState(false);
 
     const updateFilter = (key: keyof typeof filters, value: string | number) => {
-        onFiltersChange({
-            ...filters,
-            [key]: value
-        });
+        if (setFilter) {
+            setFilter(key, value);
+        } else {
+            onFiltersChange({
+                ...filters,
+                [key]: value
+            });
+        }
     };
 
+    // Keep local priceRange in sync with store/props
+    // (when filters change from outside, e.g. clear)
+    React.useEffect(() => {
+        setPriceRange([filters.minPrice, filters.maxPrice]);
+    }, [filters.minPrice, filters.maxPrice]);
+
     const clearFilters = () => {
-        const clearedFilters = {
-            location: "",
-            minPrice: 0,
-            maxPrice: 5000,
-            propertyType: "any",
-            rooms: 0,
-            furnished: "any"
-        };
-        onFiltersChange(clearedFilters);
-        setPriceRange([0, 5000]);
+        if (onClearFilters) {
+            onClearFilters();
+        } else {
+            const clearedFilters = {
+                location: "",
+                minPrice: 0,
+                maxPrice: 5000,
+                propertyType: "any",
+                rooms: 0,
+                furnished: "any"
+            };
+            onFiltersChange(clearedFilters);
+            setPriceRange([0, 5000]);
+        }
     };
 
     const applyQuickFilter = (key: string, value: string | number) => {
@@ -201,201 +214,31 @@ export const SearchFilters = ({filters, onFiltersChange}: SearchFiltersProps) =>
                 </CardHeader>
 
                 <CardContent className="space-y-6">
-                    {/* Quick Filters */}
-                    <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-3 block">
-                            Filtros Rápidos
-                        </Label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2">
-                            {quickFilters.map((filter) => (
-                                <Button
-                                    key={filter.label}
-                                    variant="outline"
-                                    size="sm"
-                                    aria-label={filter.label}
-                                    className={`justify-start h-10 ${
-                                        (filter.key === 'furnished' && filters.furnished === filter.value) ||
-                                        (filter.key === 'propertyType' && filters.propertyType === filter.value) ||
-                                        (filter.key === 'rooms' && filters.rooms >= Number(filter.value))
-                                            ? 'bg-teal-50 border-teal-200 text-teal-700'
-                                            : 'hover:bg-gray-50'
-                                    }`}
-                                    onClick={() => applyQuickFilter(filter.key, filter.value)}
-                                >
-                                    <filter.icon className="w-4 h-4 mr-2"/>
-                                    {filter.label}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Location Filter */}
-                    <Collapsible open={locationOpen} onOpenChange={setLocationOpen}>
-                        <CollapsibleTrigger asChild>
-                            <Button
-                                aria-label={'Ubicación'}
-                                variant="ghost"
-                                className="w-full justify-between p-0 h-auto font-medium text-gray-700 hover:text-teal-600"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4"/>
-                                    Ubicación
-                                </div>
-                                {locationOpen ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
-                            </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="mt-3">
-                            <div className="relative">
-                                <Input
-                                    aria-label={'Buscar ubicación'}
-                                    placeholder="Ingresa ciudad, barrio o dirección"
-                                    value={filters.location}
-                                    onChange={(e) => updateFilter('location', e.target.value)}
-                                    className="pl-12 form-input text-base"
-                                />
-                            </div>
-                        </CollapsibleContent>
-                    </Collapsible>
-
-                    {/* Price Range Filter */}
-                    <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
-                        <CollapsibleTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                aria-label={"Rango de Precio"}
-                                className="w-full justify-between p-0 h-auto font-medium text-gray-700 hover:text-teal-600"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <Euro className="w-4 h-4"/>
-                                    Rango de Precio
-                                </div>
-                                {priceOpen ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
-                            </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="mt-3 space-y-4">
-                            <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                    <Label className="text-xs text-gray-600">Mínimo</Label>
-                                    <Input
-                                        aria-label={"Precio Mínimo"}
-                                        type="number"
-                                        placeholder="0"
-                                        value={filters.minPrice || ''}
-                                        onChange={(e) => {
-                                            const value = Number(e.target.value) || 0;
-                                            updateFilter('minPrice', value);
-                                            setPriceRange([value, priceRange[1]]);
-                                        }}
-                                        className="form-input text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <Label className="text-xs text-gray-600">Máximo</Label>
-                                    <Input
-                                        aria-label={"Precio Máximo"}
-                                        type="number"
-                                        placeholder="5000"
-                                        value={filters.maxPrice || ''}
-                                        onChange={(e) => {
-                                            const value = Number(e.target.value) || 5000;
-                                            updateFilter('maxPrice', value);
-                                            setPriceRange([priceRange[0], value]);
-                                        }}
-                                        className="form-input text-sm"
-                                    />
-                                </div>
-                            </div>
-                        </CollapsibleContent>
-                    </Collapsible>
-
-                    {/* Property Type Filter */}
-                    <Collapsible open={propertyOpen} onOpenChange={setPropertyOpen}>
-                        <CollapsibleTrigger asChild>
-                            <Button
-                                aria-label={"Tipo de Propiedad"}
-                                variant="ghost"
-                                className="w-full justify-between p-0 h-auto font-medium text-gray-700 hover:text-teal-600"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <Home className="w-4 h-4"/>
-                                    Tipo de Propiedad
-                                </div>
-                                {propertyOpen ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
-                            </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="mt-3">
-                            <Select value={filters.propertyType || 'any'}
-                                    onValueChange={(value) => updateFilter('propertyType', value)}>
-                                <SelectTrigger className="form-input" aria-label={"Tipo de Propiedad Selector"}>
-                                    <SelectValue placeholder="Selecciona tipo"/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="any">Cualquier tipo</SelectItem>
-                                    {Object.entries(PROPERTY_TYPE).map(([key, label]) => (
-                                        <SelectItem key={key} value={key}>{label}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </CollapsibleContent>
-                    </Collapsible>
-
-                    {/* Rooms Filter */}
-                    <Collapsible open={roomsOpen} onOpenChange={setRoomsOpen}>
-                        <CollapsibleTrigger asChild>
-                            <Button
-                                aria-label={"Habitaciones"}
-                                variant="ghost"
-                                className="w-full justify-between p-0 h-auto font-medium text-gray-700 hover:text-teal-600"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <BedDouble className="w-4 h-4"/>
-                                    Habitaciones
-                                </div>
-                                {roomsOpen ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
-                            </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="mt-3">
-                            <div className="grid grid-cols-3 gap-2">
-                                {roomOptions.map((option) => (
-                                    <Button
-                                        aria-label={"Seleccionar habitaciones"}
-                                        key={option.value}
-                                        variant={filters.rooms === option.value ? "default" : "outline"}
-                                        size="sm"
-                                        className={
-                                            filters.rooms === option.value
-                                                ? "bg-teal-600 hover:bg-teal-700"
-                                                : "hover:bg-teal-50 hover:border-teal-200"
-                                        }
-                                        onClick={() => updateFilter('rooms', option.value)}
-                                    >
-                                        {option.label}
-                                    </Button>
-                                ))}
-                            </div>
-                        </CollapsibleContent>
-                    </Collapsible>
-
-                    {/* Furnished Filter */}
-                    <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                            <Sofa className="w-4 h-4"/>
-                            Amueblado
-                        </Label>
-                        <Select value={filters.furnished || "any"}
-                                onValueChange={(value) => updateFilter('furnished', value)}>
-                            <SelectTrigger className="form-input" aria-label={"Amueblado Selector"}>
-                                <SelectValue placeholder="Selecciona opción"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {furnishedOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <QuickFiltersSection filters={filters} applyQuickFilter={applyQuickFilter} />
+                    <LocationFilterSection location={filters.location} setLocation={(value: string) => updateFilter('location', value)} open={locationOpen} setOpen={setLocationOpen} />
+                    <PriceRangeFilterSection
+                        minPrice={priceRange[0]}
+                        maxPrice={priceRange[1]}
+                        setMinPrice={(value: number | '') => {
+                            setPriceRange([value, priceRange[1]]);
+                        }}
+                        setMaxPrice={(value: number | '') => {
+                            setPriceRange([priceRange[0], value]);
+                        }}
+                        onMinPriceBlur={() => {
+                            const min = Number(priceRange[0]) || 0;
+                            updateFilter('minPrice', min);
+                        }}
+                        onMaxPriceBlur={() => {
+                            const max = Number(priceRange[1]) || 5000;
+                            updateFilter('maxPrice', max);
+                        }}
+                        open={priceOpen}
+                        setOpen={setPriceOpen}
+                    />
+                    <PropertyTypeFilterSection propertyType={filters.propertyType} setPropertyType={(value: string) => updateFilter('propertyType', value)} open={propertyOpen} setOpen={setPropertyOpen} />
+                    <RoomsFilterSection rooms={filters.rooms} setRooms={(value: number) => updateFilter('rooms', value)} open={roomsOpen} setOpen={setRoomsOpen} />
+                    <FurnishedFilterSection furnished={filters.furnished} setFurnished={(value: string) => updateFilter('furnished', value)} />
 
                     {/* Apply Filters Button (Mobile) */}
                     <div className="lg:hidden pt-4 border-t">

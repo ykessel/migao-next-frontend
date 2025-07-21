@@ -105,6 +105,10 @@
       @apply outline-none ring-2 ring-teal-500 ring-offset-2;
   }
 
+  header {
+    z-index: 2000;
+  }
+
   /* Ensure all shadcn cards have white background */
   .bg-card {
       background-color: white !important;
@@ -451,4 +455,19 @@
   .print-break {
       page-break-before: always;
   }
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  background: crimson !important;
+  border-radius: 50% !important;
+  color: white !important;
+}
+
+.leaflet-popup {
+  margin-bottom: 2px !important;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: transparent !important;
+  box-shadow: none !important;
 }
