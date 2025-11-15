@@ -1,0 +1,9 @@
+export enum INTERNET_TYPE {
+  FIBER = 'FIBER',
+  DSL = 'DSL',
+  CABLE = 'CABLE',
+  SATELLITE = 'SATELLITE',
+  MOBILE = 'MOBILE',
+  NONE = 'NONE',
+}
+
