@@ -20,7 +20,7 @@ export default async function PlansPage() {
   const plans = await getPlans();
 
   return (
-    <div className="min-h-screen flex justify-center bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 py-12 px-4">
+    <div className="flex justify-center bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 py-12 px-4">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-6 text-center mb-8">
           <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-gray-900 mb-4 leading-tight">

@@ -55,17 +55,53 @@ export default function PropertyGallery({ images, title }: PropertyGalleryProps)
         )}
         {/* Modal */}
         {isImageModalOpen && images && images.length > 0 && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setIsImageModalOpen(false)}>
-            <Image
-              src={images[currentImageIndex]?.url || "/placeholder.jpg"}
-              alt={title}
-              width={1200}
-              height={800}
-              className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
-              onClick={e => e.stopPropagation()}
-            />
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80" onClick={() => setIsImageModalOpen(false)}>
+            <div className="relative max-h-[90vh] max-w-[90vw]" onClick={e => e.stopPropagation()}>
+              <Image
+                src={images[currentImageIndex]?.url || "/placeholder.jpg"}
+                alt={title}
+                width={1200}
+                height={800}
+                className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+              />
+              {/* Navigation buttons */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 text-gray-800 shadow-lg transition-all"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentImageIndex((prev) => prev === 0 ? images.length - 1 : prev - 1);
+                    }}
+                    aria-label="Imagen anterior"
+                  >
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 text-gray-800 shadow-lg transition-all"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentImageIndex((prev) => prev === images.length - 1 ? 0 : prev + 1);
+                    }}
+                    aria-label="Imagen siguiente"
+                  >
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+              {/* Image counter */}
+              {images.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm">
+                  {currentImageIndex + 1} / {images.length}
+                </div>
+              )}
+            </div>
             <button
-              className="absolute top-8 right-8 text-white text-3xl font-bold bg-black/50 rounded-full px-3 py-1 hover:bg-black"
+              className="absolute top-8 right-8 text-white text-3xl font-bold bg-black/50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-black transition-all z-10"
               onClick={() => setIsImageModalOpen(false)}
               aria-label="Cerrar imagen"
             >

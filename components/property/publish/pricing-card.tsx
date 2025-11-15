@@ -12,6 +12,7 @@ interface PricingCardProps {
         deposit: string;
         utilities: string;
         availability: string;
+        pricePeriod?: string;
     };
     handleInputChange: (field: string, value: string) => void;
     CURRENCY: typeof CURRENCY;
@@ -25,7 +26,26 @@ export const PricingCard: FC<PricingCardProps> = ({formData, handleInputChange, 
         <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <Label htmlFor="price">Precio mensual *</Label>
+                    <Label htmlFor="pricePeriod">Período de alquiler *</Label>
+                    <Select 
+                        value={formData.pricePeriod || 'month'}
+                        onValueChange={(value) => handleInputChange('pricePeriod', value)}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar período"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="hour">Por hora</SelectItem>
+                            <SelectItem value="day">Por día</SelectItem>
+                            <SelectItem value="month">Por mes</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label htmlFor="price">
+                        {formData.pricePeriod === 'hour' && 'Precio por hora *'}
+                        {formData.pricePeriod === 'day' && 'Precio por día *'}
+                        {(!formData.pricePeriod || formData.pricePeriod === 'month') && 'Precio mensual *'}
+                    </Label>
                     <div className="flex">
                         <Input
                             id="price"
@@ -49,6 +69,8 @@ export const PricingCard: FC<PricingCardProps> = ({formData, handleInputChange, 
                         </Select>
                     </div>
                 </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <Label htmlFor="deposit">Depósito</Label>
                     <Input
@@ -59,8 +81,6 @@ export const PricingCard: FC<PricingCardProps> = ({formData, handleInputChange, 
                         onChange={(e) => handleInputChange('deposit', e.target.value)}
                     />
                 </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <Label htmlFor="availability">Disponibilidad</Label>
                     <Select value={formData.availability}

@@ -7,6 +7,7 @@ import PropertyContactCard from "@/components/property/property-contact-card"
 import { PropertyReportDialog } from "@/components/property/property-report-dialog"
 import { Property } from "@/types/property";
 import { RatingCard } from "../app-components/rating-client";
+import { formatPropertyPrice } from "./utils";
 
 interface PropertySidebarProps {
   property: Property;
@@ -23,29 +24,29 @@ export default function PropertySidebar({
   handleContactPhone,
   formatDate,
 }: PropertySidebarProps) {
+  const priceInfo = formatPropertyPrice(property);
+
   return (
     <div className="space-y-6">
       <Card>
         <CardContent className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">{property.title}</h1>
-              <div className="flex items-center text-gray-600 mb-3">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{(property.location as { address?: string })?.address || 'Ubicación no disponible'}</span>
-              </div>
-            </div>
+          <div className="flex justify-between items-start mb-3">
+            <h1 className="text-2xl font-bold text-gray-900">{property.title}</h1>
             <Badge
               variant={property.isAvailable ? 'default' : 'secondary'}
-              className={property.isAvailable ? 'bg-teal-600 hover:bg-teal-700' : ''}
+              className={property.isAvailable ? 'bg-teal-600 hover:bg-teal-700 text-white' : ''}
             >
               {property.isAvailable ? 'Disponible' : 'No disponible'}
             </Badge>
           </div>
-          <div className="text-3xl font-bold text-teal-600 mb-4">
-            {property.rentPricePerMonth} {property.currency} <span className="text-lg text-gray-500">/mes</span>
+          <div className="flex items-center text-gray-600 mb-4 w-full">
+            <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+            <span className="break-words">{(property.location as { address?: string })?.address || 'Ubicación no disponible'}</span>
           </div>
-          <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className="text-3xl font-bold text-teal-600 mb-4">
+            {priceInfo.formattedPrice} <span className="text-lg text-gray-500">/{priceInfo.period}</span>
+          </div>
+          <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-2xl">
             <div className="text-center">
               <BedDouble className="w-6 h-6 mx-auto text-teal-600 mb-1" />
               <div className="text-sm font-medium">{property.rooms}</div>
@@ -97,6 +98,8 @@ export default function PropertySidebar({
           </div>
         </CardContent>
       </Card>
+
+      
       <Card>
         <PropertyContactCard
           owner={property.owner}
@@ -139,7 +142,7 @@ export default function PropertySidebar({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Amueblado:</span>
-              <span>{property.amenities.furnished ? 'Sí' : 'No'}</span>
+              <span>{property.amenities.furnishedProperty ? 'Sí' : 'No'}</span>
             </div>
           </div>
         </CardContent>

@@ -3,8 +3,11 @@ import {Card, CardHeader, CardTitle, CardContent} from '@/components/ui/card';
 import {Label} from '@/components/ui/label';
 import {Select, SelectTrigger, SelectValue, SelectContent, SelectItem} from '@/components/ui/select';
 import {Checkbox} from '@/components/ui/checkbox';
-import type {IPropertyServices} from '@/types/property-services';
+import type {PropertyServicesType} from '@/types/services';
 import {GAS_AVAILABILITY} from '@/constants/gas-availability.enum';
+import {UTILITY_INCLUSION} from '@/constants/utility-inclusion.enum';
+import {INTERNET_TYPE} from '@/constants/internet-type.enum';
+import {CLEANING_FREQUENCY} from '@/constants/cleaning-frequency.enum';
 import {
     Zap,
     Droplet,
@@ -36,9 +39,9 @@ import {
 
 interface ServicesCardProps {
     formData: {
-        services: IPropertyServices;
+        services: PropertyServicesType;
     };
-    handleServiceChange: (field: keyof IPropertyServices | 'gasAvailability', value: unknown) => void;
+    handleServiceChange: (field: keyof PropertyServicesType, value: unknown) => void;
 }
 
 const serviceCategories = [
@@ -50,6 +53,8 @@ const serviceCategories = [
             {field: 'water', label: 'Agua', icon: <Droplet className="text-blue-400 w-4 h-4"/>},
             {field: 'gas', label: 'Gas de cocina', icon: <Flame className="text-orange-500 w-4 h-4"/>},
             {field: 'gasAvailability', label: 'Tipo de Gas', icon: <Flame className="text-orange-500 w-4 h-4"/>},
+            {field: 'electricityCircuitNumber', label: 'Número de circuito eléctrico', icon: <Zap className="text-yellow-500 w-4 h-4"/>},
+            {field: 'internetSpeed', label: 'Velocidad de internet (Mbps)', icon: <Wifi className="text-teal-500 w-4 h-4"/>},
             {field: 'internetType', label: 'Internet', icon: <Wifi className="text-teal-500 w-4 h-4"/>},
             {field: 'cleaningService', label: 'Limpieza', icon: <Brush className="text-green-500 w-4 h-4"/>},
         ],
@@ -78,12 +83,6 @@ const serviceCategories = [
                 label: 'Monitoreo de alarma',
                 icon: <KeyRound className="text-red-500 w-4 h-4"/>
             },
-            {
-                field: 'parkingIncluded',
-                label: 'Parqueo incluido',
-                icon: <ParkingCircle className="text-blue-500 w-4 h-4"/>
-            },
-            {field: 'garageAccess', label: 'Garaje', icon: <Car className="text-gray-500 w-4 h-4"/>},
         ],
     },
     {
@@ -135,7 +134,7 @@ export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChan
                                             <Label className="text-sm">{service.label}</Label>
                                         </div>
                                         <Select value={formData.services.gasAvailability || ''}
-                                                onValueChange={v => handleServiceChange('gasAvailability', v)}>
+                                                onValueChange={v => handleServiceChange('gasAvailability', v as GAS_AVAILABILITY)}>
                                             <SelectTrigger className="w-32">
                                                 <SelectValue placeholder="Tipo de gas"/>
                                             </SelectTrigger>
@@ -145,6 +144,25 @@ export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChan
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                    </div>
+                                );
+                            }
+                            if (service.field === 'electricityCircuitNumber' || service.field === 'internetSpeed') {
+                                const fieldKey = service.field as keyof PropertyServicesType;
+                                const fieldValue = formData.services[fieldKey] as number | undefined;
+                                return (
+                                    <div key={service.field} className={`flex items-center w-full ${isUtilidades ? 'justify-between' : 'gap-2'}`}>
+                                        <div className="flex items-center gap-2">
+                                            {service.icon}
+                                            <Label className="text-sm">{service.label}</Label>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            value={fieldValue || ''}
+                                            onChange={(e) => handleServiceChange(fieldKey, e.target.value ? Number(e.target.value) : undefined)}
+                                            className="w-32 rounded-2xl border border-input bg-background px-3 py-2 text-sm"
+                                            placeholder="Número"
+                                        />
                                     </div>
                                 );
                             }
@@ -161,17 +179,19 @@ export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChan
                                                 <SelectValue placeholder="Tipo de internet"/>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="FIBER">Fibra</SelectItem>
-                                                <SelectItem value="DSL">DSL</SelectItem>
-                                                <SelectItem value="SATELLITE">Satélite</SelectItem>
-                                                <SelectItem value="NONE">Ninguno</SelectItem>
+                                                <SelectItem value={INTERNET_TYPE.FIBER}>Fibra</SelectItem>
+                                                <SelectItem value={INTERNET_TYPE.DSL}>DSL</SelectItem>
+                                                <SelectItem value={INTERNET_TYPE.CABLE}>Cable</SelectItem>
+                                                <SelectItem value={INTERNET_TYPE.SATELLITE}>Satélite</SelectItem>
+                                                <SelectItem value={INTERNET_TYPE.MOBILE}>Móvil</SelectItem>
+                                                <SelectItem value={INTERNET_TYPE.NONE}>Ninguno</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 );
                             }
-                            if (['electricity', 'water', 'gas', 'cleaningService'].includes(service.field)) {
-                                const fieldKey = service.field as keyof IPropertyServices;
+                            if (['electricity', 'water', 'gas'].includes(service.field)) {
+                                const fieldKey = service.field as keyof PropertyServicesType;
                                 const fieldValue = formData.services[fieldKey];
                                 return (
                                     <div key={service.field} className={`flex items-center w-full ${isUtilidades ? 'justify-between' : 'gap-2'}`}>
@@ -185,8 +205,35 @@ export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChan
                                                 <SelectValue placeholder="Seleccionar"/>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="INCLUDED">Incluido</SelectItem>
-                                                <SelectItem value="NOT_INCLUDED">No incluido</SelectItem>
+                                                <SelectItem value={UTILITY_INCLUSION.INCLUDED}>Incluido</SelectItem>
+                                                <SelectItem value={UTILITY_INCLUSION.PARTIALLY_INCLUDED}>Parcialmente incluido</SelectItem>
+                                                <SelectItem value={UTILITY_INCLUSION.NOT_INCLUDED}>No incluido</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                );
+                            }
+                            if (service.field === 'cleaningService') {
+                                const fieldKey = service.field as keyof PropertyServicesType;
+                                const fieldValue = formData.services[fieldKey];
+                                return (
+                                    <div key={service.field} className={`flex items-center w-full ${isUtilidades ? 'justify-between' : 'gap-2'}`}>
+                                        <div className="flex items-center gap-2">
+                                            {service.icon}
+                                            <Label className="text-sm">{service.label}</Label>
+                                        </div>
+                                        <Select value={fieldValue as string}
+                                                onValueChange={v => handleServiceChange(fieldKey, v)}>
+                                            <SelectTrigger className="w-40">
+                                                <SelectValue placeholder="Frecuencia"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value={CLEANING_FREQUENCY.DAILY}>Diario</SelectItem>
+                                                <SelectItem value={CLEANING_FREQUENCY.WEEKLY}>Semanal</SelectItem>
+                                                <SelectItem value={CLEANING_FREQUENCY.BIWEEKLY}>Quincenal</SelectItem>
+                                                <SelectItem value={CLEANING_FREQUENCY.MONTHLY}>Mensual</SelectItem>
+                                                <SelectItem value={CLEANING_FREQUENCY.ON_REQUEST}>Bajo pedido</SelectItem>
+                                                <SelectItem value={CLEANING_FREQUENCY.NOT_INCLUDED}>No incluido</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -197,8 +244,8 @@ export const ServicesCard: FC<ServicesCardProps> = ({formData, handleServiceChan
                                 <div key={service.field} className="flex items-center gap-2">
                                     {service.icon}
                                     <Checkbox
-                                        checked={!!formData.services[service.field as keyof IPropertyServices]}
-                                        onCheckedChange={v => handleServiceChange(service.field as keyof IPropertyServices, v)}
+                                        checked={!!formData.services[service.field as keyof PropertyServicesType]}
+                                        onCheckedChange={v => handleServiceChange(service.field as keyof PropertyServicesType, v)}
                                     />
                                     <Label className="text-sm">{service.label}</Label>
                                 </div>

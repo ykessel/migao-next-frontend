@@ -186,6 +186,8 @@ type PropertyTabsClientProps = Omit<
   | "getRuleIcon"
 > & {
   initialSelectedTypes?: PropertyTabsProps["selectedTypes"];
+  disableMapPopups?: boolean;
+  disablePropertyPopupInNeighborhood?: boolean;
 };
 
 function getApartmentAmenityIcon(amenity: string): React.ReactNode {
@@ -276,6 +278,8 @@ function getRuleIcon(rule: string): React.ReactNode {
 
 export default function PropertyTabsClient({
   initialSelectedTypes = [],
+  disableMapPopups = false,
+  disablePropertyPopupInNeighborhood = false,
   ...props
 }: PropertyTabsClientProps) {
   const [selectedTypes, setSelectedTypes] = useState(initialSelectedTypes);
@@ -290,6 +294,8 @@ export default function PropertyTabsClient({
       PropertyMap={PropertyMap}
       PlaceOfInterestMarkers={PlaceOfInterestMarkers}
       placeTypeIconLabel={placeTypeIconLabel}
+      disableMapPopups={disableMapPopups}
+      disablePropertyPopupInNeighborhood={disablePropertyPopupInNeighborhood}
     />
   );
 }

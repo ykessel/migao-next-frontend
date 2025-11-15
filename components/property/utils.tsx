@@ -1,6 +1,7 @@
 import React from "react";
 import { Car, Sun, Layers, Utensils, Sofa, Tv, Wifi, AirVent, Home, WashingMachine, Microwave, ArrowUpDown, Waves, Flame, Ban, Volume2, Clock, Users, Shield } from "lucide-react";
 import { PlaceType } from '@/constants/places.enum';
+import { Property } from '@/types/property';
 
 export function getApartmentAmenityIcon(amenity: string): React.ReactNode {
   switch (amenity) {
@@ -125,3 +126,38 @@ export const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 };
+
+/**
+ * Format property price with currency and determine price type
+ * Priority: hour > day > month
+ * 
+ * @param property - Property object with price fields
+ * @returns Object with formattedPrice and period (hora/día/mes)
+ */
+export function formatPropertyPrice(property: Property): { formattedPrice: string; period: string } {
+    const currency = property.currency;
+    let price: number;
+    let period: string;
+
+    // Priority: hour > day > month
+    if (property.rentPricePerHour && property.rentPricePerHour > 0) {
+        price = property.rentPricePerHour;
+        period = "hora";
+    } else if (property.rentPricePerDay && property.rentPricePerDay > 0) {
+        price = property.rentPricePerDay;
+        period = "día";
+    } else if (property.rentPricePerMonth && property.rentPricePerMonth > 0) {
+        price = property.rentPricePerMonth;
+        period = "mes";
+    } else {
+        // Fallback to month if no price is set
+        price = property.rentPricePerMonth || 0;
+        period = "mes";
+    }
+
+    const formattedPrice = price >= 1000 
+        ? `${(price / 1000).toFixed(1)}k ${currency}` 
+        : `${price} ${currency}`;
+
+    return { formattedPrice, period };
+}

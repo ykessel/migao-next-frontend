@@ -22,7 +22,7 @@ const PropertySortSelect: React.FC<PropertySortSelectProps> = ({ value, onChange
       onValueChange={onChange}
       aria-label="Ordenar propiedades"
     >
-      <SelectTrigger className="w-48" aria-label="Selector de orden">
+      <SelectTrigger className="w-full" aria-label="Selector de orden">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

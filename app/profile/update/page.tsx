@@ -1,151 +1,46 @@
-"use client";
-import {useState} from "react";
-import {useRouter} from "next/navigation";
-import {getSession} from "next-auth/react";
-import type {Session as NextAuthSession} from 'next-auth';
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-import {Alert, AlertDescription} from "@/components/ui/alert";
-import {Phone, User, CheckCircle, AlertCircle} from "lucide-react";
-import {toast} from "sonner";
-import {jwtDecode} from 'jwt-decode';
-import axiosInstance from '@/lib/axios';
+'use client';
 
-// Type guard for axios error
-function isAxiosError(error: unknown): error is { response: { data: { message?: string } } } {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'response' in error &&
-    typeof (error as { response?: unknown }).response === 'object' &&
-    (error as { response: { data?: unknown } }).response !== null &&
-    'data' in (error as { response: { data?: unknown } }).response
-  );
-}
+import {useRouter} from 'next/navigation';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Label} from '@/components/ui/label';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
+import {Alert, AlertDescription} from '@/components/ui/alert';
+import {Phone, User, CheckCircle} from 'lucide-react';
+import {useProfileForms} from '@/hooks/use-profile';
+
+/**
+ * ProfileUpdate Page Component
+ *
+ * Allows users to complete their profile by adding:
+ * - Phone number (required)
+ * - Referral code (optional)
+ *
+ * Uses custom hook for form logic and validation.
+ */
 
 export default function ProfileUpdate() {
-    const [phone, setPhone] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [referralCode, setReferralCode] = useState("");
-    const [referralLoading, setReferralLoading] = useState(false);
-    const [referralError, setReferralError] = useState("");
-    const [referralSuccess, setReferralSuccess] = useState(false);
     const router = useRouter();
+    const {
+        phoneForm,
+        referralForm,
+        onPhoneSubmit,
+        onReferralSubmit,
+        handlePhoneChange,
+        isAddingPhone,
+        phoneAdded,
+        isApplyingReferral,
+        referralApplied,
+    } = useProfileForms();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
-
-        try {
-            const session = await getSession() as unknown as NextAuthSession & { access_token?: string };
-            if (!session?.access_token) {
-                setError("No se pudo obtener la sesión de usuario.");
-                setLoading(false);
-                return;
-            }
-            // Decode userId from access token
-            const decoded: Record<string, unknown> = jwtDecode(session.access_token);
-            let userId: string | undefined;
-            if (typeof decoded.user === 'object' && decoded.user !== null && '_id' in decoded.user && typeof (decoded.user as Record<string, unknown>)._id === 'string') {
-                userId = String((decoded.user as Record<string, unknown>)._id);
-            } else if (typeof decoded._id === 'string') {
-                userId = String(decoded._id);
-            } else if (typeof decoded.sub === 'string') {
-                userId = String(decoded.sub);
-            }
-            if (!userId) {
-                setError("No se pudo obtener el ID de usuario.");
-                setLoading(false);
-                return;
-            }
-            // Prepare phone number payload
-            const phonePayload = {
-                number: phone,
-                label: "Personal",
-                isPrimary: true,
-                isVerified: false
-            };
-            await axiosInstance.post(
-                `/client/users/${userId}/phone-numbers`,
-                phonePayload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${session.access_token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            toast.success("Número de teléfono guardado exitosamente");
-            router.push("/");
-        } catch (err: unknown) {
-            let message = "Error de conexión. Verifica tu internet e intenta de nuevo.";
-            if (isAxiosError(err) && err.response.data?.message) {
-                message = err.response.data.message;
-            }
-            setError(message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleReferralSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setReferralLoading(true);
-        setReferralError("");
-        setReferralSuccess(false);
-        try {
-            const session = await getSession() as unknown as NextAuthSession & { access_token?: string };
-            const res = await fetch("/api/referrals/apply", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${session?.access_token}`,
-                },
-                body: JSON.stringify({referralCode}),
-            });
-            if (res.ok) {
-                setReferralSuccess(true);
-                setReferralCode("");
-                toast.success("Código de referido guardado exitosamente");
-            } else {
-                const errorData = await res.json().catch(() => ({}));
-                setReferralError(errorData.message || "No se pudo aplicar el código. Intenta de nuevo.");
-            }
-        } catch {
-            setReferralError("Error de conexión. Intenta de nuevo.");
-        } finally {
-            setReferralLoading(false);
-        }
-    };
-
-    const formatPhoneNumber = (value: string) => {
-        // Remove all non-digits
-        const phoneNumber = value.replace(/\D/g, '');
-
-        // Format as +XX XXX XXX XXXX
-        if (phoneNumber.length <= 2) {
-            return `+${phoneNumber}`;
-        } else if (phoneNumber.length <= 5) {
-            return `+${phoneNumber.slice(0, 2)} ${phoneNumber.slice(2)}`;
-        } else if (phoneNumber.length <= 8) {
-            return `+${phoneNumber.slice(0, 2)} ${phoneNumber.slice(2, 5)} ${phoneNumber.slice(5)}`;
-        } else {
-            return `+${phoneNumber.slice(0, 2)} ${phoneNumber.slice(2, 5)} ${phoneNumber.slice(5, 8)} ${phoneNumber.slice(8, 12)}`;
-        }
-    };
-
-    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const formatted = formatPhoneNumber(e.target.value);
-        setPhone(formatted);
-    };
+    // Handle phone form success
+    if (phoneAdded) {
+        router.push('/');
+    }
 
     return (
         <div
-            className="min-h-[calc(100vh-68px)] flex items-center justify-center bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+            className="flex justify-center bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 py-10 px-4 sm:px-6 lg:px-8 min-h-screen">
             <div className="w-full max-w-4xl">
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -174,7 +69,7 @@ export default function ProfileUpdate() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            <form onSubmit={phoneForm.handleSubmit(onPhoneSubmit)} className="space-y-6">
                                 {/* Phone Input */}
                                 <div className="space-y-2">
                                     <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
@@ -185,51 +80,54 @@ export default function ProfileUpdate() {
                                             className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"/>
                                         <Input
                                             id="phone"
-                                            name="phone"
                                             type="tel"
-                                            required
-                                            value={phone}
+                                            {...phoneForm.register('phone')}
                                             onChange={handlePhoneChange}
-                                            placeholder="+53 5XX XXX XXXX"
+                                            placeholder="+53 5555 5555"
                                             className="pl-10 h-12 text-lg"
-                                            maxLength={17}
+                                            maxLength={14}
                                         />
                                     </div>
+                                    {phoneForm.formState.errors.phone && (
+                                        <p className="text-sm text-red-600">
+                                            {phoneForm.formState.errors.phone.message}
+                                        </p>
+                                    )}
                                     <p className="text-xs text-gray-500">
-                                        Formato: +53 5XX XXX XXXX (Cuba)
+                                        Formato: +53 xxxx xxxx o xxxx xxxx
                                     </p>
                                 </div>
-                                {/* Error Alert */}
-                                {error && (
-                                    <Alert variant="destructive" className="border-red-200 bg-red-50">
-                                        <AlertCircle className="h-4 w-4"/>
-                                        <AlertDescription className="text-red-700">
-                                            {error}
+                                {/* Success Info */}
+                                {phoneAdded ? (
+                                    <Alert className="border-green-200 bg-green-50">
+                                        <CheckCircle className="h-4 w-4 text-green-600"/>
+                                        <AlertDescription className="text-green-700">
+                                            ¡Perfil completado! Redirigiendo...
+                                        </AlertDescription>
+                                    </Alert>
+                                ) : (
+                                    <Alert className="border-teal-200 bg-teal-50">
+                                        <CheckCircle className="h-4 w-4 text-teal-600"/>
+                                        <AlertDescription className="text-teal-700">
+                                            Esta información nos ayudará a conectarte con los propietarios de las
+                                            propiedades que te interesen
                                         </AlertDescription>
                                     </Alert>
                                 )}
-                                {/* Success Info */}
-                                <Alert className="border-teal-200 bg-teal-50">
-                                    <CheckCircle className="h-4 w-4 text-teal-600"/>
-                                    <AlertDescription className="text-teal-700">
-                                        Esta información nos ayudará a conectarte con los propietarios de las
-                                        propiedades que te interesen
-                                    </AlertDescription>
-                                </Alert>
                                 {/* Submit Button */}
                                 <Button
                                     type="submit"
-                                    disabled={loading || !phone.trim()}
+                                    disabled={isAddingPhone || !phoneForm.watch('phone')?.trim()}
                                     className="w-full h-12 text-lg font-medium bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                                 >
-                                    {loading ? (
+                                    {isAddingPhone ? (
                                         <div className="flex items-center gap-2">
                                             <div
                                                 className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
                                             Guardando...
                                         </div>
                                     ) : (
-                                        "Completar perfil"
+                                        'Completar perfil'
                                     )}
                                 </Button>
                             </form>
@@ -246,31 +144,26 @@ export default function ProfileUpdate() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={handleReferralSubmit} className="space-y-6">
+                            <form onSubmit={referralForm.handleSubmit(onReferralSubmit)} className="space-y-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="referralCode" className="text-sm font-medium text-gray-700">
                                         Código de referido (opcional)
                                     </Label>
                                     <Input
                                         id="referralCode"
-                                        name="referralCode"
                                         type="text"
-                                        value={referralCode}
-                                        onChange={e => setReferralCode(e.target.value)}
+                                        {...referralForm.register('referralCode')}
                                         placeholder="Ingresa tu código de referido"
                                         className="h-12 text-lg"
                                         maxLength={32}
                                     />
+                                    {referralForm.formState.errors.referralCode && (
+                                        <p className="text-sm text-red-600">
+                                            {referralForm.formState.errors.referralCode.message}
+                                        </p>
+                                    )}
                                 </div>
-                                {referralError && (
-                                    <Alert variant="destructive" className="border-red-200 bg-red-50">
-                                        <AlertCircle className="h-4 w-4"/>
-                                        <AlertDescription className="text-red-700">
-                                            {referralError}
-                                        </AlertDescription>
-                                    </Alert>
-                                )}
-                                {referralSuccess && (
+                                {referralApplied && (
                                     <Alert className="border-green-200 bg-green-50">
                                         <CheckCircle className="h-4 w-4 text-green-600"/>
                                         <AlertDescription className="text-green-700">
@@ -280,17 +173,17 @@ export default function ProfileUpdate() {
                                 )}
                                 <Button
                                     type="submit"
-                                    disabled={referralLoading || !referralCode.trim()}
+                                    disabled={isApplyingReferral || !referralForm.watch('referralCode')?.trim()}
                                     className="w-full h-12 text-lg font-medium bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                                 >
-                                    {referralLoading ? (
+                                    {isApplyingReferral ? (
                                         <div className="flex items-center gap-2">
                                             <div
                                                 className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
                                             Guardando...
                                         </div>
                                     ) : (
-                                        "Guardar código de referido"
+                                        'Guardar código de referido'
                                     )}
                                 </Button>
                             </form>

@@ -1,5 +1,5 @@
 import {Button} from "@/components/ui/button";
-import {ChevronLeft, ChevronRight, MoreHorizontal} from "lucide-react";
+import {ChevronLeft, ChevronRight} from "lucide-react";
 import {cn} from "@/lib/utils";
 
 interface PaginationProps {
@@ -11,150 +11,125 @@ interface PaginationProps {
 
 export function Pagination({currentPage, totalItems, pageSize, onPageChange}: PaginationProps) {
     const totalPages = Math.ceil(totalItems / pageSize);
-    const pages = Array.from({length: totalPages}, (_, i) => i + 1);
-    const maxVisiblePages = 5;
-    
-    let visiblePages = pages;
-    if (totalPages > maxVisiblePages) {
-        const start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-        const end = Math.min(totalPages, start + maxVisiblePages - 1);
-        visiblePages = pages.slice(start - 1, end);
-    }
+    const startItem = (currentPage - 1) * pageSize + 1;
+    const endItem = Math.min(currentPage * pageSize, totalItems);
 
     if (totalPages <= 1) return null;
 
+    // Calculate page numbers to show
+    const getPageNumbers = () => {
+        const delta = 1; // Number of pages to show on each side of current page
+        const range = [];
+        const rangeWithDots = [];
+
+        for (
+            let i = Math.max(2, currentPage - delta);
+            i <= Math.min(totalPages - 1, currentPage + delta);
+            i++
+        ) {
+            range.push(i);
+        }
+
+        if (currentPage - delta > 2) {
+            rangeWithDots.push(1, '...');
+        } else {
+            rangeWithDots.push(1);
+        }
+
+        rangeWithDots.push(...range);
+
+        if (currentPage + delta < totalPages - 1) {
+            rangeWithDots.push('...', totalPages);
+        } else if (totalPages > 1) {
+            rangeWithDots.push(totalPages);
+        }
+
+        return rangeWithDots;
+    };
+
+    const pages = getPageNumbers();
+
     return (
-        <div className="flex flex-col items-center justify-center gap-4 mt-1" role="navigation" aria-label="Paginación">
+        <div className="flex flex-col items-center gap-4" role="navigation" aria-label="Paginación">
+            {/* Results Info */}
+            <div className="text-sm text-gray-600 font-medium">
+                Mostrando <span className="text-gray-900">{startItem}</span> a{' '}
+                <span className="text-gray-900">{endItem}</span> de{' '}
+                <span className="text-gray-900">{totalItems}</span> resultados
+            </div>
 
             {/* Pagination Controls */}
-            <div className="flex items-center justify-center gap-1 sm:gap-2" aria-label="Controles de paginación">
+            <div className="flex items-center gap-1" aria-label="Controles de paginación">
                 {/* Previous Button */}
                 <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     className={cn(
-                        "h-9 px-3 transition-all duration-200",
-                        "hover:bg-gray-50 hover:border-gray-300",
-                        "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent",
-                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        "h-8 w-8 p-0 rounded-md",
+                        "hover:bg-gray-100",
+                        "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     )}
-                    aria-label={`Ir a la página anterior (página ${currentPage - 1})`}
+                    aria-label="Página anterior"
                 >
-                    <ChevronLeft className="h-4 w-4 mr-1" aria-hidden="true"/>
-                    <span className="hidden sm:inline">Anterior</span>
+                    <ChevronLeft className="h-4 w-4" />
                 </Button>
 
-                {/* First Page */}
-                {visiblePages[0] > 1 && (
-                    <>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onPageChange(1)}
-                            className={cn(
-                                "h-9 w-9 p-0 transition-all duration-200",
-                                "hover:bg-gray-50 hover:border-gray-300",
-                                "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                            )}
-                            aria-label="Ir a la página 1"
-                        >
-                            1
-                        </Button>
-                        {visiblePages[0] > 2 && (
-                            <div className="flex items-center justify-center w-9 h-9">
-                                <MoreHorizontal className="h-4 w-4 text-gray-400" aria-label="Páginas omitidas"/>
-                            </div>
-                        )}
-                    </>
-                )}
+                {/* Page Numbers */}
+                <div className="flex items-center gap-1">
+                    {pages.map((page, index) => {
+                        if (page === '...') {
+                            return (
+                                <span
+                                    key={`dots-${index}`}
+                                    className="h-8 w-8 flex items-center justify-center text-gray-400 text-sm"
+                                >
+                                    ···
+                                </span>
+                            );
+                        }
 
-                {/* Visible Page Numbers */}
-                {visiblePages.map((page) => (
-                    <Button
-                        key={page}
-                        variant={currentPage === page ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => onPageChange(page)}
-                        className={cn(
-                            "h-9 w-9 p-0 transition-all duration-200 relative",
-                            currentPage === page 
-                                ? "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 shadow-md scale-105" 
-                                : "hover:bg-gray-50 hover:border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
-                            "font-medium"
-                        )}
-                        aria-label={`Ir a la página ${page}`}
-                        aria-current={currentPage === page ? "page" : undefined}
-                    >
-                        {page}
-                    </Button>
-                ))}
+                        const pageNumber = page as number;
+                        const isActive = currentPage === pageNumber;
 
-                {/* Last Page */}
-                {visiblePages[visiblePages.length - 1] < totalPages && (
-                    <>
-                        {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-                            <div className="flex items-center justify-center w-9 h-9">
-                                <MoreHorizontal className="h-4 w-4 text-gray-400" aria-label="Páginas omitidas"/>
-                            </div>
-                        )}
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onPageChange(totalPages)}
-                            className={cn(
-                                "h-9 w-9 p-0 transition-all duration-200",
-                                "hover:bg-gray-50 hover:border-gray-300",
-                                "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                            )}
-                            aria-label={`Ir a la página ${totalPages}`}
-                        >
-                            {totalPages}
-                        </Button>
-                    </>
-                )}
+                        return (
+                            <Button
+                                key={pageNumber}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onPageChange(pageNumber)}
+                                className={cn(
+                                    "h-8 w-8 p-0 rounded-md text-sm font-medium transition-colors",
+                                    isActive
+                                        ? "bg-teal-600 text-white hover:bg-teal-700"
+                                        : "text-gray-700 hover:bg-gray-100"
+                                )}
+                                aria-label={`Página ${pageNumber}`}
+                                aria-current={isActive ? "page" : undefined}
+                            >
+                                {pageNumber}
+                            </Button>
+                        );
+                    })}
+                </div>
 
                 {/* Next Button */}
                 <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     className={cn(
-                        "h-9 px-3 transition-all duration-200",
-                        "hover:bg-gray-50 hover:border-gray-300",
-                        "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent",
-                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        "h-8 w-8 p-0 rounded-md",
+                        "hover:bg-gray-100",
+                        "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     )}
-                    aria-label={`Ir a la página siguiente (página ${currentPage + 1})`}
+                    aria-label="Página siguiente"
                 >
-                    <span className="hidden sm:inline">Siguiente</span>
-                    <ChevronRight className="h-4 w-4 ml-1" aria-hidden="true"/>
+                    <ChevronRight className="h-4 w-4" />
                 </Button>
             </div>
-
-            {/* Quick Navigation for Large Page Sets */}
-            {totalPages > 10 && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span>Ir a:</span>
-                    <input
-                        type="number"
-                        min="1"
-                        max={totalPages}
-                        value={currentPage}
-                        onChange={(e) => {
-                            const page = parseInt(e.target.value);
-                            if (page >= 1 && page <= totalPages) {
-                                onPageChange(page);
-                            }
-                        }}
-                        className="w-16 h-8 px-2 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                        aria-label="Número de página"
-                    />
-                    <span>de {totalPages}</span>
-                </div>
-            )}
         </div>
     );
 } 

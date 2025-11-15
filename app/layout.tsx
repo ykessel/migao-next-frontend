@@ -63,9 +63,11 @@ export default function RootLayout({
     <html lang="es">
       <body className="antialiased">
         <ClientProviders dehydratedState={dehydratedState}>
-          <ConditionalNavigation />
-          <main className="mt-16">{children}</main>
-          <Footer />
+          <div className="flex flex-col min-h-screen">
+            <ConditionalNavigation />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
         </ClientProviders>
       </body>
     </html>

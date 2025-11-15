@@ -2,7 +2,7 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Home, MapPin, Info, Users } from "lucide-react";
+import { Home, MapPin, Info, Users, LucideIcon } from "lucide-react";
 import PlaceTypeFilter from "./place-type-filter";
 import { PlaceType } from "@/constants/places.enum";
 import type { Property } from "@/types/property";
@@ -17,6 +17,50 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 
+interface TabInfo {
+  value: string;
+  icon: LucideIcon;
+  label: string;
+  tooltip: string;
+}
+
+interface PropertyTabTriggerProps {
+  value: string;
+  icon: LucideIcon;
+  label: string;
+  tooltip: string;
+}
+
+const PropertyTabTrigger: React.FC<PropertyTabTriggerProps> = ({
+  value,
+  icon: Icon,
+  label,
+  tooltip,
+}) => {
+  return (
+    <TabsTrigger
+      value={value}
+      className="flex-1 flex items-center justify-center gap-2 rounded-2xl px-4 py-2 mx-1 font-semibold transition-all duration-200
+      data-[state=active]:bg-teal-600 data-[state=active]:text-white
+      data-[state=active]:shadow
+      data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
+      hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400 cursor-pointer" 
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex gap-1">
+            <Icon className="w-5 h-5" />
+            <span className="hidden sm:inline">{label}</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <span>{tooltip}</span>
+        </TooltipContent>
+      </Tooltip>
+    </TabsTrigger>
+  );
+};
+
 export interface PropertyTabsProps {
   property: Property;
   placeTypeIconLabel: Record<string, { icon: React.ReactNode; label?: string }>;
@@ -28,9 +72,38 @@ export interface PropertyTabsProps {
   getApartmentAmenityIcon: (amenity: string) => React.ReactNode;
   getApartmentAmenityLabel: (amenity: string) => string;
   getRuleIcon: (rule: string) => React.ReactNode;
-  PropertyMap: React.ComponentType<{ property: Property }>;
+  PropertyMap: React.ComponentType<{ property: Property; disablePopups?: boolean }>;
   PlaceOfInterestMarkers: React.ComponentType<PlaceOfInterestMarkersProps>;
+  disableMapPopups?: boolean;
+  disablePropertyPopupInNeighborhood?: boolean;
 }
+
+const tabsConfig: TabInfo[] = [
+  {
+    value: "description",
+    icon: Info,
+    label: "Descripción",
+    tooltip: "Descripción",
+  },
+  {
+    value: "amenities",
+    icon: Home,
+    label: "Comodidades",
+    tooltip: "Comodidades",
+  },
+  {
+    value: "rules",
+    icon: Users,
+    label: "Qué saber",
+    tooltip: "Qué saber",
+  },
+  {
+    value: "neighborhood",
+    icon: MapPin,
+    label: "Vecindario",
+    tooltip: "Vecindario",
+  },
+];
 
 export default function PropertyTabs({
   property,
@@ -45,95 +118,22 @@ export default function PropertyTabs({
   getRuleIcon,
   PropertyMap,
   PlaceOfInterestMarkers,
+  disableMapPopups = false,
+  disablePropertyPopupInNeighborhood = false,
 }: PropertyTabsProps) {
   return (
     <TooltipProvider>
       <Tabs defaultValue="description" className="w-full">
-        <TabsList className="flex w-full justify-between bg-gray-50 rounded-xl p-1 shadow-sm mb-6">
-          <TabsTrigger
-            value="description"
-            className="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 mx-1 font-semibold transition-all duration-200
-            data-[state=active]:bg-teal-600 data-[state=active]:text-white
-            data-[state=active]:shadow
-            data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
-            hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400"
-          >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex gap-1">
-                    <Info className="w-5 h-5" />
-                    <span className="hidden sm:inline">Descripción</span>
-                  </div>
-                </TooltipTrigger>
-
-                <TooltipContent>
-                  <span>Descripción</span>
-                </TooltipContent>
-              </Tooltip>
-          </TabsTrigger>
-          <TabsTrigger
-            value="amenities"
-            className="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 mx-1 font-semibold transition-all duration-200
-            data-[state=active]:bg-teal-600 data-[state=active]:text-white
-            data-[state=active]:shadow
-            data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
-            hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400"
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex gap-1">
-                  <Home className="w-5 h-5" />
-                  <span className="hidden sm:inline">Comodidades</span>
-                </div>
-              </TooltipTrigger>
-
-              <TooltipContent>
-                <span>Comodidades</span>
-              </TooltipContent>
-            </Tooltip>
-          </TabsTrigger>
-          <TabsTrigger
-            value="rules"
-            className="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 mx-1 font-semibold transition-all duration-200
-            data-[state=active]:bg-teal-600 data-[state=active]:text-white
-            data-[state=active]:shadow
-            data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
-            hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400"
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex gap-1">
-                  <Users className="w-5 h-5" />
-                  <span className="hidden sm:inline">Qué saber</span>
-                </div>
-              </TooltipTrigger>
-
-              <TooltipContent>
-                <span>Qué saber</span>
-              </TooltipContent>
-            </Tooltip>
-          </TabsTrigger>
-          <TabsTrigger
-            value="neighborhood"
-            className="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 mx-1 font-semibold transition-all duration-200
-            data-[state=active]:bg-teal-600 data-[state=active]:text-white
-            data-[state=active]:shadow
-            data-[state=inactive]:bg-transparent data-[state=inactive]:text-teal-700
-            hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-400"
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex gap-1">
-                  <MapPin className="w-5 h-5" />
-                  <span className="hidden sm:inline">Vecindario</span>
-                </div>
-              </TooltipTrigger>
-
-              <TooltipContent>
-                <span>Vecindario</span>
-              </TooltipContent>
-            </Tooltip>
-          </TabsTrigger>
+        <TabsList className="flex w-full justify-between bg-gray-50 rounded-xl p-6 px-1 mb-6">
+          {tabsConfig.map((tab) => (
+            <PropertyTabTrigger
+              key={tab.value}
+              value={tab.value}
+              icon={tab.icon}
+              label={tab.label}
+              tooltip={tab.tooltip}
+            />
+          ))}
         </TabsList>
         {/* Description Tab */}
         <TabsContent value="description" className="space-y-4">
@@ -153,9 +153,9 @@ export default function PropertyTabs({
                 <MapPin className="w-5 h-5 mr-2 text-teal-600" />
                 Ubicación en el mapa
               </h3>
-              <div className="h-[400px] rounded-lg overflow-hidden">
-                <PropertyMap property={property} />
-              </div>
+                             <div className="h-[400px] rounded-lg overflow-hidden">
+                 <PropertyMap property={property} disablePopups={disableMapPopups} />
+               </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -171,6 +171,7 @@ export default function PropertyTabs({
                 {Object.entries(property.amenities).map(([key, value]) => {
                   const amenityKey = key as keyof Amenities;
                   const amenityValue = value as Amenities[keyof Amenities];
+                  
                   if (typeof amenityValue === "boolean" && amenityValue) {
                     return (
                       <div
@@ -186,8 +187,10 @@ export default function PropertyTabs({
                       </div>
                     );
                   }
+                  
                   if (
-                    amenityKey === "gasAvailability" &&
+                    key === "gasAvailability" &&
+                    typeof amenityValue === "string" &&
                     amenityValue !== undefined &&
                     amenityValue !== GAS_AVAILABILITY.NONE
                   ) {
@@ -205,6 +208,7 @@ export default function PropertyTabs({
                       </div>
                     );
                   }
+                  
                   return null;
                 })}
               </div>
@@ -295,12 +299,13 @@ export default function PropertyTabs({
                 placeTypeIconLabel={placeTypeIconLabel}
                 typeColors={typeColors}
               />
-              <PlaceOfInterestMarkers
-                property={property}
-                selectedTypes={selectedTypes}
-                placeTypeIconLabel={placeTypeIconLabel}
-                typeColors={typeColors}
-              />
+                             <PlaceOfInterestMarkers
+                 property={property}
+                 selectedTypes={selectedTypes}
+                 placeTypeIconLabel={placeTypeIconLabel}
+                 typeColors={typeColors}
+                 disablePropertyPopup={disablePropertyPopupInNeighborhood}
+               />
               <div className="mt-4 flex items-start gap-2 bg-gray-50 rounded-lg border-l-4 border-teal-400 p-3 text-xs text-gray-500">
                 <svg
                   className="w-4 h-4 mt-0.5 text-teal-400 flex-shrink-0"

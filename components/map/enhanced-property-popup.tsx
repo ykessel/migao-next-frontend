@@ -10,7 +10,7 @@ import { MapPin, Bed, Bath, Square, ArrowRight, Star, Eye } from "lucide-react";
 import { Property } from "@/types/property";
 import Link from "next/link";
 import Image from 'next/image';
-import AvailableBagde from "@/components/app-components/available-bagde";
+import {AvailableBadge} from "@/components/shared/AvailableBadge";
 import FavoriteButton from "@/components/app-components/favorite-button";
 
 const EnhancedPropertyPopup = ({ property }: { property: Property }) => {
@@ -52,7 +52,7 @@ const EnhancedPropertyPopup = ({ property }: { property: Property }) => {
             <Square className="w-16 h-16 mx-auto mb-2 text-gray-400" />
           </div>
         )}
-        <AvailableBagde isAvailable={property.isAvailable} />
+        <AvailableBadge isAvailable={property.isAvailable} />
         <div className="absolute top-2 right-2 z-20">
           <FavoriteButton isLiked={false} favLoading={false} onClick={() => {}} />
         </div>

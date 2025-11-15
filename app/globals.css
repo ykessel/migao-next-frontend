@@ -109,6 +109,28 @@
     z-index: 2000;
   }
 
+  /* Fix z-index for dropdowns and menus over maps */
+  [data-radix-popper-content-wrapper],
+  [data-radix-select-content],
+  [role="menu"],
+  [role="listbox"] {
+    z-index: 10000 !important;
+  }
+
+  /* Map popups should be below menus and image modals */
+  .leaflet-popup-pane {
+    z-index: 600 !important;
+  }
+
+  .leaflet-pane {
+    z-index: 400 !important;
+  }
+
+  /* Ensure map container is below image modals */
+  .leaflet-container {
+    z-index: 1 !important;
+  }
+
   /* Ensure all shadcn cards have white background */
   .bg-card {
       background-color: white !important;
@@ -411,7 +433,7 @@
 
 /* Form improvements */
 .form-input {
-  @apply w-full px-4 py-3 border border-gray-300 rounded-lg;
+  @apply w-full px-4 py-3 border border-gray-300 rounded-2xl;
   @apply focus:ring-2 focus:ring-teal-500 focus:border-teal-500;
   @apply placeholder-gray-400 transition-all duration-200;
 }
@@ -458,9 +480,9 @@
 }
 
 .leaflet-container a.leaflet-popup-close-button {
-  background: crimson !important;
+  background: transparent !important;
   border-radius: 50% !important;
-  color: white !important;
+  color: transparent !important;
 }
 
 .leaflet-popup {

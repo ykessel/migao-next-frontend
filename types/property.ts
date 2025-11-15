@@ -5,6 +5,7 @@ import { HouseRules } from "./house-rules";
 import { Owner } from "./owner";
 import { Image } from "./image";
 import { Location } from "./location";
+import { PropertyServicesType } from "./services";
 
 export type { Location };
 
@@ -26,6 +27,8 @@ export interface Property {
     title: string
     description: string
     rentPricePerMonth: number
+    rentPricePerDay: number
+    rentPricePerHour: number
     securityDeposit: number
     currency: string
     rooms: number
@@ -48,7 +51,7 @@ export interface Property {
     createdAt?: string
     updatedAt?: string
     placesOfInterest?: PlaceOfInterest[];
-    services?: import('./property-services').IPropertyServices;
+    services?: PropertyServicesType;
     publicationViews?: number;
     averageRating?: number,
     totalRatings?: number,

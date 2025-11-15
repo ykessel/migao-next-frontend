@@ -97,14 +97,6 @@ export const BasicInfoCard: FC<BasicInfoCardProps> = ({ formData, handleInputCha
           />
         </div>
       </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="furnished"
-          checked={formData.furnished}
-          onCheckedChange={(checked) => handleInputChange('furnished', checked)}
-        />
-        <Label htmlFor="furnished">Propiedad amueblada</Label>
-      </div>
     </CardContent>
   </Card>
 ); 

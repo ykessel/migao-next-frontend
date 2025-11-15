@@ -66,7 +66,7 @@ export const Navigation = () => {
     };
 
     const navClasses = `
-        fixed top-0 left-0 w-full z-50
+        sticky top-0 w-full z-50
         bg-white/60 backdrop-blur-md border border-white/30
     `;
 
@@ -83,10 +83,10 @@ export const Navigation = () => {
                     <Menu className="w-5 h-5 text-gray-700"/>
                 </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 bg-white/95 backdrop-blur-md">
+            <SheetContent side="right" className="w-full max-w-sm bg-white/95 backdrop-blur-md">
                 <SheetHeader className="border-b border-gray-200 pb-4 mb-6">
                     <SheetTitle className="flex items-center gap-2">
-                        <Image alt="logo" src="/logo.svg" width={80} height={80} />
+                        <Image alt="logo" src="/logo.svg" width={80} height={80} className="w-16 h-16" />
                     </SheetTitle>
                 </SheetHeader>
 
@@ -109,7 +109,7 @@ export const Navigation = () => {
                             >
                                 <div className="flex items-center gap-3">
                                     <item.icon className="w-5 h-5" aria-hidden="true" focusable="false" />
-                                    <span className="sr-only">{item.label}</span>
+                                    <span className="text-base font-medium">{item.label}</span>
                                 </div>
                                 <span
                                   className={`block w-4 h-1 mt-1 rounded transition-colors duration-200 ${
@@ -183,7 +183,7 @@ export const Navigation = () => {
 
     return (
         <header className={navClasses}>
-            <div className="px-4 sm:px-6 lg:px-8">
+            <div className="px-3 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <Link 
@@ -197,7 +197,7 @@ export const Navigation = () => {
                                 src="/logo.svg" 
                                 width={80} 
                                 height={80} 
-                                className="group-hover:scale-110 transition-transform duration-200"
+                                className="w-16 h-16 md:w-20 md:h-20 group-hover:scale-110 transition-transform duration-200"
                             />
                         </div>
             
@@ -247,7 +247,7 @@ export const Navigation = () => {
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="flex items-center gap-2 p-1 rounded-full hover:bg-white/20 transition-all duration-200 group" aria-label="Abrir menú de usuario">
+                                    <button className="flex items-center gap-2 cursor-pointer p-1 rounded-full hover:bg-white/20 transition-all duration-200 group" aria-label="Abrir menú de usuario">
                                         <Avatar className="w-9 h-9 border-2 border-teal-500 group-hover:border-teal-600 transition-colors">
                                             <AvatarImage src={user?.image ?? undefined} alt={user?.name?.[0] || 'U'} />
                                             <AvatarFallback className="bg-teal-100 text-teal-700 font-medium">
@@ -259,7 +259,7 @@ export const Navigation = () => {
                                         </span>
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-md border-white/20">
+                                <DropdownMenuContent align="end" className="w-72 border-gray-200">
                                     <DropdownMenuLabel className="font-semibold">
                                         Mi Cuenta
                                     </DropdownMenuLabel>
@@ -269,7 +269,7 @@ export const Navigation = () => {
                                         className="cursor-pointer hover:bg-teal-50 hover:text-teal-700"
                                         aria-label="Perfil"
                                     >
-                                        <User className="w-4 h-4 mr-2" />
+                                        <User className="w-5 h-5 mr-3" />
                                         Perfil
                                     </DropdownMenuItem>
                                     <DropdownMenuItem 
@@ -277,7 +277,7 @@ export const Navigation = () => {
                                         className="cursor-pointer hover:bg-teal-50 hover:text-teal-700"
                                         aria-label="Favoritos"
                                     >
-                                        <Heart className="w-4 h-4 mr-2" />
+                                        <Heart className="w-5 h-5 mr-3" />
                                         Favoritos
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
@@ -286,7 +286,7 @@ export const Navigation = () => {
                                         className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700"
                                         aria-label="Cerrar sesión"
                                     >
-                                        <LogOut className="w-4 h-4 mr-2" />
+                                        <LogOut className="w-5 h-5 mr-3" />
                                         Cerrar Sesión
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>

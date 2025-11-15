@@ -52,16 +52,18 @@ export const ImagesUploadCard: FC<ImagesUploadCardProps> = ({ uploadedImages, ha
         {uploadedImages.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {uploadedImages.map((url, index) => (
-              <div key={url} className="relative group">
+              <div key={url} className="relative group w-full h-32">
                 <Image
                   src={url}
                   alt={`Preview ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover rounded-lg"
                 />
                 <button
                   type="button"
                   onClick={() => !isUploading && removeImage(index)}
-                  className={`absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full transition-opacity ${isUploading ? 'opacity-50 cursor-not-allowed' : 'opacity-0 group-hover:opacity-100'}`}
+                  className={`absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full transition-opacity z-10 ${isUploading ? 'opacity-50 cursor-not-allowed' : 'opacity-0 group-hover:opacity-100'}`}
                   disabled={isUploading}
                 >
                   <X className="w-4 h-4" />

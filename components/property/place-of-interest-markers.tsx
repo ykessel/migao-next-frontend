@@ -39,6 +39,7 @@ export interface PlaceOfInterestMarkersProps {
   selectedTypes: string[];
   placeTypeIconLabel: PlaceTypeIconLabel;
   typeColors: Record<string, string>;
+  disablePropertyPopup?: boolean;
 }
 
 export default function PlaceOfInterestMarkers({
@@ -46,6 +47,7 @@ export default function PlaceOfInterestMarkers({
   selectedTypes,
   placeTypeIconLabel,
   typeColors,
+  disablePropertyPopup = false,
 }: PlaceOfInterestMarkersProps) {
   return (
     <div className="h-[400px] rounded-lg overflow-hidden mt-4">
@@ -68,12 +70,14 @@ export default function PlaceOfInterestMarkers({
             ? [property.location.coordinates[1], property.location.coordinates[0]]
             : [0, 0]
         } icon={PropertyIconMarkerNeighborhood()} zIndexOffset={1000}>
-          <Popup>
-            <div className="p-2">
-              <h3 className="font-semibold">{property.title}</h3>
-              <p className="text-sm text-gray-600">{property.location.address}</p>
-            </div>
-          </Popup>
+          {!disablePropertyPopup && (
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-semibold">{property.title}</h3>
+                <p className="text-sm text-gray-600">{property.location.address}</p>
+              </div>
+            </Popup>
+          )}
         </Marker>
         {/* Places of Interest Markers */}
         {property.placesOfInterest && property.placesOfInterest

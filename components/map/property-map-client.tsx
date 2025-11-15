@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import { Property } from '@/types/property';
 import PropertyIconMarker from './property-icon-marker';
 
-export default function PropertyMap({ property }: { property: Property }) {
+export default function PropertyMap({ property, disablePopups = false }: { property: Property; disablePopups?: boolean }) {
   return (
     <MapContainer
       center={[property.location.coordinates[1], property.location.coordinates[0]]}
@@ -16,12 +16,14 @@ export default function PropertyMap({ property }: { property: Property }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       <Marker position={[property.location.coordinates[1], property.location.coordinates[0]]} icon={PropertyIconMarker()}>
-        <Popup>
-          <div className="p-2">
-            <h3 className="font-semibold">{property.title}</h3>
-            <p className="text-sm text-gray-600">{property.location.address}</p>
-          </div>
-        </Popup>
+        {!disablePopups && (
+          <Popup>
+            <div className="p-2">
+              <h3 className="font-semibold">{property.title}</h3>
+              <p className="text-sm text-gray-600">{property.location.address}</p>
+            </div>
+          </Popup>
+        )}
       </Marker>
     </MapContainer>
   );

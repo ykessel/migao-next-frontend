@@ -18,22 +18,31 @@ import { LocationCard } from "@/components/property/publish/location-card";
 import { usePublishPropertyForm } from "@/hooks/usePublishPropertyForm";
 import type { CreatePropertyRequest } from "@/types/property";
 import { GAS_AVAILABILITY } from "@/constants/gas-availability.enum";
-import { Home } from "lucide-react";
+import { UTILITY_INCLUSION } from "@/constants/utility-inclusion.enum";
+import { INTERNET_TYPE } from "@/constants/internet-type.enum";
+import { CLEANING_FREQUENCY } from "@/constants/cleaning-frequency.enum";
+import { Home, Car, Utensils, Sofa, Tv, ParkingCircle, WavesLadder, Wifi, Wind, Refrigerator, Microwave, Dumbbell, Waves, Flame } from "lucide-react";
 import React, { useEffect, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const uniqueAmenitiesList = [
-  { id: 'kitchen', label: 'Cocina equipada' },
-  { id: 'balcony', label: 'Balcón' },
-  { id: 'garden', label: 'Jardín' },
-  { id: 'terrace', label: 'Terraza' },
-  { id: 'garage', label: 'Garaje' },
-  { id: 'elevator', label: 'Ascensor' },
-  { id: 'hasFridge', label: 'Refrigerador' },
-  { id: 'hasMicrowave', label: 'Microondas' },
-  { id: 'hasWasher', label: 'Lavadora' },
-  { id: 'hasPool', label: 'Piscina' },
-  { id: 'furnished', label: 'Propiedad amueblada' },
+  { id: 'garage', label: 'Garaje', icon: <Car className="w-5 h-5 text-gray-600" /> },
+  { id: 'terrace', label: 'Terraza', icon: <Home className="w-5 h-5 text-gray-600" /> },
+  { id: 'kitchen', label: 'Cocina', icon: <Utensils className="w-5 h-5 text-gray-600" /> },
+  { id: 'kitchenEquipped', label: 'Cocina equipada', icon: <Utensils className="w-5 h-5 text-orange-600" /> },
+  { id: 'furnishedProperty', label: 'Propiedad amueblada', icon: <Sofa className="w-5 h-5 text-gray-600" /> },
+  { id: 'hasTV', label: 'TV', icon: <Tv className="w-5 h-5 text-gray-600" /> },
+  { id: 'hasParking', label: 'Parqueo', icon: <ParkingCircle className="w-5 h-5 text-gray-600" /> },
+  { id: 'hasPool', label: 'Piscina', icon: <WavesLadder className="w-5 h-5 text-blue-600" /> },
+  { id: 'hasWifi', label: 'WiFi', icon: <Wifi className="w-5 h-5 text-teal-600" /> },
+  { id: 'hasAC', label: 'Aire acondicionado', icon: <Wind className="w-5 h-5 text-blue-500" /> },
+  { id: 'hasFridge', label: 'Refrigerador', icon: <Refrigerator className="w-5 h-5 text-gray-600" /> },
+  { id: 'hasWasher', label: 'Lavadora', icon: <Waves className="w-5 h-5 text-blue-600" /> },
+  { id: 'hasMicrowave', label: 'Microondas', icon: <Microwave className="w-5 h-5 text-gray-600" /> },
+  { id: 'hasGym', label: 'Gimnasio', icon: <Dumbbell className="w-5 h-5 text-red-600" /> },
+  { id: 'hasJacuzzi', label: 'Jacuzzi', icon: <Waves className="w-5 h-5 text-blue-400" /> },
+  { id: 'hasSauna', label: 'Sauna', icon: <Flame className="w-5 h-5 text-orange-500" /> },
+  { id: 'hasBarbecue', label: 'Barbacoa', icon: <Flame className="w-5 h-5 text-red-600" /> },
 ];
 
 const PublishPropertyContent = () => {
@@ -43,6 +52,55 @@ const PublishPropertyContent = () => {
   const createProperty = useCreateProperty();
   const updateProperty = useUpdateProperty();
   const form = usePublishPropertyForm(toast);
+  
+  // Monitorear errores de las mutaciones
+  React.useEffect(() => {
+    if (createProperty.error) {
+      const error = createProperty.error as unknown;
+      let errorMessage = "Error al crear la propiedad";
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: { message?: string; error?: string } } };
+        errorMessage = axiosError.response?.data?.message || 
+                     axiosError.response?.data?.error || 
+                     errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      console.error('Error creating property:', createProperty.error);
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  }, [createProperty.error, toast]);
+  
+  React.useEffect(() => {
+    if (updateProperty.error) {
+      const error = updateProperty.error as unknown;
+      let errorMessage = "Error al actualizar la propiedad";
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: { message?: string; error?: string } } };
+        errorMessage = axiosError.response?.data?.message || 
+                     axiosError.response?.data?.error || 
+                     errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      console.error('Error updating property:', updateProperty.error);
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  }, [updateProperty.error, toast]);
   
   // Check if we're in edit mode
   const editPropertyId = searchParams.get('edit');
@@ -84,29 +142,34 @@ const PublishPropertyContent = () => {
         city: propertyToEdit.location?.city || '',
         amenities: [
           ...(propertyToEdit.amenities?.garage ? ['garage'] : []),
-          ...(propertyToEdit.amenities?.garden ? ['garden'] : []),
           ...(propertyToEdit.amenities?.terrace ? ['terrace'] : []),
           ...(propertyToEdit.amenities?.kitchen ? ['kitchen'] : []),
-          ...(propertyToEdit.amenities?.hasTV ? ['hasTv'] : []),
-          ...(propertyToEdit.amenities?.hasWifi ? ['wifi'] : []),
+          ...(propertyToEdit.amenities?.kitchenEquipped ? ['kitchenEquipped'] : []),
+          ...(propertyToEdit.amenities?.furnishedProperty ? ['furnishedProperty'] : []),
+          ...(propertyToEdit.amenities?.hasTV ? ['hasTV'] : []),
+          ...(propertyToEdit.amenities?.hasParking ? ['hasParking'] : []),
+          ...(propertyToEdit.amenities?.hasPool ? ['hasPool'] : []),
+          ...(propertyToEdit.amenities?.hasWifi ? ['hasWifi'] : []),
           ...(propertyToEdit.amenities?.hasAC ? ['hasAC'] : []),
           ...(propertyToEdit.amenities?.hasFridge ? ['hasFridge'] : []),
           ...(propertyToEdit.amenities?.hasWasher ? ['hasWasher'] : []),
           ...(propertyToEdit.amenities?.hasMicrowave ? ['hasMicrowave'] : []),
-          ...(propertyToEdit.amenities?.hasElevator ? ['hasElevator'] : []),
-          ...(propertyToEdit.amenities?.hasBalcony ? ['hasBalcony'] : []),
-          ...(propertyToEdit.amenities?.hasPool ? ['hasPool'] : []),
+          ...(propertyToEdit.amenities?.hasGym ? ['hasGym'] : []),
+          ...(propertyToEdit.amenities?.hasJacuzzi ? ['hasJacuzzi'] : []),
+          ...(propertyToEdit.amenities?.hasSauna ? ['hasSauna'] : []),
+          ...(propertyToEdit.amenities?.hasBarbecue ? ['hasBarbecue'] : []),
         ],
         services: propertyToEdit.services || {
-          electricity: 'INCLUDED',
-          water: 'INCLUDED',
-          gas: 'INCLUDED',
+          electricity: UTILITY_INCLUSION.NOT_INCLUDED,
+          water: UTILITY_INCLUSION.NOT_INCLUDED,
+          gas: UTILITY_INCLUSION.NOT_INCLUDED,
+          gasAvailability: GAS_AVAILABILITY.UNAVAILABLE,
           trashCollection: false,
-          internetType: 'FIBER',
+          internetType: INTERNET_TYPE.NONE,
           cableTV: false,
           streamingServices: false,
           landlinePhone: false,
-          cleaningService: 'NOT_INCLUDED',
+          cleaningService: CLEANING_FREQUENCY.NOT_INCLUDED,
           linenService: false,
           laundryService: false,
           maintenanceService: false,
@@ -114,8 +177,6 @@ const PublishPropertyContent = () => {
           poolMaintenance: false,
           securityService: false,
           alarmMonitoring: false,
-          parkingIncluded: false,
-          garageAccess: false,
           airportTransfer: false,
           conciergeService: false,
           guestSupport24h: false,
@@ -128,7 +189,6 @@ const PublishPropertyContent = () => {
           babysittingService: false,
           fitnessTrainer: false,
           spaServices: false,
-          gasAvailability: undefined,
         },
       });
 
@@ -154,87 +214,134 @@ const PublishPropertyContent = () => {
       });
       return;
     }
-    try {
-      const propertyData: CreatePropertyRequest = {
-        title: form.formData.title,
-        description: form.formData.description,
-        rentPricePerMonth: Number(form.formData.price),
-        currency: form.formData.currency,
-        rooms: Number(form.formData.rooms),
-        bathrooms: Number(form.formData.bathrooms),
-        area: Number(form.formData.squareMeters),
-        location: form.selectedLocation,
-        propertyType: form.formData.propertyType,
-        propertyUse: form.formData.propertyUse,
-        isAvailable: form.formData.availability === 'immediate',
-        isAvailableForRentalFrom: new Date().toISOString(),
-        isAvailableForRentalTo: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
-        securityDeposit: Number(form.formData.securityDeposit),
-        minimumStayTime: Number(form.formData.minimumStayTime),
-        maximumStayTime: Number(form.formData.maximumStayTime),
-        maximumGuests: Number(form.formData.maximumGuests),
-        cleanFee: Number(form.formData.cleanFee),
-        amenities: {
-          garage: form.formData.amenities.includes('garage'),
-          garden: form.formData.amenities.includes('garden'),
-          terrace: form.formData.amenities.includes('terrace'),
-          kitchen: form.formData.amenities.includes('kitchen'),
-          furnished: form.formData.furnished,
-          hasTV: form.formData.amenities.includes('hasTv'),
-          hasWifi: form.formData.amenities.includes('wifi'),
-          hasAC: form.formData.amenities.includes('hasAC'),
-          hasFridge: form.formData.amenities.includes('hasFridge'),
-          hasWasher: form.formData.amenities.includes('hasWasher'),
-          hasMicrowave: form.formData.amenities.includes('hasMicrowave'),
-          hasElevator: form.formData.amenities.includes('hasElevator'),
-          hasBalcony: form.formData.amenities.includes('hasBalcony'),
-          hasPool: form.formData.amenities.includes('hasPool'),
-          gasAvailability: form.formData.services.gas === 'INCLUDED' ? GAS_AVAILABILITY.PIPED : GAS_AVAILABILITY.NONE
-        },
-        houseRules: {
-          petsAllowed: false,
-          smokingAllowed: false,
-          partiesAllowed: false,
-          checkInTime: "15:00",
-          checkOutTime: "11:00",
-          maxGuests: Number(form.formData.maximumGuests),
-          suitableForChildren: true,
-          extraPeopleAllowed: false,
-          extraPeopleFee: 0,
-          cancellationPolicy: "Flexible",
-          childrenAllowed: true,
-          modificationsAllowed: false
-        },
-        owner: {
-          whatsapp: form.formData.contactWhatsApp,
-          telegram: form.formData.contactTelegram,
-          phone: form.formData.contactPhone
-        },
-        images: form.uploadedImages.map(url => ({ url, thumb: url })),
-        services: form.formData.services,
-      };
+    
+    const propertyData: CreatePropertyRequest = {
+      title: form.formData.title,
+      description: form.formData.description,
+      rentPricePerMonth: Number(form.formData.price),
+      currency: form.formData.currency,
+      rooms: Number(form.formData.rooms),
+      bathrooms: Number(form.formData.bathrooms),
+      area: Number(form.formData.squareMeters),
+      location: form.selectedLocation,
+      propertyType: form.formData.propertyType,
+      propertyUse: form.formData.propertyUse,
+      isAvailable: form.formData.availability === 'immediate',
+      isAvailableForRentalFrom: new Date().toISOString(),
+      isAvailableForRentalTo: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
+      securityDeposit: Number(form.formData.securityDeposit),
+      minimumStayTime: Number(form.formData.minimumStayTime),
+      maximumStayTime: Number(form.formData.maximumStayTime),
+      maximumGuests: Number(form.formData.maximumGuests),
+      cleanFee: Number(form.formData.cleanFee),
+      amenities: {
+        garage: form.formData.amenities.includes('garage'),
+        terrace: form.formData.amenities.includes('terrace'),
+        kitchen: form.formData.amenities.includes('kitchen'),
+        kitchenEquipped: form.formData.amenities.includes('kitchenEquipped'),
+        furnishedProperty: form.formData.amenities.includes('furnishedProperty') || form.formData.furnished,
+        hasTV: form.formData.amenities.includes('hasTV'),
+        hasParking: form.formData.amenities.includes('hasParking'),
+        hasPool: form.formData.amenities.includes('hasPool'),
+        hasWifi: form.formData.amenities.includes('hasWifi'),
+        hasAC: form.formData.amenities.includes('hasAC'),
+        hasFridge: form.formData.amenities.includes('hasFridge'),
+        hasWasher: form.formData.amenities.includes('hasWasher'),
+        hasMicrowave: form.formData.amenities.includes('hasMicrowave'),
+        hasGym: form.formData.amenities.includes('hasGym'),
+        hasJacuzzi: form.formData.amenities.includes('hasJacuzzi'),
+        hasSauna: form.formData.amenities.includes('hasSauna'),
+        hasBarbecue: form.formData.amenities.includes('hasBarbecue'),
+      },
+      houseRules: {
+        petsAllowed: false,
+        smokingAllowed: false,
+        partiesAllowed: false,
+        checkInTime: "15:00",
+        checkOutTime: "11:00",
+        maxGuests: Number(form.formData.maximumGuests),
+        suitableForChildren: true,
+        extraPeopleAllowed: false,
+        extraPeopleFee: 0,
+        cancellationPolicy: "Flexible",
+        childrenAllowed: true,
+        modificationsAllowed: false
+      },
+      owner: {
+        whatsapp: form.formData.contactWhatsApp,
+        telegram: form.formData.contactTelegram,
+        phone: form.formData.contactPhone
+      },
+      images: form.uploadedImages.map(url => ({ url, thumb: url })),
+      services: form.formData.services,
+    };
 
-      if (isEditMode && editPropertyId) {
-        await updateProperty.mutateAsync({ propertyId: editPropertyId, propertyData });
-        toast({
-          title: "¡Propiedad actualizada!",
-          description: "Tu propiedad ha sido actualizada exitosamente.",
-        });
-        router.push('/profile?tab=properties');
-      } else {
-        await createProperty.mutateAsync(propertyData);
-        toast({
-          title: "¡Propiedad publicada!",
-          description: "Tu propiedad ha sido publicada exitosamente.",
-        });
-        router.push('/');
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Error al procesar la propiedad",
-        variant: "destructive"
-      });
+    if (isEditMode && editPropertyId) {
+      updateProperty.mutate(
+        { propertyId: editPropertyId, propertyData },
+        {
+          onSuccess: () => {
+            toast({
+              title: "¡Propiedad actualizada!",
+              description: "Tu propiedad ha sido actualizada exitosamente.",
+            });
+            router.push('/profile?tab=properties');
+          },
+          onError: (error: unknown) => {
+            let errorMessage = "Error al actualizar la propiedad";
+            
+            if (error && typeof error === 'object' && 'response' in error) {
+              const axiosError = error as { response?: { data?: { message?: string; error?: string } } };
+              errorMessage = axiosError.response?.data?.message || 
+                           axiosError.response?.data?.error || 
+                           errorMessage;
+            } else if (error instanceof Error) {
+              errorMessage = error.message;
+            }
+            
+            console.error('Error updating property:', error);
+            
+            toast({
+              title: "Error",
+              description: errorMessage,
+              variant: "destructive"
+            });
+          }
+        }
+      );
+    } else {
+      createProperty.mutate(
+        propertyData,
+        {
+          onSuccess: () => {
+            toast({
+              title: "¡Propiedad publicada!",
+              description: "Tu propiedad ha sido publicada exitosamente.",
+            });
+            router.push('/');
+          },
+          onError: (error: unknown) => {
+            let errorMessage = "Error al crear la propiedad";
+            
+            if (error && typeof error === 'object' && 'response' in error) {
+              const axiosError = error as { response?: { data?: { message?: string; error?: string } } };
+              errorMessage = axiosError.response?.data?.message || 
+                           axiosError.response?.data?.error || 
+                           errorMessage;
+            } else if (error instanceof Error) {
+              errorMessage = error.message;
+            }
+            
+            console.error('Error creating property:', error);
+            
+            toast({
+              title: "Error",
+              description: errorMessage,
+              variant: "destructive"
+            });
+          }
+        }
+      );
     }
   };
 
@@ -262,7 +369,7 @@ const PublishPropertyContent = () => {
   const [direction, setDirection] = React.useState(0); // 1 for next, -1 for back
 
   return (
-    <div className="min-h-[calc(100vh-65px)] bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50">
+    <div className="bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stepper UI */}
         <div className="mb-8">
@@ -351,7 +458,7 @@ const PublishPropertyContent = () => {
 const PublishProperty = () => {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Cargando...</p>

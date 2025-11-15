@@ -9,14 +9,13 @@ export function useFavorites() {
     const [favorites, setFavorites] = useState<Property[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const token = (session as unknown as { access_token?: string })?.access_token;
 
     const fetchFavorites = useCallback(async () => {
         if (!isAuthenticated) return;
         setLoading(true);
         setError(null);
         try {
-            const data = await favoritesService.getFavorites(token);
+            const data = await favoritesService.getFavorites();
             setFavorites(data);
         } catch (err: unknown) {
             if (err instanceof Error) {
@@ -27,7 +26,7 @@ export function useFavorites() {
         } finally {
             setLoading(false);
         }
-    }, [isAuthenticated, token]);
+    }, [isAuthenticated]);
 
     useEffect(() => {
         fetchFavorites().then(r => console.log('Favorites fetched', r));
@@ -38,7 +37,7 @@ export function useFavorites() {
         setLoading(true);
         setError(null);
         try {
-            await favoritesService.addFavorite(propertyId, token);
+            await favoritesService.addFavorite(propertyId);
             await fetchFavorites();
         } catch (err: unknown) {
             if (err instanceof Error) {
@@ -56,7 +55,7 @@ export function useFavorites() {
         setLoading(true);
         setError(null);
         try {
-            await favoritesService.removeFavorite(propertyId, token);
+            await favoritesService.removeFavorite(propertyId);
             await fetchFavorites();
         } catch (err: unknown) {
             if (err instanceof Error) {

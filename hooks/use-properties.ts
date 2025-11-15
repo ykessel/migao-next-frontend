@@ -5,7 +5,7 @@ import {
     type UseQueryOptions,
     type UseMutationOptions,
 } from "@tanstack/react-query"
-import { propertyService } from '@/services/api-client';
+import {propertyService} from '@/services/api-client';
 import type {
     Property,
     CreatePropertyRequest,
@@ -17,6 +17,7 @@ import type {
     ApiError,
 } from "@/types/filter";
 import {convertLegacyToFilters} from "@/utils/filter-builder"
+import {IMapPropertyReduced} from "@/components/map";
 
 // Query Keys
 export const propertyKeys = {
@@ -33,23 +34,79 @@ export function useSearchProperties(
     searchParams: SearchPropertyRequest = {},
     options?: UseQueryOptions<SearchResponse<Property>, ApiError>,
 ) {
+    // Convert bbox to array of {lat, lng} if present
+    let bboxKey: { lat: number; lng: number }[] | undefined = undefined;
+    if (searchParams.bbox && Array.isArray(searchParams.bbox) && searchParams.bbox.length === 4 && typeof searchParams.bbox[0] === 'number') {
+        // Convert [west, south, east, north] to corners
+        const [west, south, east, north] = searchParams.bbox as unknown as [number, number, number, number];
+        bboxKey = [
+            {lat: north, lng: west},
+            {lat: north, lng: east},
+            {lat: south, lng: east},
+            {lat: south, lng: west},
+        ];
+    } else if (searchParams.bbox && Array.isArray(searchParams.bbox)) {
+        bboxKey = searchParams.bbox as { lat: number; lng: number }[];
+    }
+    const queryKey = [
+        ...propertyKeys.lists(),
+        {...searchParams, ...(bboxKey ? {bbox: bboxKey} : {})},
+        bboxKey ? JSON.stringify(bboxKey) : undefined
+    ];
     return useQuery({
-        queryKey: propertyKeys.list(searchParams),
-        queryFn: () => propertyService.searchProperties(searchParams),
+        queryKey,
+        queryFn: () => propertyService.searchProperties({
+            ...searchParams,
+            ...(bboxKey ? {bbox: bboxKey} : {}),
+        }),
         ...options,
     })
 }
 
-// Hook para buscar propiedades con parámetros legacy (backward compatibility)
-export function useSearchPropertiesLegacy(
-    searchParams: LegacySearchPropertyRequest = {},
-    options?: UseQueryOptions<SearchResponse<Property>, ApiError>,
+export function useSearchMapProperties(
+    searchParams?: any,
+    options?: UseQueryOptions<IMapPropertyReduced[], ApiError>,
 ) {
-    const convertedParams = convertLegacyToFilters(searchParams)
+    // Convert bbox to geospatial filter if present
+    let updatedSearchParams = {...searchParams};
+
+    if (searchParams?.bbox && Array.isArray(searchParams.bbox) && searchParams.bbox.length >= 4) {
+
+        // Create geospatial filter
+        const geospatialFilter = {
+            type: "GEOSPATIAL" as const,
+            field: "location.coordinates",
+            queryType: "geoWithin",
+            geometry: {
+                type: "Polygon",
+                coordinates: [searchParams.bbox.concat([searchParams.bbox[0]])] // Wrap in array for GeoJSON polygon format, coordinates in [lng, lat] order
+            }
+        };
+
+        console.log('Geospatial Filter:', JSON.stringify(geospatialFilter, null, 2));
+
+        // Add the geospatial filter to existing filters
+        updatedSearchParams = {
+            ...searchParams,
+            filters: [
+                ...(searchParams.filters || []),
+                geospatialFilter
+            ]
+        };
+
+        // Remove bbox from the params since it's now a filter
+        delete updatedSearchParams.bbox;
+    }
+
+    const queryKey = [
+        ...propertyKeys.lists(),
+        updatedSearchParams,
+        updatedSearchParams.filters ? JSON.stringify(updatedSearchParams.filters) : undefined
+    ];
 
     return useQuery({
-        queryKey: propertyKeys.list(convertedParams),
-        queryFn: () => propertyService.searchProperties(convertedParams),
+        queryKey,
+        queryFn: () => propertyService.searchMapProperties(updatedSearchParams),
         ...options,
     })
 }
@@ -60,19 +117,6 @@ export function useProperty(id: string, options?: Omit<UseQueryOptions<Property,
         queryKey: propertyKeys.detail(id),
         queryFn: () => propertyService.getPropertyById(id),
         enabled: !!id,
-        ...options,
-    })
-}
-
-// Hook para obtener propiedades por propietario
-export function usePropertiesByOwner(
-    ownerId: string,
-    options?: Omit<UseQueryOptions<Property[], ApiError>, "queryKey" | "queryFn">,
-) {
-    return useQuery({
-        queryKey: propertyKeys.owner(ownerId),
-        queryFn: () => propertyService.getPropertiesByOwner(ownerId),
-        enabled: !!ownerId,
         ...options,
     })
 }
